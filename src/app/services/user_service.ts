@@ -12,8 +12,8 @@ import { Observable } from 'rxjs';
 export class UserService {
   currentUser: User | null = null;
 
-  private baseUrl = 'https://candv-back.onrender.com';
-  //private baseUrl = 'http://127.0.0.1:8000';
+  //private baseUrl = 'https://candv-back.onrender.com';
+  private baseUrl = 'http://127.0.0.1:8000';
   idleTime: number = 0;
   maxIdleTime: number = 10 * 60 * 1000; // 10 minutos de inactividad
   idleInterval: any;
