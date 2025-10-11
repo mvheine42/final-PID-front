@@ -1,90 +1,61 @@
-<p-dialog 
-  header="Create Order" 
-  [(visible)]="isVisible" 
-  [modal]="true" 
+<p-dialog
+  header="Crear Orden"
+  [(visible)]="isVisible"
+  [modal]="true"
   [closable]="true"
-  [draggable]="false" 
-  [resizable]="false" 
-  [baseZIndex]="9999">
-
+  [draggable]="false"
+  [resizable]="false"
+  [autoZIndex]="true"
+  [baseZIndex]="1000"
+  [blockScroll]="true"
+  styleClass="create-order-dialog">
   <div class="p-fluid">
-    <!-- CANTIDAD DE PERSONAS -->
     <div class="p-field">
-      <label for="amountOfPeople">Amount of People</label>
-      <input 
-        id="amountOfPeople" 
-        type="number" 
-        pInputText 
-        [(ngModel)]="amountOfPeople" 
-        min="1" 
-        max="10">
+      <label for="amountOfPeople">Cantidad de personas</label>
+      <input id="amountOfPeople" type="number" pInputText [(ngModel)]="amountOfPeople" min="1" max="4">
     </div>
-
-    <!-- EMAIL -->
     <div class="p-field">
-      <label for="userEmail">Your email:</label>
-      <input 
-        id="userEmail" 
-        type="email"
-        pInputText 
-        [(ngModel)]="userEmail"
-        (ngModelChange)="validateEmail()">
-      <small *ngIf="!emailValid && userEmail" class="p-error">
-        Please enter a valid email
-      </small>
+      <label for="userEmail">Email</label>
+      <input id="userEmail" type="email" pInputText [(ngModel)]="userEmail" (ngModelChange)="validateEmail()">
+      <small *ngIf="!emailValid && userEmail" class="p-error">Ingresá un email válido</small>
     </div>
-
-    <!-- NOMBRE DE LA RESERVA -->
     <div class="p-field">
-      <label for="customerName">Name for reservation</label>
-      <input 
-        id="customerName" 
-        type="text"
-        pInputText 
-        [(ngModel)]="customerName"
-        placeholder="e.g. Vicky Heine">
-      <small *ngIf="customerName && customerName.trim().length < 2" class="p-error">
-        Name too short
-      </small>
+      <label for="customerName">Nombre para la reserva</label>
+      <input id="customerName" type="text" pInputText [(ngModel)]="customerName" placeholder="Ej: Vicky Heine">
+      <small *ngIf="customerName && customerName.trim().length < 2" class="p-error">Nombre demasiado corto</small>
     </div>
-
-    <!-- FECHA DE RESERVA -->
     <div class="p-field">
-      <label for="reservationDate">Reservation date</label>
-      <input 
-        id="reservationDate" 
-        type="date"
-        pInputText
+      <label for="reservationDate">Fecha</label>
+      <p-calendar
+        inputId="reservationDate"
         [(ngModel)]="reservationDate"
-        [min]="todayLocal">
-      <small *ngIf="!reservationDate" class="p-error">
-        Please select a date
-      </small>
+        [minDate]="today"
+        [maxDate]="maxDate"
+        dateFormat="dd/mm/yy"
+        [showIcon]="true"
+        [appendTo]="'body'">
+      </p-calendar>
+      <small *ngIf="!reservationDate" class="p-error">Seleccioná una fecha</small>
     </div>
-
-    <!-- HORA DE RESERVA -->
     <div class="p-field">
-      <label for="reservationTime">Reservation time</label>
-      <input 
-        id="reservationTime" 
-        type="time"
-        pInputText
+      <label for="reservationTime">Hora</label>
+      <p-dropdown
+        inputId="reservationTime"
+        [options]="allowedTimeOptions"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Elegí un horario"
         [(ngModel)]="reservationTime"
-        [min]="openingHoursMin"
-        [max]="openingHoursMax"
-        step="900">
-      <small *ngIf="reservationTime && !isWithinOpeningHours(reservationTime)" class="p-error">
-        Reservations are only available between 07:00 and 23:00
-      </small>
+        [appendTo]="'body'">
+      </p-dropdown>
+      <small *ngIf="!reservationTime" class="p-error">Seleccioná un horario válido</small>
     </div>
-
-    <!-- BOTÓN CREAR -->
     <div class="p-field">
-      <button 
-        pButton 
-        label="Create" 
-        (click)="createOrder()" 
-        [disabled]="!emailValid || !customerName || !reservationDate || !reservationTime || amountOfPeople < 1 || amountOfPeople > 10">
+      <button
+        pButton
+        label="Crear orden"
+        (click)="createOrder()"
+        [disabled]="isLoading || !emailValid || !customerName || !reservationDate || !reservationTime || amountOfPeople < 1 || amountOfPeople > 10">
       </button>
     </div>
   </div>
@@ -95,19 +66,18 @@
   <p-progressSpinner styleClass="custom-spinner" [animationDuration]="'0.5'"></p-progressSpinner>
 </div>
 
-<!-- DIALOG DE NOTIFICACIÓN -->
+<!-- NOTICE EN OVERLAY SEPARADO -->
 <div *ngIf="isNoticeVisible" class="overlay">
-  <p-dialog 
-    header="Notification" 
-    [(visible)]="isNoticeVisible" 
-    [modal]="true" 
-    [closable]="true" 
-    [baseZIndex]="20000">
-
+  <p-dialog
+    header="Notificación"
+    [(visible)]="isNoticeVisible"
+    [modal]="true"
+    [closable]="false"
+    [baseZIndex]="20000"
+    styleClass="notice-dialog">
     <app-notice
       [subtitle]="noticeMessage"
-      (onClose)="closeDialog()">
+      (onClose)="closeNotice()">
     </app-notice>
-
   </p-dialog>
 </div>

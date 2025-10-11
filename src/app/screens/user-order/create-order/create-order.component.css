@@ -1,76 +1,144 @@
-/* ===================== */
-/* 🔶 TAMAÑO DEL DIALOGO */
-/* ===================== */
 
-/* Hace que el p-dialog sea más ancho y responsive */
-::ng-deep .p-dialog {
-  width: 650px !important;       /* ancho base */
-  max-width: 95vw !important;    /* ancho máximo relativo a la pantalla */
-  border-radius: 15px;           /* bordes suaves */
+:host ::ng-deep .create-order-dialog.p-dialog {
+  width: 50% !important;         
+  max-width: 100% !important;     
+  border-radius: 18px;
+  overflow: hidden;
 }
 
-/* Aumentar espacio interior */
-::ng-deep .p-dialog-content {
-  padding: 1.5rem 2rem !important;
-}
-
-/* Ajustar la cabecera */
-::ng-deep .p-dialog-header {
+:host ::ng-deep .create-order-dialog .p-dialog-header {
   background-color: #c39158 !important;
-  color: white !important;
+  color: #ffffff !important;
   text-align: center !important;
-  font-size: 1.3em !important;
-  font-weight: bold !important;
-  border-top-left-radius: 15px;
-  border-top-right-radius: 15px;
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  padding: 20px !important;
 }
 
-/* ===================== */
-/* 🔶 CAMPOS Y FORMATO */
-/* ===================== */
-
-.p-field {
-  margin-bottom: 20px;
+:host ::ng-deep .create-order-dialog .p-dialog-content {
+  padding: 24px 32px !important;
+  height: auto !important;
+  max-height: 80vh !important;    
+  overflow-y: auto !important;
+  box-sizing: border-box !important;
 }
 
-label {
+:host ::ng-deep .create-order-dialog .p-dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+}
+
+
+:host ::ng-deep .create-order-dialog .p-field {
+  margin-bottom: 22px;
+}
+
+:host ::ng-deep .create-order-dialog label {
   display: block;
-  font-weight: bold;
-  margin-bottom: 5px;
-  color: #333;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: #333333;
+  font-size: 14px;
 }
 
-input {
+:host ::ng-deep .create-order-dialog input.p-inputtext,
+:host ::ng-deep .create-order-dialog .p-inputtext {
   width: 100%;
-  padding: 8px;
+  height: 44px;
+  padding: 10px 12px;
   border: 1px solid #c39158;
   border-radius: 10px;
-  font-size: 1em;
+  font-size: 16px;
   box-sizing: border-box;
 }
 
 /* ===================== */
-/* 🔶 BOTONES */
+/* CALENDARIO */
 /* ===================== */
 
-button {
+:host ::ng-deep .create-order-dialog .p-calendar {
   width: 100%;
-  background-color: #c39158;
-  color: white;
-  border: none;
-  padding: 10px;
-  font-size: 1em;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
 }
 
-button:hover {
-  background-color: #a67947;
+:host ::ng-deep .create-order-dialog .p-calendar .p-inputtext {
+  height: 44px;
+  padding: 10px 12px;
+  font-size: 16px;
+  border: 1px solid #c39158 !important;
+  border-right: none !important;
+  border-radius: 10px 0 0 10px !important;
+}
+
+:host ::ng-deep .create-order-dialog .p-calendar .p-datepicker-trigger {
+  width: 12%;
+  min-width: 44px;
+  height: 44px;
+  border: 1px solid #c39158 !important;
+  border-left: none !important;
+  border-radius: 0 10px 10px 0 !important;
+  background-color: #c39158 !important;
+  color: #ffffff !important;
 }
 
 /* ===================== */
-/* 🔶 SPINNER Y OVERLAY */
+/* DROPDOWN */
+/* ===================== */
+
+:host ::ng-deep .create-order-dialog .p-dropdown {
+  width: 100% !important;
+  height: 44px;
+  border: 1px solid #c39158 !important;
+  border-radius: 10px !important;
+  box-sizing: border-box;
+}
+
+:host ::ng-deep .create-order-dialog .p-dropdown .p-dropdown-label {
+  font-size: 16px;
+  line-height: 42px;
+  padding: 0 12px;
+}
+
+:host ::ng-deep .create-order-dialog .p-dropdown .p-dropdown-trigger {
+  width: 12%;
+  min-width: 44px;
+}
+
+/* ===================== */
+/* VALIDACIONES */
+/* ===================== */
+
+:host ::ng-deep .create-order-dialog .p-error {
+  color: #d32f2f;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+}
+
+/* ===================== */
+/* BOTONES */
+/* ===================== */
+
+:host ::ng-deep .create-order-dialog .p-button {
+  min-width: 120px;
+  height: 48px;
+  background-color: #c39158 !important;
+  color: #ffffff !important;
+  border: none !important;
+  padding: 12px 16px !important;
+  font-size: 16px !important;
+  border-radius: 22px !important;
+  cursor: pointer;
+  transition: background-color 300ms ease;
+}
+
+:host ::ng-deep .create-order-dialog .p-button:hover {
+  background-color: #a67947 !important;
+}
+
+/* ===================== */
+/* OVERLAY Y SPINNER */
 /* ===================== */
 
 .overlay {
@@ -89,28 +157,20 @@ button:hover {
 .custom-spinner {
   width: 100px;
   height: 100px;
-  z-index: 10001;
 }
 
 /* ===================== */
-/* 🔶 NOTIFICACIÓN (p-dialog interno) */
+/* RESPONSIVE */
 /* ===================== */
 
-::ng-deep .p-dialog[header="Notification"] {
-  width: 400px !important;
-  max-width: 90vw !important;
-  text-align: center;
-}
-
-/* ===================== */
-/* 🔶 RESPONSIVE (móviles) */
-/* ===================== */
-@media (max-width: 600px) {
-  ::ng-deep .p-dialog {
-    width: 95vw !important;
+@media (max-width: 1024px) {
+  :host ::ng-deep .create-order-dialog.p-dialog {
+    width: 85% !important;
   }
+}
 
-  ::ng-deep .p-dialog-content {
-    padding: 1rem !important;
+@media (max-width: 600px) {
+  :host ::ng-deep .create-order-dialog.p-dialog {
+    width: 95% !important;
   }
 }
