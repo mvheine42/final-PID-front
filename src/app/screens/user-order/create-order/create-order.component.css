@@ -1,79 +1,116 @@
-p-dialog {
-    width: 400px;
-    max-width: 100%;
+/* ===================== */
+/* 🔶 TAMAÑO DEL DIALOGO */
+/* ===================== */
+
+/* Hace que el p-dialog sea más ancho y responsive */
+::ng-deep .p-dialog {
+  width: 650px !important;       /* ancho base */
+  max-width: 95vw !important;    /* ancho máximo relativo a la pantalla */
+  border-radius: 15px;           /* bordes suaves */
+}
+
+/* Aumentar espacio interior */
+::ng-deep .p-dialog-content {
+  padding: 1.5rem 2rem !important;
+}
+
+/* Ajustar la cabecera */
+::ng-deep .p-dialog-header {
+  background-color: #c39158 !important;
+  color: white !important;
+  text-align: center !important;
+  font-size: 1.3em !important;
+  font-weight: bold !important;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+}
+
+/* ===================== */
+/* 🔶 CAMPOS Y FORMATO */
+/* ===================== */
+
+.p-field {
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #c39158;
+  border-radius: 10px;
+  font-size: 1em;
+  box-sizing: border-box;
+}
+
+/* ===================== */
+/* 🔶 BOTONES */
+/* ===================== */
+
+button {
+  width: 100%;
+  background-color: #c39158;
+  color: white;
+  border: none;
+  padding: 10px;
+  font-size: 1em;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #a67947;
+}
+
+/* ===================== */
+/* 🔶 SPINNER Y OVERLAY */
+/* ===================== */
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.custom-spinner {
+  width: 100px;
+  height: 100px;
+  z-index: 10001;
+}
+
+/* ===================== */
+/* 🔶 NOTIFICACIÓN (p-dialog interno) */
+/* ===================== */
+
+::ng-deep .p-dialog[header="Notification"] {
+  width: 400px !important;
+  max-width: 90vw !important;
+  text-align: center;
+}
+
+/* ===================== */
+/* 🔶 RESPONSIVE (móviles) */
+/* ===================== */
+@media (max-width: 600px) {
+  ::ng-deep .p-dialog {
+    width: 95vw !important;
   }
-  
-  .p-field {
-    margin-bottom: 20px;
+
+  ::ng-deep .p-dialog-content {
+    padding: 1rem !important;
   }
-  
-  label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 5px;
-    color: #333;
-  }
-  
-  input {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #c39158; /* Color del borde que coincide con tu esquema de color */
-    border-radius: 10px;
-    font-size: 1em;
-    box-sizing: border-box;
-  }
-  
-  button {
-    width: 100%;
-    background-color: #c39158; /* Color de fondo que coincide con el botón anterior */
-    color: white;
-    border: none;
-    padding: 10px;
-    font-size: 1em;
-    border-radius: 20px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  button:hover {
-    background-color: #a67947; /* Color más oscuro en hover */
-  }
-  
-  .p-dialog-header {
-    background-color: #c39158; /* Mantener coherencia en el estilo de la cabecera del diálogo */
-    color: white;
-    text-align: center;
-  }
-  
-  .p-dialog-header .p-dialog-title {
-    font-size: 1.2em;
-    font-weight: bold;
-  }
-  
-  .p-dialog .p-fluid {
-    padding: 20px;
-  }
-  
-  .p-dialog .p-dialog-content {
-    padding: 0; /* Eliminar padding adicional */
-  }
-  
-  .overlay {
-    position: fixed; /* Fija la posición en la ventana */
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6); /* Capa oscura con un poco de transparencia */
-    display: flex; /* Centrar el contenido */
-    align-items: center; /* Centrar verticalmente */
-    justify-content: center; /* Centrar horizontalmente */
-    z-index: 10000; /* Asegúrate de que esté por encima de otros elementos */
-  }
-  
-  .custom-spinner {
-    width: 100px; /* Ajusta el tamaño del spinner */
-    height: 100px; /* Ajusta el tamaño del spinner */
-    z-index: 10001; /* Asegúrate de que esté por encima de la capa oscura */
-  }
-  
+}
