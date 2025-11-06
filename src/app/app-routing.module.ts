@@ -15,8 +15,10 @@ import { CategoriesComponent } from './screens/product/categories/categories.com
 import { TablesComponent } from './screens/my-tables/tables/tables.component';
 import { ChartsComponent } from './screens/charts/charts.component';
 import { OrdersComponent } from './screens/my-orders/orders/orders.component';
-import { MenuComponent } from './screens/user-order/menu/menu.component';
+import { MenuComponent } from './screens/user-order-or-reservation/user-order/menu/menu.component';
 import { GoalsComponent } from './screens/goal-screen/goals/goals.component';
+import { UserReserveOrderComponent } from './screens/user-order-or-reservation/user-reserve-order/user-reserve-order.component';
+import { UserReserveComponent } from './screens/user-order-or-reservation/user-reserve/user-reserve.component';
 
 const routes: Routes = [
   { path: '', component: LogInComponent},
@@ -35,6 +37,8 @@ const routes: Routes = [
   { path: 'charts', component: ChartsComponent, canActivate:[AuthGuard]},
   { path: 'goals', component: GoalsComponent, canActivate:[AuthGuard]},
   { path: 'menu-order', component: MenuComponent},
+  { path: 'user-reserve-order', component: UserReserveOrderComponent},
+  { path: 'user-reserve', component: UserReserveComponent},
   { path: '**', redirectTo: '', pathMatch: 'full' }
 ];
 

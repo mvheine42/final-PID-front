@@ -47,10 +47,10 @@ import { TableFinishedComponent } from './screens/my-tables/table-finished/table
 import { FileUploadModule } from 'primeng/fileupload';
 import { ChartsComponent } from './screens/charts/charts.component';
 import { ChartModule } from 'primeng/chart';
-import { MenuComponent } from './screens/user-order/menu/menu.component';
+import { MenuComponent } from './screens/user-order-or-reservation/user-order/menu/menu.component';
 import { AutoCompleteModule } from 'primeng/autocomplete';
-import { MyCartComponent } from './screens/user-order/my-cart/my-cart.component';
-import { CreateOrderComponent } from './screens/user-order/create-order/create-order.component';
+import { MyCartComponent } from './screens/user-order-or-reservation/user-order/my-cart/my-cart.component';
+import { CreateOrderComponent } from './screens/user-order-or-reservation/user-order/create-order/create-order.component';
 import { AsignInactiveOrderComponent } from './screens/my-tables/asign-inactive-order/asign-inactive-order.component';
 import { InputIconModule } from 'primeng/inputicon'; 
 import { GoalsComponent } from './screens/goal-screen/goals/goals.component';
@@ -67,6 +67,8 @@ import { UpdateStockComponent } from './screens/product/update-stock/update-stoc
 import { InfoPointsComponent } from './screens/info-points/info-points.component';
 import { AlertStockComponent } from './screens/product/alert-stock/alert-stock.component';
 import { SplitterModule } from 'primeng/splitter';
+import { UserReserveOrderComponent } from './screens/user-order-or-reservation/user-reserve-order/user-reserve-order.component';
+import { UserReserveComponent } from './screens/user-order-or-reservation/user-reserve/user-reserve.component';
 
 @NgModule({
   declarations: [
@@ -101,7 +103,9 @@ import { SplitterModule } from 'primeng/splitter';
     NoticeComponent,
     UserForgotPasswordComponent,
     CategoriesComponent,
-    ResetPasswordComponent
+    ResetPasswordComponent,
+    UserReserveOrderComponent,
+    UserReserveComponent,
   ],
   imports: [
     BrowserModule,
