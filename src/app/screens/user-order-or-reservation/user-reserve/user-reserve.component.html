@@ -58,6 +58,9 @@
             max="4"
             required
           />
+          <small *ngIf="amountOfPeople > 4" class="p-error">
+            Máximo 4 personas por reserva.
+          </small>
         </div>
 
         <!-- FECHA -->
@@ -72,6 +75,7 @@
             dateFormat="dd/mm/yy"
             [showIcon]="true"
             inputId="reservationDate"
+            (onSelect)="onDateChange($event)"  
             required>
           </p-calendar>
         </div>
@@ -83,7 +87,8 @@
             id="reservationTime"
             [(ngModel)]="reservationTime"
             name="reservationTime"
-            [options]="allowedTimes"
+            [options]="timesForUI"
+            [optionDisabled]="'disabled'"
             placeholder="Seleccioná horario"
             required>
           </p-dropdown>
