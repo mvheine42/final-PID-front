@@ -47,4 +47,16 @@ export class ReservationService {
       return [];
     }
   }
+getReservationsByDay(dateISO: string): Promise<Reservation[]> {
+  return this.http
+    .get<Reservation[]>(`${this.baseUrl}/reservations/day/${dateISO}`)
+    .toPromise()
+    .then(res => res ?? [])
+    .catch(err => {
+      console.error('Error obteniendo reservas del día:', err);
+      return [];
+    });
 }
+
+}
+

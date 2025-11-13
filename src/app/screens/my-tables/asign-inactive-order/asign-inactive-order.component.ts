@@ -113,7 +113,8 @@ export class AsignInactiveOrderComponent implements OnInit {
         next: async (response) => {
          console.log(response);
           await this.updateProductsStock(); 
-          await this.createOrder(this.selectedOrder.id ?? 0, this.selectedTable.id ?? 0);
+          await this.createOrder(this.selectedOrder.id ?? 0, Number(this.selectedTable.id ?? 0)
+);
         },
         error: (error) => {
           console.error('Error al eliminar productos deshabilitados:', error);
@@ -121,7 +122,8 @@ export class AsignInactiveOrderComponent implements OnInit {
       });
     } else {
       await this.updateProductsStock();
-      this.createOrder(this.selectedOrder.id ?? 0, this.selectedTable.id ?? 0);
+      this.createOrder(this.selectedOrder.id ?? 0, Number(this.selectedTable.id ?? 0)
+);
     }
   }
 

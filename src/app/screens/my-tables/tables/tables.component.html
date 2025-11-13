@@ -8,6 +8,10 @@
       <i class="pi pi-inbox"></i>
       <span class="inactive-count">{{ inactiveOrdersCount }}</span>
     </div>
+    <div class="notification-bell" (click)="onReservationNotificationClick()">
+      <i class="pi pi-calendar"></i>
+      <span class="inactive-count">{{ todayReservationsCount }}</span>
+    </div>
   </div>
   
   <div class="section table-section">
@@ -77,4 +81,17 @@
     [freeTables]="freeTables"
     (close)="closeModalInactive()">
   </app-asign-inactive-order>
+</p-dialog>
+
+<p-dialog class="custom-modal"
+          [(visible)]="displayReservationsModal"
+          modal="true"
+          header="Reservations Today"
+          [closable]="true"
+          [responsive]="true">
+      <app-assign-reservation-table
+      [dateISO]="todayISO"
+      (close)="displayReservationsModal=false"
+      (assigned)="onReservationAssigned()">
+    </app-assign-reservation-table>
 </p-dialog>

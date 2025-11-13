@@ -120,7 +120,7 @@ export class TableFreeComponent implements OnInit {
     const total = this.calculateTotal();
     this.order = {
       status: 'IN PROGRESS',
-      tableNumber: this.table?.id ?? 0,
+      tableNumber: Number(this.table?.id ?? 0),
       date: this.currentDate,
       time: this.currentTime,
       total: total.toString(),
@@ -130,7 +130,7 @@ export class TableFreeComponent implements OnInit {
     };
   
     try {
-      const response = await this.orderService.onRegister(this.order);
+      const response = await this.orderService.onRegister(this.order!);
   
       if (response && response.order && response.order_id) {
       
@@ -165,7 +165,7 @@ export class TableFreeComponent implements OnInit {
 
   updateTable() {
     this.table.status = 'BUSY';
-    this.table.order_id = this.order?.id;
+    this.table.order_id = this.order?.id ?? 0;
   }
 
 

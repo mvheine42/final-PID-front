@@ -37,4 +37,14 @@ export class TableService {
     return this.http.put<Table>(`${this.baseUrl}/clean-table/${table.id}`, {status: "FREE", order_id: 0});
   }
 
+getAvailableTablesForReservation(reservationId: number | string): Observable<Table[]> {
+  return this.http.get<Table[]>(`${this.baseUrl}/tables-available-for-reservation/${reservationId}`);
+}
+
+
+assignReservationToTable(tableId: number | string, reservationId: number | string): Observable<any> {
+  return this.http.post(`${this.baseUrl}/assign-reservation-to-table/${tableId}/${reservationId}`, {});
+}
+
+
 }

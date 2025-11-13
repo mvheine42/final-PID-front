@@ -69,6 +69,7 @@ import { AlertStockComponent } from './screens/product/alert-stock/alert-stock.c
 import { SplitterModule } from 'primeng/splitter';
 import { UserReserveOrderComponent } from './screens/user-order-or-reservation/user-reserve-order/user-reserve-order.component';
 import { UserReserveComponent } from './screens/user-order-or-reservation/user-reserve/user-reserve.component';
+import { AssignReservationTableComponent } from './screens/my-tables/assign-reservation-table/assign-reservation-table.component';
 
 @NgModule({
   declarations: [
@@ -106,6 +107,7 @@ import { UserReserveComponent } from './screens/user-order-or-reservation/user-r
     ResetPasswordComponent,
     UserReserveOrderComponent,
     UserReserveComponent,
+    AssignReservationTableComponent,
   ],
   imports: [
     BrowserModule,

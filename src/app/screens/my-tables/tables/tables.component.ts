@@ -20,10 +20,14 @@ export class TablesComponent implements OnInit {
   inactiveOrders: Order[] = [];
   freeTables: Table[] = [];
   displayModalInactive: boolean =  false;
+  displayReservationsModal = false;
+  todayReservationsCount = 0;
+  todayISO = new Date().toISOString().split('T')[0];
 
   constructor(private tableService: TableService, private orderService: OrderService) {}
 
   ngOnInit(): void {
+    this.todayISO = new Date().toISOString().split('T')[0];
     this.loadTables();
     this.loadOrders();
     this.setScrollHeight();
@@ -88,13 +92,13 @@ export class TablesComponent implements OnInit {
     });
   }
 
-  sortTables() {
-    this.tables.sort((a, b) => {
-      const idA = a.id ?? Number.MAX_SAFE_INTEGER; 
-      const idB = b.id ?? Number.MAX_SAFE_INTEGER;
-      return idA - idB; 
-    });
-  }
+sortTables() {
+  this.tables.sort((a, b) => {
+    const idA = Number(a.id ?? Number.MAX_SAFE_INTEGER);
+    const idB = Number(b.id ?? Number.MAX_SAFE_INTEGER);
+    return idA - idB;
+  });
+}
 
   loadOrders(): void {
     this.orderService.getInactiveOrders().subscribe({
@@ -116,5 +120,11 @@ export class TablesComponent implements OnInit {
     this.inactiveOrdersCount = this.inactiveOrders.length;
   }
   
-  
+onReservationNotificationClick() {
+  this.displayReservationsModal = true;
+}
+onReservationAssigned(): void {
+  this.loadTables(); // refrescás las mesas cuando asignaste una reserva
+}
+
 }
