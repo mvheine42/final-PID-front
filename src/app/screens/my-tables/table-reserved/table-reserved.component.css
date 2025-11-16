@@ -1,0 +1,82 @@
+.container-table-reserved {
+  background-color: #fff;
+  border-radius: 30px;
+  width: 450px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  margin: auto;
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background-color: #c8731e; /* El color que definimos antes */
+  color: white;
+}
+
+.table-number {
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.status {
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.body {
+  padding: 25px;
+  text-align: center;
+}
+
+.title {
+  font-size: 1.1rem;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.reservation-id {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #c8731e;
+  margin-bottom: 25px;
+}
+
+.action-buttons {
+  text-align: center;
+}
+
+.close-button {
+  background-color: #7f522e;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.close-button:hover {
+  background-color: #613d20;
+}
+
+::ng-deep .custom-modal .p-dialog {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+::ng-deep .custom-modal .p-dialog .p-dialog-header {
+  display: none !important;
+}
+
+::ng-deep .custom-modal .p-dialog .p-dialog-header-icon.p-dialog-header-close {
+  display: none !important;
+}
+
+::ng-deep .custom-modal .p-dialog .p-dialog-content {
+  background-color: transparent !important;
+  padding: 0 !important;
+}

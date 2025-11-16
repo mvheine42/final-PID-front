@@ -75,6 +75,13 @@
       (close)="displayModal = false">
     </app-table-finished>
   </ng-container>
+
+  <ng-container *ngIf="selectedComponent === 'RESERVED'">
+    <app-table-reserved 
+      [table]="selectedTable" 
+      (close)="displayModal = false">
+    </app-table-reserved>
+  </ng-container>
 </p-dialog>
 
 <p-dialog class="custom-modal" [(visible)]="displayModalInactive" modal="true" header="Asign Table" [closable]="true" [responsive]="true">
@@ -96,4 +103,17 @@
       (close)="displayReservationsModal=false"
       (assigned)="onReservationAssigned()">
     </app-assign-reservation-table>
+</p-dialog>
+
+<p-dialog [(visible)]="displayUpcomingAlert"
+          class="custom-modal"
+          [modal]="true"
+          [closable]="false"
+          header="Alerta de Reservas">
+
+  <app-notice
+    [subtitle]="upcomingAlertMessage"
+    (onClose)="closeUpcomingAlert()">
+  </app-notice>
+
 </p-dialog>

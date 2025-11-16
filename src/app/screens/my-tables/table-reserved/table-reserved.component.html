@@ -1,1 +1,19 @@
-<p>table-reserved works!</p>
+<div class="container-table-reserved">
+  <div class="header">
+    <h2 class="table-number">Table: {{ table.id }}</h2>
+    <span class="status">{{ table.status }}</span>
+  </div>
+
+  <div class="body">
+    <div class="title">
+      This table is reserved for Reservation ID:
+    </div>
+    <div class="reservation-id">
+      #{{ table.current_reservation_id }}
+    </div>
+
+    <div class="action-buttons">
+      <button pButton label="Close" class="close-button" (click)="closeDialog()"></button>
+    </div>
+  </div>
+</div>
