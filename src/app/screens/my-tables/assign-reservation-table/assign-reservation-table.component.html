@@ -30,12 +30,14 @@
         </ng-template>
 
         <ng-template pTemplate="body" let-r>
-          <tr (click)="selectReservation(r)" [class.selected]="r === selectedReservation">
+            <tr (click)="selectReservation(r)" 
+                [class.selected]="r === selectedReservation"
+                [ngClass]="{'assigned-row': r.table_id && r.table_id != ''}">
             <td>{{ r.reservationTime }}</td>
-            <td>{{ r.customerName }}</td>
-            <td class="people-column">{{ r.amountOfPeople }} <i class="pi pi-users"></i></td>
-            <td>{{ r.table_id || '-' }}</td>
-          </tr>
+                <td>{{ r.customerName }}</td>
+                <td class="people-column">{{ r.amountOfPeople }} <i class="pi pi-users"></i></td>
+                <td>{{ r.table_id || '-' }}</td>
+            </tr>
         </ng-template>
       </p-table>
     </div>
@@ -67,7 +69,7 @@
       </p-dropdown>
 
       <div class="button-container">
-        <button pButton label="Close" (click)="close.emit()" class="p-button-secondary"></button>
+        <button pButton label="Close" (click)="onCloseClick()" class="p-button-secondary"></button>
         <button pButton label="Asign table" (click)="showConfirmPopUp()" class="p-button-success"
                 [disabled]="!selectedReservation || !selectedTable"></button>
       </div>
@@ -93,3 +95,27 @@
   <p-progressSpinner styleClass="custom-spinner" [animationDuration]="'0.5'"></p-progressSpinner>
 </div>
 
+<p-dialog [(visible)]="displayErrorModal" 
+          class="custom-modal" 
+          [modal]="true" 
+          [closable]="false"
+          header="Error">
+  <app-notice
+    [subtitle]="errorMessage"
+    (onClose)="closeErrorModal()">
+  </app-notice>
+</p-dialog>
+
+
+<p-dialog [(visible)]="displaySuccessModal"
+          class="custom-modal"
+          [modal]="true"
+          [closable]="false"
+          header="Éxito">
+
+  <app-notice
+    [subtitle]="successMessage"
+    (onClose)="closeSuccessModal()">
+  </app-notice>
+
+</p-dialog>

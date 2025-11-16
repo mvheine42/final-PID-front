@@ -29,9 +29,8 @@
           <tr (click)="onTableClick(table)">
             <td>{{ table.id }}</td>
             <td>{{ table.capacity}} </td>
-            <td [ngClass]="{'status-free': table.status === 'FREE', 'status-busy': table.status === 'BUSY', 'status-finished': table.status === 'FINISHED'}">
-              {{ table.status }}
-            </td>
+            <td [ngClass]="{'status-free': table.status === 'FREE', 'status-busy': table.status === 'BUSY', 'status-finished': table.status === 'FINISHED', 'status-reserved': table.status === 'RESERVED'}"> {{ table.status }}
+              </td>
           </tr>
         </ng-template>
 
@@ -44,10 +43,13 @@
     </div>
 
     <div class="table-icons">
-      <div *ngFor="let table of tables" class="table-icon" [ngClass]="{'status-free': table.status === 'FREE', 'status-busy': table.status === 'BUSY', 'status-finished': table.status === 'FINISHED'}" (click)="onTableClick(table)">
-        <i class="fas fa-utensils"></i>
-        <span>{{ table.id }}</span>
-      </div>
+      <div *ngFor="let table of tables" class="table-icon" [ngClass]="{'status-free': table.status === 'FREE', 
+            'status-busy': table.status === 'BUSY', 
+            'status-finished': table.status === 'FINISHED', 
+            'status-reserved': table.status === 'RESERVED'}" (click)="onTableClick(table)">
+            <i class="fas fa-utensils"></i>
+            <span>{{ table.id }}</span>
+        </div>
     </div>
   </div>
 </div>

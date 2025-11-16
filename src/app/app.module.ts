@@ -70,6 +70,7 @@ import { SplitterModule } from 'primeng/splitter';
 import { UserReserveOrderComponent } from './screens/user-order-or-reservation/user-reserve-order/user-reserve-order.component';
 import { UserReserveComponent } from './screens/user-order-or-reservation/user-reserve/user-reserve.component';
 import { AssignReservationTableComponent } from './screens/my-tables/assign-reservation-table/assign-reservation-table.component';
+import { TableReservedComponent } from './screens/my-tables/table-reserved/table-reserved.component';
 
 @NgModule({
   declarations: [
@@ -108,6 +109,7 @@ import { AssignReservationTableComponent } from './screens/my-tables/assign-rese
     UserReserveOrderComponent,
     UserReserveComponent,
     AssignReservationTableComponent,
+    TableReservedComponent,
   ],
   imports: [
     BrowserModule,

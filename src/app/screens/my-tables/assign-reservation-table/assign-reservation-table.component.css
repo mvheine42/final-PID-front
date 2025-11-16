@@ -21,3 +21,14 @@
   display: flex; align-items: center; justify-content: center;
   z-index: 1000;
 }
+
+/* Estilo para la fila de una reserva ya asignada */
+.assigned-row {
+  background-color: #f1f1f1 !important;  /* Un fondo gris claro */
+  color: #a0a0a0;                      /* Texto en gris */
+  cursor: not-allowed;                 /* Muestra un cursor de "prohibido" */
+}
+
+.assigned-row td {
+  pointer-events: none;
+}

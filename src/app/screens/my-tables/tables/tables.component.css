@@ -111,6 +111,11 @@ html, body {
     font-weight: bold;
 }
 
+.status-reserved {
+    color: #c8731e;
+    font-weight: bold;
+}
+
 th, td {
     text-align: center;
     vertical-align: middle;
@@ -149,6 +154,9 @@ th, td {
     background-color: #c41729;
 }
 
+.table-icon.status-reserved {
+    background-color: #c8731e; /* El mismo violeta */
+}
 .table-icon i {
     font-size: 18px;
     margin-right: 5px;
