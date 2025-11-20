@@ -12,7 +12,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 15px;
-  background-color: #c8731e; /* El color que definimos antes */
+  background-color: #c8731e;
   color: white;
 }
 
@@ -44,8 +44,12 @@
   margin-bottom: 25px;
 }
 
+/* --- ARREGLO DE BOTONES --- */
 .action-buttons {
-  text-align: center;
+  display: flex;            /* Usamos flex para controlar la alineación */
+  justify-content: center;  /* Centrados horizontalmente */
+  gap: 15px;                /* ESPACIO ENTRE LOS BOTONES */
+  margin-top: 10px;
 }
 
 .close-button {
@@ -56,12 +60,30 @@
   padding: 10px 20px;
   font-size: 1rem;
   cursor: pointer;
+  transition: background-color 0.3s;
 }
 
 .close-button:hover {
   background-color: #613d20;
 }
 
+/* ESTILO DEL BOTÓN CHECK-IN (VERDE) */
+.checkin-button {
+  background-color: #23ae43; /* Verde éxito */
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.checkin-button:hover {
+  background-color: #1b8734; /* Verde más oscuro al pasar el mouse */
+}
+
+/* --- ESTILOS DEL MODAL TRANSPARENTE --- */
 ::ng-deep .custom-modal .p-dialog {
   background-color: transparent !important;
   box-shadow: none !important;

@@ -9,6 +9,7 @@ import { TableService } from 'src/app/services/table_service';
 import { CategoryService } from 'src/app/services/category_service';
 import { Category } from 'src/app/models/category';
 import { UserService } from 'src/app/services/user_service';
+import { Reservation } from 'src/app/models/reservation';
 
 @Component({
   selector: 'app-table-free',
@@ -33,6 +34,7 @@ export class TableFreeComponent implements OnInit {
   currentDate: string = this.formatDate(new Date());
   user: any | null
   uid: string = '';
+  @Input() reservation: Reservation | null = null; 
   
   selectedCategories: Array<{ id: any, name: string }> = [];
 
@@ -59,6 +61,11 @@ export class TableFreeComponent implements OnInit {
         console.error('Error fetching user points data.');
       }
   }
+  if (this.reservation) {
+      // Si venimos de un check-in, pre-cargamos el nro de personas
+      console.log("Viniendo de check-in, precargando:", this.reservation.amountOfPeople);
+      this.selectedAmountOfPeople = this.reservation.amountOfPeople;
+    }
   }
 
   loadProducts(): void {

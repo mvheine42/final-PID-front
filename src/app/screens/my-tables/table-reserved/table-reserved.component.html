@@ -4,16 +4,40 @@
     <span class="status">{{ table.status }}</span>
   </div>
 
-  <div class="body">
-    <div class="title">
-      This table is reserved for Reservation ID:
+    <ng-container *ngIf="isLoading; else reservationDetails">
+    <div class="body">
+      <p-progressSpinner styleClass="custom-spinner" [animationDuration]="'0.5'"></p-progressSpinner>
+      <div class="title">Loading reservation...</div>
     </div>
-    <div class="reservation-id">
-      #{{ table.current_reservation_id }}
-    </div>
+  </ng-container>
 
-    <div class="action-buttons">
-      <button pButton label="Close" class="close-button" (click)="closeDialog()"></button>
+  <ng-template #reservationDetails>
+    <div class="body" *ngIf="reservation; else notFound">
+      <div class="title">
+        Reservation for: <strong>{{ reservation.customerName }}</strong>
+      </div>
+      <div class="details">
+        {{ reservation.amountOfPeople }} people at {{ reservation.reservationTime }}
+      </div>
+      
+      <div class="action-buttons full-width">
+        
+        <div class="spacer"></div>
+        
+        <button pButton label="Close" class="close-button" (click)="closeDialog()"></button>
+        <button pButton label="Check-in" class="checkin-button" (click)="onCheckIn()"></button>
+      </div>
     </div>
+    <ng-template #notFound>
+       <div class="body">
+          <div class="title">
+            Error: Reservation ID #{{ table.current_reservation_id }} not found for today.
+          </div>
+          <div class="action-buttons">
+            <button pButton label="Close" class="close-button" (click)="closeDialog()"></button>
+          </div>
+       </div>
+    </ng-template>
+  </ng-template>
+    
   </div>
-</div>

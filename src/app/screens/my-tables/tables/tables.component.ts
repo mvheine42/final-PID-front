@@ -26,7 +26,8 @@ export class TablesComponent implements OnInit, OnDestroy { // <-- 3. AÑADIDO O
   displayModalInactive: boolean =  false;
   displayReservationsModal = false;
   todayReservationsCount = 0;
-  todayISO = new Date().toISOString().split('T')[0];
+  todayISO = this.getTodayISOString();
+  reservationForCheckIn: Reservation | null = null;
 
   // --- 4. AÑADIR ESTAS TRES VARIABLES ---
   displayUpcomingAlert = false;
@@ -48,12 +49,12 @@ export class TablesComponent implements OnInit, OnDestroy { // <-- 3. AÑADIDO O
     window.addEventListener('resize', () => {
       this.setScrollHeight();
     });
-
     // --- 6. AÑADIR ESTO ---
     // Chequear notificaciones ahora, y luego cada 1 minuto
     this.startNotificationTimer();
     // --- FIN DE AÑADIDO ---
   }
+
 
   // --- 7. AÑADIR ESTA FUNCIÓN (Buena práctica) ---
   ngOnDestroy(): void {
@@ -71,8 +72,17 @@ export class TablesComponent implements OnInit, OnDestroy { // <-- 3. AÑADIDO O
     }
   }
 
+  private getTodayISOString(): string {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const day = String(today.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
   onTableClick(table: any) {
     this.selectedTable = table;
+    this.reservationForCheckIn = null; 
     if (table.status === 'FREE') {
       this.selectedComponent = 'FREE';
       this.displayModal = true;
@@ -90,6 +100,12 @@ export class TablesComponent implements OnInit, OnDestroy { // <-- 3. AÑADIDO O
      else {
       console.log('Table is not available.');
     }
+  }
+
+  onReservationCheckIn(reservation: Reservation) {
+    console.log("Check-in para:", reservation.customerName);
+    this.reservationForCheckIn = reservation; 
+    this.selectedComponent = 'FREE'; 
   }
 
   onNotificationClick(): void {
