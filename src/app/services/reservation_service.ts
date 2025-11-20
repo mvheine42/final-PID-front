@@ -29,11 +29,11 @@ export class ReservationService {
       return response;
     } catch (error: any) {
       console.error('Error durante el registro:', error);
-      throw error; // re-lanzamos para que el componente pueda diferenciar cupo lleno
+      throw error; 
     }
   }
 
-  // Obtiene disponibilidad de un día (para bloquear horarios)
+  // Obtiene disponibilidad de un día
   async getAvailableSlots(dateISO: string): Promise<Array<{ time: string; remaining: number }>> {
     try {
       const resp = await this.http
@@ -47,16 +47,24 @@ export class ReservationService {
       return [];
     }
   }
-getReservationsByDay(dateISO: string): Promise<Reservation[]> {
-  return this.http
-    .get<Reservation[]>(`${this.baseUrl}/reservations/day/${dateISO}`)
-    .toPromise()
-    .then(res => res ?? [])
-    .catch(err => {
-      console.error('Error obteniendo reservas del día:', err);
-      return [];
-    });
-}
+
+  getReservationsByDay(dateISO: string): Promise<Reservation[]> {
+    return this.http
+      .get<Reservation[]>(`${this.baseUrl}/reservations/day/${dateISO}`)
+      .toPromise()
+      .then(res => res ?? [])
+      .catch(err => {
+        console.error('Error obteniendo reservas del día:', err);
+        return [];
+      });
+  }
+
+  // --- ¡ESTA ES LA QUE FALTABA! ---
+  cancelReservation(reservationId: number | string): Promise<any> {
+    // Llama a tu endpoint POST /cancel-reservation/{id}
+    const url = `${this.baseUrl}/cancel-reservation/${reservationId}`;
+    // Enviamos un body vacío {} porque es un POST
+    return this.http.post(url, {}).toPromise();
+  }
 
 }
-

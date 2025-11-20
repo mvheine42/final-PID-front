@@ -4,7 +4,7 @@
     <span class="status">{{ table.status }}</span>
   </div>
 
-    <ng-container *ngIf="isLoading; else reservationDetails">
+  <ng-container *ngIf="isLoading; else reservationDetails">
     <div class="body">
       <p-progressSpinner styleClass="custom-spinner" [animationDuration]="'0.5'"></p-progressSpinner>
       <div class="title">Loading reservation...</div>
@@ -21,6 +21,16 @@
       </div>
       
       <div class="action-buttons full-width">
+        <!-- Botones que llaman a confirmCancellation con el modo -->
+        <button pButton label="Cancel" 
+                (click)="confirmCancellation('CANCEL')" 
+                class="p-button-danger"></button>
+        
+        <button pButton label="No Show" 
+                (click)="confirmCancellation('NO_SHOW')" 
+                class="p-button-warning"
+                [disabled]="!isReservationLate()">
+        </button>
         
         <div class="spacer"></div>
         
@@ -28,6 +38,7 @@
         <button pButton label="Check-in" class="checkin-button" (click)="onCheckIn()"></button>
       </div>
     </div>
+    
     <ng-template #notFound>
        <div class="body">
           <div class="title">
@@ -39,5 +50,5 @@
        </div>
     </ng-template>
   </ng-template>
-    
-  </div>
+</div>
+<!-- ¡SIN DIÁLOGOS AQUÍ! -->

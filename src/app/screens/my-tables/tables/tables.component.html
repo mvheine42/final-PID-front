@@ -1,4 +1,5 @@
 <div class="container">
+  <!-- ... (Header e Imagen) ... -->
   <div class="section image-section">
     <img src="../../../../assets/images/tables2.jpg" alt="Imagen descriptiva" class="image">
   </div>
@@ -29,8 +30,12 @@
           <tr (click)="onTableClick(table)">
             <td>{{ table.id }}</td>
             <td>{{ table.capacity}} </td>
-            <td [ngClass]="{'status-free': table.status === 'FREE', 'status-busy': table.status === 'BUSY', 'status-finished': table.status === 'FINISHED', 'status-reserved': table.status === 'RESERVED'}"> {{ table.status }}
-              </td>
+            <td [ngClass]="{'status-free': table.status === 'FREE', 
+                           'status-busy': table.status === 'BUSY', 
+                           'status-finished': table.status === 'FINISHED', 
+                           'status-reserved': table.status === 'RESERVED'}">
+              {{ table.status }}
+            </td>
           </tr>
         </ng-template>
 
@@ -43,79 +48,72 @@
     </div>
 
     <div class="table-icons">
-      <div *ngFor="let table of tables" class="table-icon" [ngClass]="{'status-free': table.status === 'FREE', 
-            'status-busy': table.status === 'BUSY', 
-            'status-finished': table.status === 'FINISHED', 
-            'status-reserved': table.status === 'RESERVED'}" (click)="onTableClick(table)">
-            <i class="fas fa-utensils"></i>
-            <span>{{ table.id }}</span>
-        </div>
+      <div *ngFor="let table of tables" class="table-icon" 
+           [ngClass]="{'status-free': table.status === 'FREE', 
+                      'status-busy': table.status === 'BUSY', 
+                      'status-finished': table.status === 'FINISHED',
+                      'status-reserved': table.status === 'RESERVED'}" 
+           (click)="onTableClick(table)">
+        <i class="fas fa-utensils"></i>
+        <span>{{ table.id }}</span>
+      </div>
     </div>
   </div>
 </div>
 
+<!-- MODAL PRINCIPAL DE MESAS -->
 <p-dialog class="custom-modal" [(visible)]="displayModal" modal="true" [closable]="false" [responsive]="true">
+  
   <ng-container *ngIf="selectedComponent === 'FREE'">
-    <app-table-free 
-      [table]="selectedTable" 
-      (close)="displayModal = false"
-      [reservation]="reservationForCheckIn">
-    </app-table-free>
+    <app-table-free [table]="selectedTable" (close)="displayModal = false" [reservation]="reservationForCheckIn"></app-table-free>
   </ng-container>
 
   <ng-container *ngIf="selectedComponent === 'BUSY'">
-    <app-table-busy
-      [table]="selectedTable" 
-      (close)="displayModal = false">
-    </app-table-busy>
+    <app-table-busy [table]="selectedTable" (close)="displayModal = false"></app-table-busy>
   </ng-container>
 
   <ng-container *ngIf="selectedComponent === 'FINISHED'">
-    <app-table-finished
-      [table]="selectedTable" 
-      (close)="displayModal = false">
-    </app-table-finished>
+    <app-table-finished [table]="selectedTable" (close)="displayModal = false"></app-table-finished>
   </ng-container>
 
+  <!-- 5. AQUÍ CONECTAMOS EL EVENTO -->
   <ng-container *ngIf="selectedComponent === 'RESERVED'">
     <app-table-reserved 
       [table]="selectedTable" 
       (close)="displayModal = false"
-      (checkIn)="onReservationCheckIn($event)">
+      (checkIn)="onReservationCheckIn($event)"
+      (showConfirmation)="openGlobalConfirmation($event)">
     </app-table-reserved>
   </ng-container>
+
 </p-dialog>
 
-<p-dialog class="custom-modal" [(visible)]="displayModalInactive" modal="true" header="Asign Table" [closable]="true" [responsive]="true">
-  <app-asign-inactive-order 
-    [orders]="inactiveOrders" 
-    [freeTables]="freeTables"
-    (close)="closeModalInactive()">
-  </app-asign-inactive-order>
+<!-- OTROS MODALES -->
+<p-dialog class="inactive-orders-modal" [(visible)]="displayModalInactive" modal="true" header="Asign Table" [closable]="true" [responsive]="true">
+  <app-asign-inactive-order [orders]="inactiveOrders" [freeTables]="freeTables" (close)="closeModalInactive()"></app-asign-inactive-order>
 </p-dialog>
 
-<p-dialog class="custom-modal"
-          [(visible)]="displayReservationsModal"
-          modal="true"
-          header="Reservations Today"
-          [closable]="true"
-          [responsive]="true">
-      <app-assign-reservation-table
-      [dateISO]="todayISO"
-      (close)="displayReservationsModal=false"
-      (assigned)="onReservationAssigned()">
-    </app-assign-reservation-table>
+<p-dialog class="reservations-modal-container" [(visible)]="displayReservationsModal" modal="true" header="Reservations Today" [closable]="true" [responsive]="true">
+    <app-assign-reservation-table [dateISO]="todayISO" (close)="displayReservationsModal=false" (assigned)="onReservationAssigned()"></app-assign-reservation-table>
 </p-dialog>
 
-<p-dialog [(visible)]="displayUpcomingAlert"
-          class="custom-modal"
+<!-- 6. MODAL GLOBAL DE CONFIRMACIÓN (Ahora vive aquí, encima de todo) -->
+<p-dialog [(visible)]="displayGlobalConfirmation"
           [modal]="true"
-          [closable]="false"
-          header="Alerta de Reservas">
+          header="Confirmación" 
+          [closable]="true"
+          class="confirmation-overlay-modal"> 
+  <ng-template pTemplate="header">
+    <i class="pi pi-exclamation-triangle" style="color: orange; font-size: 1.5rem;"></i>
+    <h2>Confirmar Gestión</h2>
+  </ng-template>
+  <app-confirmation-pop-up
+    (onSend)="handleGlobalConfirmationSend()"
+    (onClose)="displayGlobalConfirmation = false"
+    [subtitle]="globalConfirmationMessage">
+  </app-confirmation-pop-up>
+</p-dialog>
 
-  <app-notice
-    [subtitle]="upcomingAlertMessage"
-    (onClose)="closeUpcomingAlert()">
-  </app-notice>
-
+<p-dialog [(visible)]="displayUpcomingAlert" class="custom-modal" [modal]="true" [closable]="false" header="Alerta de Reservas">
+  <app-notice [subtitle]="upcomingAlertMessage" (onClose)="closeUpcomingAlert()"></app-notice>
 </p-dialog>
