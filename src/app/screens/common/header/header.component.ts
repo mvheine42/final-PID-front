@@ -29,7 +29,7 @@ export class HeaderComponent implements OnInit {
                         label: 'Goals',
                         routerLink: '/goals'
                     },
-                    {
+                    { 
                         label: 'Charts',
                         routerLink: '/charts'
                     }
@@ -60,6 +60,11 @@ export class HeaderComponent implements OnInit {
                 tooltip: 'Orders'
             },
             {
+                icon: 'pi pi-clock',
+                routerLink: '/time',
+                tooltip: 'Time'
+            },
+            {
                 icon: 'pi pi-fw pi-user-edit',
                 routerLink: '/user-profile',
                 items: [
@@ -72,7 +77,7 @@ export class HeaderComponent implements OnInit {
                         command: () => this.showConfirmDialog(),
                     }
                 ]
-            }
+            },
         ];
     }
     

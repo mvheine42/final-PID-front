@@ -71,6 +71,8 @@ import { UserReserveOrderComponent } from './screens/user-order-or-reservation/u
 import { UserReserveComponent } from './screens/user-order-or-reservation/user-reserve/user-reserve.component';
 import { AssignReservationTableComponent } from './screens/my-tables/assign-reservation-table/assign-reservation-table.component';
 import { TableReservedComponent } from './screens/my-tables/table-reserved/table-reserved.component';
+import { TimeComponent } from './screens/time/time.component'; 
+import { SelectButtonModule } from 'primeng/selectbutton';
 
 @NgModule({
   declarations: [
@@ -110,6 +112,7 @@ import { TableReservedComponent } from './screens/my-tables/table-reserved/table
     UserReserveComponent,
     AssignReservationTableComponent,
     TableReservedComponent,
+    TimeComponent
   ],
   imports: [
     BrowserModule,
@@ -145,7 +148,8 @@ import { TableReservedComponent } from './screens/my-tables/table-reserved/table
     MenubarModule,
     ChartModule,
     MeterGroupModule,
-    CarouselModule
+    CarouselModule,
+    SelectButtonModule
 ],
   providers: [ConfirmationService, MessageService, DatePipe],
   bootstrap: [AppComponent]

@@ -79,4 +79,12 @@ export class OrderService {
     return this.http.put(`${this.baseUrl}/orders/serve-item/${orderId}/${itemId}`, {});
   }
 
+  getWaitTimeByProduct(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/reports/wait-time/products`);
+  }
+
+  getWaitTimeByDay(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/reports/wait-time/daily`);
+  }
+
 }
