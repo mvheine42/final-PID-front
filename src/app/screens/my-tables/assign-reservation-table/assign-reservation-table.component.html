@@ -20,25 +20,27 @@
         scrollable="true"
         scrollHeight="200px"
       >
-        <ng-template pTemplate="header">
-          <tr>
-            <th>Time</th>
-            <th>Name</th>
-            <th class="people-column">People</th>
-            <th>Mesa</th>
-          </tr>
-        </ng-template>
-
         <ng-template pTemplate="body" let-r>
-            <tr (click)="selectReservation(r)" 
-                [class.selected]="r === selectedReservation"
-                [ngClass]="{'assigned-row': r.table_id && r.table_id != ''}">
-            <td>{{ r.reservationTime }}</td>
-                <td>{{ r.customerName }}</td>
-                <td class="people-column">{{ r.amountOfPeople }} <i class="pi pi-users"></i></td>
-                <td>{{ r.table_id || '-' }}</td>
-            </tr>
-        </ng-template>
+    <tr (click)="selectReservation(r)" 
+        [class.selected]="r === selectedReservation"
+        [ngClass]="getRowClass(r)">
+        
+        <td>
+          <i *ngIf="getRowClass(r) === 'row-late'" 
+             class="pi pi-exclamation-circle" 
+             style="color: #d32f2f; margin-right: 4px;"></i>
+          {{ r.reservationTime }}
+        </td>
+        <td>{{ r.customerName }}</td>
+        <td class="people-column">
+           {{ r.amountOfPeople }} <i class="pi pi-users"></i>
+        </td>
+        <td>
+           <span *ngIf="r.table_id">#{{ r.table_id }} <i class="pi pi-check"></i></span>
+           <span *ngIf="!r.table_id">-</span>
+        </td>
+    </tr>
+</ng-template>
       </p-table>
     </div>
 
@@ -54,41 +56,49 @@
         {{ selectedReservation.amountOfPeople }} people
       </p>
 
-      <p-dropdown
-        [options]="availableTables"
-        [(ngModel)]="selectedTable"
-        appendTo="body"
-        optionLabel="label"
-        optionValue="id"
-        placeholder="Select Table"
-        [style]="{'width': '100%'}"
-        [filter]="true"
-        [filterPlaceholder]="'Asign table...'"
-        [showClear]="true"
-      >
-      </p-dropdown>
+ <p-dropdown
+      [options]="availableTables"
+      [(ngModel)]="selectedTable"
+      appendTo="body"
+      optionLabel="label"
+      optionValue="id"
+      placeholder="Select Table"
+      [style]="{'width': '100%'}"
+      [filter]="true"
+      [filterPlaceholder]="'Asign table...'"
+      [showClear]="true"
+    >
+    </p-dropdown>
 
-      <div class="button-container">
-        <button pButton label="Close" (click)="onCloseClick()" class="p-button-secondary"></button>
-        <button pButton label="Asign table" (click)="showConfirmPopUp()" class="p-button-success"
-                [disabled]="!selectedReservation || !selectedTable"></button>
-      </div>
+    <div class="button-container">
+      
+      <button pButton 
+              icon="pi pi-trash" 
+              class="p-button-danger p-button-outlined" 
+              pTooltip="Eliminar Reserva"
+              tooltipPosition="top"
+              (click)="showConfirmPopUp('CANCEL')">
+      </button>
+
+      <button pButton 
+              label="Close" 
+              (click)="onCloseClick()" 
+              class="p-button-secondary">
+      </button>
+      
+      <button pButton 
+              label="Asign table" 
+              (click)="showConfirmPopUp('ASSIGN')" 
+              class="p-button-success"
+              [disabled]="!selectedReservation || !selectedTable">
+      </button>
+
     </div>
   </div>
 </div>
 
-<!-- Confirmación -->
-<p-dialog [(visible)]="confirmationDialog" class="custom-modal" [modal]="true">
-  <ng-template pTemplate="header">
-    <i class="pi pi-exclamation-triangle" style="color: red; font-size: 1.5rem;"></i>
-    <h2>Confirm</h2>
-  </ng-template>
-  <app-confirmation-pop-up
-    (onSend)="assignTable()"
-    (onClose)="closeConfirmationPopUp()"
-    [subtitle]="'The table will be reserved for this booking'">
-  </app-confirmation-pop-up>
-</p-dialog>
+<p-confirmDialog key="assign-reservation-confirm"></p-confirmDialog>
+
 
 <!-- Loading overlay -->
 <div *ngIf="isLoading" class="overlay">
@@ -96,7 +106,6 @@
 </div>
 
 <p-dialog [(visible)]="displayErrorModal" 
-          class="custom-modal" 
           [modal]="true" 
           [closable]="false"
           header="Error">
@@ -108,7 +117,6 @@
 
 
 <p-dialog [(visible)]="displaySuccessModal"
-          class="custom-modal"
           [modal]="true"
           [closable]="false"
           header="Éxito">

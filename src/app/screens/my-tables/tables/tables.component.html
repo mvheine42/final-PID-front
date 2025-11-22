@@ -77,10 +77,10 @@
   </ng-container>
 
   <!-- 5. AQUÍ CONECTAMOS EL EVENTO -->
-  <ng-container *ngIf="selectedComponent === 'RESERVED'">
+<ng-container *ngIf="selectedComponent === 'RESERVED'">
     <app-table-reserved 
       [table]="selectedTable" 
-      (close)="displayModal = false"
+      (close)="onReservedTableClosed()" 
       (checkIn)="onReservationCheckIn($event)"
       (showConfirmation)="openGlobalConfirmation($event)">
     </app-table-reserved>
@@ -114,6 +114,6 @@
   </app-confirmation-pop-up>
 </p-dialog>
 
-<p-dialog [(visible)]="displayUpcomingAlert" class="custom-modal" [modal]="true" [closable]="false" header="Alerta de Reservas">
+<p-dialog [(visible)]="displayUpcomingAlert" [appendTo]="'body'" class="custom-modal" [modal]="true" [closable]="false" header="Alerta de Reservas">
   <app-notice [subtitle]="upcomingAlertMessage" (onClose)="closeUpcomingAlert()"></app-notice>
 </p-dialog>

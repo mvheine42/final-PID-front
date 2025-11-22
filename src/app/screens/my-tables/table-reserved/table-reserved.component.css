@@ -1,10 +1,9 @@
-.container-table-reserved {
+:host .container-table-reserved {
   background-color: #fff;
   border-radius: 30px;
   width: 450px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
   margin: auto;
-  overflow: hidden;
   min-height: 200px; 
 }
 
@@ -94,13 +93,13 @@
 /* ESTILOS ESPECÍFICOS DE PRIMENG (::ng-deep) */
 
 /* Botón de Cancelar (Rojo) */
-::ng-deep .p-button-danger {
+:host ::ng-deep .p-button-danger {
     background-color: #f44336 !important;
     border-color: #f44336 !important;
 }
 
 /* Botón de No Show (Naranja) */
-::ng-deep .p-button-warning {
+:host ::ng-deep .p-button-warning {
     background-color: #ff9800 !important;
     border-color: #ff9800 !important;
 }
@@ -120,4 +119,19 @@
 ::ng-deep .custom-modal .p-dialog .p-dialog-content {
   background-color: transparent !important;
   padding: 0 !important;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100; /* un poco más alto que el modal de la mesa */
+}
+
+.custom-spinner {
+  width: 60px;
+  height: 60px;
 }

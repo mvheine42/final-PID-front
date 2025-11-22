@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Reservation } from 'src/app/models/reservation';
 import { Table } from 'src/app/models/table';
 import { ReservationService } from 'src/app/services/reservation_service';
+import { ConfirmationService } from 'primeng/api';
 
 @Component({
   selector: 'app-table-reserved',
@@ -18,8 +19,12 @@ export class TableReservedComponent implements OnInit {
 
   reservation: Reservation | null = null;
   isLoading = false;
+  displaySuccessModal = false;
+  successMessage = '';
 
-  constructor(private reservationService: ReservationService) { }
+  displayErrorModal = false;
+  errorMessage = '';  
+  constructor(private reservationService: ReservationService, private confirmationService: ConfirmationService) { }
 
   ngOnInit(): void {
     this.loadReservationDetails();
@@ -75,19 +80,51 @@ export class TableReservedComponent implements OnInit {
   }
 
   // 2. ESTA FUNCIÓN SOLO EMITE EL EVENTO
-  confirmCancellation(mode: 'CANCEL' | 'NO_SHOW'): void {
-    if (!this.reservation) return;
+confirmCancellation(mode: 'CANCEL' | 'NO_SHOW'): void {
+  if (!this.reservation) return;
 
-    const message = mode === 'NO_SHOW' ? 
-      `¿Confirmas que el cliente ${this.reservation.customerName} ha hecho 'No Show'? La reserva será eliminada.` : 
-      `¿Confirmas que deseas cancelar la reserva de ${this.reservation.customerName}? La mesa (si está asignada) y el cupo serán liberados.`;
+  const message =
+    mode === 'NO_SHOW'
+      ? `¿Confirmás que ${this.reservation.customerName} hizo 'No Show'?`
+      : `¿Confirmás que deseas cancelar la reserva de ${this.reservation.customerName}?`;
 
-    this.showConfirmation.emit({
-        message: message,
-        mode: mode,
-        reservation: this.reservation
+  this.confirmationService.confirm({
+    key: 'table-reserved-confirm',   // 👈 clave distinta
+    message,
+    header: 'Confirmar Gestión',
+    icon: 'pi pi-exclamation-triangle',
+    acceptLabel: mode === 'NO_SHOW' ? 'Marcar No Show' : 'Cancelar reserva',
+    rejectLabel: 'Volver',
+    acceptButtonStyleClass: 'p-button-danger',
+    rejectButtonStyleClass: 'p-button-secondary',
+    accept: () => this.doCancel(mode)
+  });
+}
+
+
+private doCancel(mode: 'CANCEL' | 'NO_SHOW'): void {
+  if (!this.reservation) return;
+
+  this.isLoading = true;
+
+  this.reservationService.cancelReservation(this.reservation.id!)
+    .then(() => {
+      this.isLoading = false;
+
+      this.successMessage =
+        mode === 'NO_SHOW'
+          ? `Reserva de ${this.reservation?.customerName} marcada como No Show.`
+          : `Reserva de ${this.reservation?.customerName} cancelada correctamente.`;
+
+      this.displaySuccessModal = true;
+    })
+    .catch(() => {
+      this.isLoading = false;
+      this.errorMessage = 'No se pudo procesar la reserva. Intentalo de nuevo.';
+      this.displayErrorModal = true;
     });
-  }
+}
+
 
   onCheckIn(): void {
     if (this.reservation) this.checkIn.emit(this.reservation);
@@ -96,4 +133,15 @@ export class TableReservedComponent implements OnInit {
   closeDialog() {
     this.close.emit();
   }
+
+
+closeSuccessModal(): void {
+  this.displaySuccessModal = false;
+  this.close.emit(); // si querés cerrar el diálogo de la mesa
 }
+
+closeErrorModal(): void {
+  this.displayErrorModal = false;
+}
+}
+

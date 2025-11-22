@@ -51,4 +51,32 @@
     </ng-template>
   </ng-template>
 </div>
-<!-- ¡SIN DIÁLOGOS AQUÍ! -->
+
+
+<p-dialog [(visible)]="displaySuccessModal"
+          [modal]="true"
+          [closable]="false"
+          [appendTo]="'body'" 
+          header="Éxito">
+  <app-notice
+    [subtitle]="successMessage"
+    (onClose)="closeSuccessModal()">
+  </app-notice>
+</p-dialog>
+
+<p-dialog [(visible)]="displayErrorModal"
+          [modal]="true"
+          [closable]="false"
+          [appendTo]="'body'"
+          header="Error">
+  <app-notice
+    [subtitle]="errorMessage"
+    (onClose)="closeErrorModal()">
+  </app-notice>
+</p-dialog>
+
+<p-confirmDialog 
+    key="table-reserved-confirm" 
+    [appendTo]="'body'" 
+    [style]="{width: 'auto', 'min-width': '300px'}">
+</p-confirmDialog>

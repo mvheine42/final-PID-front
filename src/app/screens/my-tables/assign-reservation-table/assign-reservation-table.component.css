@@ -2,33 +2,108 @@
 .content-container { display: flex; gap: 16px; }
 .orders-list { flex: 1; }
 .order-details { flex: 1; }
-
 .search-box { position: relative; margin-bottom: 8px; }
 .search-icon { position: absolute; top: 50%; left: 8px; transform: translateY(-50%); }
 .search-box input { width: 100%; padding-left: 28px; }
-
 .people-column { text-align: center; }
-
 .selected { background: #f6efe8; }
 .selected-order-title { margin: 6px 0 2px 0; }
 .muted { color:#6b7280; font-size:.9rem; margin-bottom:10px; }
 
-.button-container { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+.button-container { 
+  display: flex; 
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  margin-top: 15px; 
+}
 
 /* overlay loader */
 .overlay {
-  position: fixed; inset: 0; background: rgba(255,255,255,0.6);
-  display: flex; align-items: center; justify-content: center;
+  position: fixed; 
+  inset: 0; 
+  background: rgba(255,255,255,0.6);
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
   z-index: 1000;
 }
 
 /* Estilo para la fila de una reserva ya asignada */
 .assigned-row {
-  background-color: #f1f1f1 !important;  /* Un fondo gris claro */
-  color: #a0a0a0;                      /* Texto en gris */
-  cursor: not-allowed;                 /* Muestra un cursor de "prohibido" */
+  background-color: #f1f1f1 !important;
+  color: #a0a0a0;
+  cursor: not-allowed;
 }
 
 .assigned-row td {
   pointer-events: none;
+}
+
+/* Estilos para el modal de confirmación - FORZAR colores correctos */
+:host ::ng-deep .custom-modal .custom-send-button .p-button {
+  background-color: #ab602f !important;
+  border-color: #ab602f !important;
+}
+
+:host ::ng-deep .custom-modal .custom-send-button .p-button:hover {
+  background-color: #894d26 !important;
+  border-color: #894d26 !important;
+}
+
+:host ::ng-deep .custom-modal .custom-cancel-button .p-button {
+  background-color: #533521c7 !important;
+  border-color: #533521c7 !important;
+}
+
+:host ::ng-deep .custom-modal .custom-cancel-button .p-button:hover {
+  background-color: #533521da !important;
+  border-color: #533521da !important;
+}
+
+/* Modal transparente */
+:host ::ng-deep .custom-modal .p-dialog {
+  background-color: white !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+:host ::ng-deep .custom-modal .p-dialog .p-dialog-header {
+  display: none !important;
+}
+
+:host ::ng-deep .custom-modal .p-dialog .p-dialog-content {
+  background-color: transparent !important;
+  padding: 0 !important;
+}
+
+/* --- ESTILOS DE ESTADO DE FILA --- */
+
+/* 1. ASIGNADA (VERDE) */
+.row-assigned {
+  background-color: #e8f5e9 !important; /* Verde muy clarito */
+  color: #2e7d32; /* Verde oscuro para texto */
+  font-weight: 500;
+  pointer-events: none;   /* ⛔ Bloquea el click (no dispara selectReservation) */
+  cursor: default;        /* El mouse se ve normal, no como manito */
+  opacity: 0.9;
+}
+
+/* 2. TARDE / SIN ASIGNAR (ROJO) */
+.row-late {
+  background-color: #ffebee !important; /* Rojo muy clarito */
+  color: #c62828; /* Rojo oscuro para texto */
+  font-weight: 500;
+}
+
+/* Mantenemos el hover y seleccionado por encima de los colores */
+:host ::ng-deep .p-selectable-row:not(.selected):hover {
+  background-color: #f5f5f5 !important; /* Gris suave al pasar mouse */
+  cursor: pointer;
+}
+
+.selected {
+  background: #f6efe8 !important; /* Tu color de selección actual (naranja suave) */
+  color: #000 !important;
+  border-left: 4px solid #c8731e; /* Un borde naranja para destacar más la selección */
 }

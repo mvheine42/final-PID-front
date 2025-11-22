@@ -170,12 +170,16 @@ export class TablesComponent implements OnInit, OnDestroy {
   
   onReservationNotificationClick() { this.displayReservationsModal = true; }
   onReservationAssigned(): void { this.loadTables(); this.checkUpcomingReservations(); }
+  onReservedTableClosed(): void {
+  this.displayModal = false;
+  this.loadTables(); 
+}
 
   startNotificationTimer(): void {
     this.checkUpcomingReservations(); 
     this.notificationInterval = setInterval(() => {
       this.checkUpcomingReservations();
-    }, 60000); 
+    }, 600000); 
   }
 
   async checkUpcomingReservations(): Promise<void> {
