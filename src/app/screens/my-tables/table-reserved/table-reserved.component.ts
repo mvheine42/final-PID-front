@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { Reservation } from 'src/app/models/reservation';
 import { Table } from 'src/app/models/table';
 import { ReservationService } from 'src/app/services/reservation_service';
@@ -9,7 +9,7 @@ import { ConfirmationService } from 'primeng/api';
   templateUrl: './table-reserved.component.html',
   styleUrls: ['./table-reserved.component.css']
 })
-export class TableReservedComponent implements OnInit {
+export class TableReservedComponent implements OnInit, OnChanges{
   @Input() table!: Table;
   @Output() close = new EventEmitter<void>();
   @Output() checkIn = new EventEmitter<Reservation>(); 
@@ -28,6 +28,15 @@ export class TableReservedComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadReservationDetails();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // Si cambia la mesa (y no es la primera vez, que ya lo hace ngOnInit), recargamos
+    if (changes['table'] && !changes['table'].isFirstChange()) {
+      console.log('Cambió la mesa, recargando reserva...', this.table);
+      this.reservation = null; // Limpiamos la anterior para que no se vea info mezclada
+      this.loadReservationDetails();
+    }
   }
 
   async loadReservationDetails(): Promise<void> {
