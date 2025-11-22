@@ -348,5 +348,28 @@ export class TableBusyComponent implements OnInit {
     }
   }
 
+  onServeItem(item: OrderItem) {
+    // CAMBIO CLAVE: Usamos this.table.order_id en vez de this.actualOrder.id
+    if (!this.table.order_id || !item.item_id) {
+        console.error('Falta ID de orden o de ítem', { orderId: this.table.order_id, itemId: item.item_id });
+        return;
+    }
+
+    this.orderService.serveOrderItem(this.table.order_id.toString(), item.item_id).subscribe({
+      next: () => {
+        item.served_at = new Date().toISOString();
+      },
+      error: (err) => console.error('Error al servir:', err)
+    });
+  }
+
+  get allItemsServed(): boolean {
+    // Si no hay items, asumimos que se puede cerrar (o ajustar según tu lógica)
+    if (!this.orderItems || this.orderItems.length === 0) return true;
+    
+    // Devuelve TRUE solo si TODOS tienen 'served_at'
+    return this.orderItems.every(item => !!item.served_at);
+  }
+
 }
  

@@ -75,4 +75,8 @@ export class OrderService {
     });
   }
 
+  serveOrderItem(orderId: string, itemId: string): Observable<any> {
+    return this.http.put(`${this.baseUrl}/orders/serve-item/${orderId}/${itemId}`, {});
+  }
+
 }

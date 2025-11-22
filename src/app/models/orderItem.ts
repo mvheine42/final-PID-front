@@ -1,4 +1,7 @@
 export class OrderItem {
+  item_id?: string;
+  created_at?: string;
+  served_at?: string;
   product_id: number;
   product_name: string;
   product_price: string;
