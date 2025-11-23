@@ -9,13 +9,13 @@
       </div>
       
       <!-- Lista de productos de la orden -->
-      <h4>Products</h4>
+     <h4>Products</h4>
       <ul>
         <li *ngFor="let item of order.orderItems">
-          <p *ngIf="getProductById(item.product_id) as product">
-            <strong>Product:</strong> {{ item.product_name }} - 
+          <p>
+            <strong>Product:</strong> {{ item.product_name || getProductById(item.product_id)?.name || 'Producto Eliminado' }} - 
             <strong>Amount:</strong> {{ item.amount }} - 
-            <strong>Price:</strong> {{ item.product_price }}
+            <strong>Price:</strong> {{ (item.product_price || getProductById(item.product_id)?.price) | currency }}
           </p>
         </li>
       </ul>

@@ -204,8 +204,9 @@ ngOnDestroy() {
 
   calculateTotal() {
     return this.orderItems.reduce((total, item) => {
-      const product = this.products.find(p => p.id === item.product_id);
-      return product ? total + item.amount * parseFloat(product.price) : total;
+      const price = parseFloat(item.product_price);
+      
+      return total + (item.amount * price);
     }, 0);
   }
 

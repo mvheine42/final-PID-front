@@ -36,9 +36,9 @@
               </thead>
               <tbody>
                 <tr *ngFor="let item of orderItems">
-                  <td>{{ getProductById(item.product_id)?.name }}</td>
+                  <td>{{ item.product_name }}</td>
                   <td>{{ item.amount }}</td>
-                  <td>{{ getProductById(item.product_id)?.price | currency }}</td>
+                  <td>{{ item.product_price | currency }}</td>
                   
                   <td>
                     <div *ngIf="item.served_at" class="time-badge served" 
