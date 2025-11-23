@@ -9,6 +9,7 @@
           pInputText
           placeholder="Search by name or time"
           [(ngModel)]="searchText"
+          (ngModelChange)="applyFilter()" 
         />
       </div>
 
@@ -29,6 +30,12 @@
           <i *ngIf="getRowClass(r) === 'row-late'" 
              class="pi pi-exclamation-circle" 
              style="color: #d32f2f; margin-right: 4px;"></i>
+
+          <i *ngIf="getRowClass(r) === 'row-warning'" 
+             class="pi pi-clock" 
+             style="color: #d97706; margin-right: 4px;"
+             pTooltip="Se acerca la hora" tooltipPosition="top"></i>
+
           {{ r.reservationTime }}
         </td>
         <td>{{ r.customerName }}</td>
@@ -70,7 +77,7 @@
     >
     </p-dropdown>
 
-    <div class="button-container">
+   <div class="button-container">
       
       <button pButton 
               icon="pi pi-trash" 
@@ -86,17 +93,24 @@
               class="p-button-secondary">
       </button>
       
-      <button pButton 
-              label="Asign table" 
-              (click)="showConfirmPopUp('ASSIGN')" 
-              class="p-button-success"
-              [disabled]="!selectedReservation || !selectedTable">
-      </button>
+     <span [pTooltip]="isTooEarlyToAssign(selectedReservation.reservationTime) ? 'Solo disponible 2hs antes' : ''" tooltipPosition="top">
+        <button pButton 
+                label="Asign table" 
+                (click)="showConfirmPopUp('ASSIGN')" 
+                class="p-button-success"
+                [disabled]="!selectedReservation || !selectedTable || isTooEarlyToAssign(selectedReservation.reservationTime)">
+        </button>
+      </span>
 
     </div>
+    
+    <div *ngIf="selectedReservation && isTooEarlyToAssign(selectedReservation.reservationTime)" 
+         style="margin-top: 10px; color: #f59e0b; font-size: 0.9rem; text-align: right;">
+      <i class="pi pi-clock"></i> Disponible a partir de 2 horas antes de la reserva.
+    </div>
+
   </div>
 </div>
-
 <p-confirmDialog key="assign-reservation-confirm"></p-confirmDialog>
 
 

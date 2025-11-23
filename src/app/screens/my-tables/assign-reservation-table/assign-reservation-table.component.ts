@@ -43,18 +43,43 @@ export class AssignReservationTableComponent implements OnInit {
   }
 
   getRowClass(r: Reservation): string {
-    // 1. Si ya tiene mesa asignada -> Verde
+    // 1. Si ya tiene mesa asignada -> Verde (Prioridad total)
     if (r.table_id && r.table_id !== '') {
       return 'row-assigned';
     }
 
-    // 2. Si NO tiene mesa, verificamos si se pasó la hora -> Rojo
+    // 2. Si NO tiene mesa y YA PASÓ la hora -> Rojo (Urgencia máxima/Error)
     if (this.isLate(r.reservationTime)) {
       return 'row-late';
     }
 
-    // 3. Si no, normal -> Blanco
+    // 3. (NUEVO) Si NO tiene mesa y falta MENOS DE 1 HORA -> Amarillo (Alerta)
+    if (this.isSoon(r.reservationTime)) {
+      return 'row-warning';
+    }
+
+    // 4. Si falta mucho tiempo -> Blanco (Normal)
     return '';
+  }
+
+  private isSoon(timeStr: string): boolean {
+    if (!timeStr) return false;
+
+    const now = new Date();
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    
+    // Creamos la fecha de la reserva
+    const reservationDate = new Date();
+    reservationDate.setHours(hours, minutes, 0, 0);
+
+    // Calculamos la diferencia en minutos
+    // (reservationDate - now) te da milisegundos
+    const diffMs = reservationDate.getTime() - now.getTime();
+    const diffMinutes = diffMs / (1000 * 60);
+
+    // Lógica:
+    // Si la diferencia es positiva (futuro) Y es menor a 60 minutos
+    return diffMinutes > 0 && diffMinutes <= 60;
   }
 
   // FUNCIÓN AUXILIAR PARA COMPARAR HORAS
@@ -149,17 +174,60 @@ assignTable(): void {
       }
     });
 }
+
+isTooEarlyToAssign(reservationTime: string): boolean {
+    if (!this.dateISO || !reservationTime) return true; // Por seguridad
+
+    const now = new Date();
+
+    // 1. Construimos la fecha completa de la reserva
+    // dateISO viene como "YYYY-MM-DD"
+    const [year, month, day] = this.dateISO.split('-').map(Number);
+    // reservationTime viene como "HH:MM"
+    const [hours, minutes] = reservationTime.split(':').map(Number);
+
+    const reservationDate = new Date(year, month - 1, day, hours, minutes);
+
+    // 2. Calculamos la diferencia en milisegundos
+    const diffMs = reservationDate.getTime() - now.getTime();
+    
+    // 3. Definimos 2 horas en milisegundos
+    const twoHoursMs = 2 * 60 * 60 * 1000;
+
+    // Si la diferencia es mayor a 2 horas, es demasiado temprano -> TRUE (Deshabilitar botón)
+    // Si la diferencia es menor o igual (o negativa si ya pasó la hora) -> FALSE (Habilitar botón)
+    return diffMs > twoHoursMs;
+  }
 // --- FIN DE LA FUNCIÓN ---
 
 
   // === UI ===
-  applyFilter(): void {
+ applyFilter(): void {
     const q = (this.searchText || '').toLowerCase();
-    this.filteredReservations = this.reservations.filter(r =>
-      r.customerName.toLowerCase().includes(q) ||
-      r.reservationTime.toLowerCase().includes(q) ||
+
+    // 1. Primero Filtramos (tu lógica original)
+    let tempReservations = this.reservations.filter(r =>
+      (r.customerName || '').toLowerCase().includes(q) ||
+      (r.reservationTime || '').toLowerCase().includes(q) ||
       String(r.id).includes(q)
     );
+
+    // 2. Después Ordenamos: Sin mesa primero, Con mesa al final
+    this.filteredReservations = tempReservations.sort((a, b) => {
+      const hasTableA = this.hasTable(a);
+      const hasTableB = this.hasTable(b);
+
+      if (hasTableA && !hasTableB) return 1;  // A tiene mesa, va abajo
+      if (!hasTableA && hasTableB) return -1; // A no tiene mesa, va arriba
+      
+      // 3. (Opcional) Si ambos tienen o no tienen mesa, ordenamos por hora
+      return a.reservationTime.localeCompare(b.reservationTime);
+    });
+  }
+
+  // Helper simple para saber si tiene mesa asignada
+  private hasTable(r: Reservation): boolean {
+    return r.table_id !== null && r.table_id !== undefined && r.table_id !== '' && r.table_id !== 0;
   }
 
 showConfirmPopUp(mode: 'ASSIGN' | 'CANCEL') {

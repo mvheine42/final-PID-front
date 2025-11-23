@@ -14,7 +14,6 @@ export class TableReservedComponent implements OnInit, OnChanges{
   @Output() close = new EventEmitter<void>();
   @Output() checkIn = new EventEmitter<Reservation>(); 
   
-  // 1. DEFINIMOS LA SALIDA HACIA EL PADRE
   @Output() showConfirmation = new EventEmitter<{ message: string, mode: 'CANCEL' | 'NO_SHOW', reservation: Reservation }>();
 
   reservation: Reservation | null = null;
@@ -137,6 +136,24 @@ private doCancel(mode: 'CANCEL' | 'NO_SHOW'): void {
 
   onCheckIn(): void {
     if (this.reservation) this.checkIn.emit(this.reservation);
+  }
+
+  isTooEarlyToCheckIn(): boolean {
+    if (!this.reservation) return true; // Si no hay reserva, bloqueamos por seguridad
+
+    const now = new Date();
+    const [hours, minutes] = this.reservation.reservationTime.split(':').map(Number);
+    
+    // Creamos la fecha de la reserva con la hora de hoy
+    const reservationDate = new Date();
+    reservationDate.setHours(hours, minutes, 0, 0);
+
+    // OPCIONAL: Margen de tolerancia. 
+    // Si quieres dejarlos entrar 10 min antes, descomenta la línea de abajo:
+    // reservationDate.setMinutes(reservationDate.getMinutes() - 10);
+
+    // Si "Ahora" es menor que "Hora Reserva", es temprano -> TRUE (Deshabilitar)
+    return now < reservationDate;
   }
 
   closeDialog() {

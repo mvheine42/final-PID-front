@@ -21,21 +21,35 @@
       </div>
       
       <div class="action-buttons full-width">
-        <!-- Botones que llaman a confirmCancellation con el modo -->
-        <button pButton label="Cancel" 
-                (click)="confirmCancellation('CANCEL')" 
-                class="p-button-danger"></button>
+        <span [pTooltip]="isReservationLate() ? 'Pasó el tiempo de tolerancia. Usá No Show.' : ''" tooltipPosition="top">
+            <button pButton label="Cancel" 
+                    (click)="confirmCancellation('CANCEL')" 
+                    class="p-button-danger"
+                    [disabled]="isReservationLate()">
+            </button>
+        </span>
         
-        <button pButton label="No Show" 
-                (click)="confirmCancellation('NO_SHOW')" 
-                class="p-button-warning"
-                [disabled]="!isReservationLate()">
-        </button>
+        <span [pTooltip]="!isReservationLate() ? 'Habilitado 15 min después de las ' + reservation.reservationTime : ''" tooltipPosition="top">
+            <button pButton label="No Show" 
+                    (click)="confirmCancellation('NO_SHOW')" 
+                    class="p-button-warning"
+                    [disabled]="!isReservationLate()">
+            </button>
+        </span>
         
         <div class="spacer"></div>
         
         <button pButton label="Close" class="close-button" (click)="closeDialog()"></button>
-        <button pButton label="Check-in" class="checkin-button" (click)="onCheckIn()"></button>
+        
+        <span [pTooltip]="isTooEarlyToCheckIn() ? 'Habilitado a las ' + reservation.reservationTime : ''" tooltipPosition="top">
+            <button pButton 
+                    label="Check-in" 
+                    class="checkin-button" 
+                    (click)="onCheckIn()"
+                    [disabled]="isTooEarlyToCheckIn()">
+            </button>
+        </span>
+        
       </div>
     </div>
     

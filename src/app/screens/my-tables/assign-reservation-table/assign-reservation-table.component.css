@@ -96,6 +96,12 @@
   font-weight: 500;
 }
 
+.row-warning {
+  background-color: #fff3cd !important; /* Amarillo/Naranja suave */
+  color: #856404; /* Texto marrón oscuro para contraste */
+  font-weight: 500;
+}
+
 /* Mantenemos el hover y seleccionado por encima de los colores */
 :host ::ng-deep .p-selectable-row:not(.selected):hover {
   background-color: #f5f5f5 !important; /* Gris suave al pasar mouse */
