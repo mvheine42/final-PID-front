@@ -27,37 +27,57 @@
         <div class="table-wrapper">
           <table class="product-table">
             <thead>
-              <tr>
-                <th>Product</th>
-                <th>Amount</th>
-                <th>Price</th>
-                <th>Status</th> </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let item of orderItems">
-                <td>{{ getProductById(item.product_id)?.name }}</td>
-                <td>{{ item.amount }}</td>
-                <td>{{ getProductById(item.product_id)?.price | currency }}</td>
-                
-                <td style="text-align: center;">
+                <tr>
+                  <th>Product</th>
+                  <th>Amount</th>
+                  <th>Price</th>
+                  <th>Wait Time</th> <th>Status</th> 
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of orderItems">
+                  <td>{{ getProductById(item.product_id)?.name }}</td>
+                  <td>{{ item.amount }}</td>
+                  <td>{{ getProductById(item.product_id)?.price | currency }}</td>
                   
-                  <div *ngIf="item.served_at">
-                      <i class="pi pi-check-circle" style="color: green; font-size: 1.5rem; font-weight: bold;"></i>
-                  </div>
+                  <td>
+                    <div *ngIf="item.served_at" class="time-badge served" 
+                        pTooltip="Pedido: {{item.created_at | date:'HH:mm'}} | Servido: {{item.served_at | date:'HH:mm'}}" 
+                        tooltipPosition="top">
+                      <i class="pi pi-check-circle"></i>
+                      <span>{{ getServedDuration(item.created_at!, item.served_at) }} min</span>
+                    </div>
 
-                  <div *ngIf="!item.served_at">
-                      <button pButton type="button" icon="pi pi-check" 
-                              class="p-button-rounded p-button-text p-button-success"
-                              [disabled]="!item.item_id"
-                              (click)="onServeItem(item)"
-                              pTooltip="Marcar como entregado"
-                              tooltipPosition="top">
-                      </button>
-                  </div>
+                    <div *ngIf="!item.served_at" class="time-badge waiting"
+                        [ngClass]="{'critical': isCriticalDelay(item.created_at!)}"
+                        pTooltip="Pedido a las {{item.created_at | date:'HH:mm'}}" 
+                        tooltipPosition="top">
+                      <i class="pi pi-clock"></i>
+                      <span>{{ getWaitTime(item.created_at!) }} min</span>
+                    </div>
+                  </td>
 
-                </td>
-              </tr>
-            </tbody>
+                  <td style="text-align: center;">
+  
+                    <div *ngIf="!item.served_at">
+                        <button pButton 
+                                type="button" 
+                                icon="pi pi-check" 
+                                class="p-button-rounded p-button-text p-button-success"
+                                [disabled]="!item.item_id"
+                                (click)="onServeItem(item)"
+                                pTooltip="Marcar como entregado"
+                                tooltipPosition="left">
+                        </button>
+                    </div>
+
+                    <div *ngIf="item.served_at">
+                        <i class="pi pi-check-circle" style="color: green; font-size: 1.5rem; font-weight: bold;"></i>
+                    </div>
+
+                  </td>
+                </tr>
+              </tbody>
           </table>           
         </div>
 

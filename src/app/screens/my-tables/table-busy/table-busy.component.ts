@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { Category } from 'src/app/models/category';
 import { Order } from 'src/app/models/order';
 import { OrderItem } from 'src/app/models/orderItem';
@@ -10,13 +10,14 @@ import { ProductService } from 'src/app/services/product_service';
 import { TableService } from 'src/app/services/table_service';
 import { UserService } from 'src/app/services/user_service';
 import { firstValueFrom } from 'rxjs';
+import { interval, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-table-busy',
   templateUrl: './table-busy.component.html',
   styleUrls: ['./table-busy.component.css']
 })
-export class TableBusyComponent implements OnInit {
+export class TableBusyComponent implements OnInit, OnDestroy{
   @Input() table: Table = new Table('',1);
   @Output() close = new EventEmitter<void>();
   actualOrder?: Order; 
@@ -40,6 +41,8 @@ export class TableBusyComponent implements OnInit {
   filteredProducts: Product[] = []; 
   user: any | null;
   newOrderItems: OrderItem[] = [];
+  private timeInterval: Subscription | undefined;
+  now: Date = new Date();
 
   constructor(private productService: ProductService,  private orderService: OrderService, private tableService: TableService, private categoryService: CategoryService, private userService: UserService) {}
   async ngOnInit() {
@@ -50,7 +53,36 @@ export class TableBusyComponent implements OnInit {
     this.currentTime = this.actualOrder?.time ?? '';
     this.order = this.actualOrder ?? new Order('', 0, '', '', '', [],1, '');
     this.loadCategories();
+    this.timeInterval = interval(60000).subscribe(() => {
+      this.now = new Date();
+    });
 }
+
+ngOnDestroy() {
+    if (this.timeInterval) {
+      this.timeInterval.unsubscribe();
+    }
+  }
+
+  getWaitTime(createdAt: string): number {
+    if (!createdAt) return 0;
+    const start = new Date(createdAt).getTime();
+    const current = this.now.getTime();
+    return Math.floor((current - start) / 60000); // Devuelve minutos
+  }
+
+  // Calcula cuánto tardó en servirse (para items finalizados)
+  getServedDuration(createdAt: string, servedAt: string): number {
+    if (!createdAt || !servedAt) return 0;
+    const start = new Date(createdAt).getTime();
+    const end = new Date(servedAt).getTime();
+    return Math.floor((end - start) / 60000);
+  }
+  
+  // Define si el tiempo es crítico (ej: más de 20 min)
+  isCriticalDelay(createdAt: string): boolean {
+    return this.getWaitTime(createdAt) > 20; // Umbral de 20 minutos
+  }
 
   loadCategories(): void {
     this.categoryService.getCategories().subscribe({

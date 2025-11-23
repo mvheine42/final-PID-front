@@ -31,6 +31,12 @@ export class TablesComponent implements OnInit, OnDestroy {
   upcomingAlertMessage = '';
   private notificationInterval: any;
 
+
+
+  lateReservationsCount = 0;
+  upcomingReservationsCount = 0;
+
+
   // Check-in
   reservationForCheckIn: Reservation | null = null;
 
@@ -184,29 +190,59 @@ export class TablesComponent implements OnInit, OnDestroy {
 
   async checkUpcomingReservations(): Promise<void> {
     const allReservations = await this.reservationService.getReservationsByDay(this.todayISO);
+    
+    // Filtramos SOLO las que NO tienen mesa asignada
     const unassignedReservations = allReservations.filter(r => !r.table_id || r.table_id === '');
 
+    // Reseteamos contadores
+    this.lateReservationsCount = 0;
+    this.upcomingReservationsCount = 0;
+    this.todayReservationsCount = unassignedReservations.length; // Mantenemos el total por las dudas
+
     if (unassignedReservations.length === 0) {
-      this.todayReservationsCount = 0;
       this.displayUpcomingAlert = false;
       return;
     }
-    this.todayReservationsCount = unassignedReservations.length;
-    
-    const now = new Date();
-    const currentHour = now.getHours();
-    const upcomingReservations = unassignedReservations.filter(r => {
-      const [resHour, resMin] = r.reservationTime.split(':').map(Number);
-      const hourDifference = resHour - currentHour;
-      return hourDifference > 0 && hourDifference <= 2;
+
+    // Calculamos cuántas son Late y cuántas Soon
+    unassignedReservations.forEach(r => {
+      if (this.isLate(r.reservationTime)) {
+        this.lateReservationsCount++;
+      } else if (this.isSoon(r.reservationTime)) {
+        this.upcomingReservationsCount++;
+      }
     });
 
-    if (upcomingReservations.length > 0) {
-      if (this.displayUpcomingAlert === false) {
-        this.upcomingAlertMessage = `¡Atención! Tienes ${upcomingReservations.length} reserva(s) para la próxima hora sin asignar. Por favor, gestiónalas.`;
+    // Lógica del popup de alerta (la mantenemos igual, pero usando la cuenta nueva)
+    if (this.upcomingReservationsCount > 0 && this.displayUpcomingAlert === false) {
+        this.upcomingAlertMessage = `¡Atención! Tienes ${this.upcomingReservationsCount} reserva(s) próximas sin asignar.`;
         this.displayUpcomingAlert = true;
-      }
     }
+  }
+
+  // --- HELPERS DE TIEMPO (Añadir al final de la clase) ---
+  isLate(timeStr: string): boolean {
+    if (!timeStr) return false;
+    const now = new Date();
+    const [h, m] = timeStr.split(':').map(Number);
+    const resDate = new Date(); 
+    resDate.setHours(h, m, 0, 0);
+    // Si "ahora" es mayor que la fecha de reserva -> Tarde
+    return now > resDate;
+  }
+
+  isSoon(timeStr: string): boolean {
+    if (!timeStr) return false;
+    const now = new Date();
+    const [h, m] = timeStr.split(':').map(Number);
+    const resDate = new Date();
+    resDate.setHours(h, m, 0, 0);
+    
+    const diffMs = resDate.getTime() - now.getTime();
+    const diffMinutes = diffMs / (1000 * 60);
+
+    // Si falta entre 0 y 60 minutos -> Próxima
+    return diffMinutes > 0 && diffMinutes <= 60;
   }
 
   closeUpcomingAlert(): void { this.displayUpcomingAlert = false; }

@@ -5,13 +5,45 @@
   </div>
   <div class="section title-section">
     <p class="title">MY TABLES</p>
-    <div class="notification-bell"  (click)="onNotificationClick()">
+
+    <div class="order-pill" 
+         (click)="onNotificationClick()"
+         [ngClass]="{'has-orders': inactiveOrdersCount > 0}"
+         pTooltip="Pedidos sin mesa asignada" 
+         tooltipPosition="bottom">
+      
       <i class="pi pi-inbox"></i>
-      <span class="inactive-count">{{ inactiveOrdersCount }}</span>
+      <span>{{ inactiveOrdersCount }}</span>
     </div>
-    <div class="notification-bell" (click)="onReservationNotificationClick()">
-      <i class="pi pi-calendar"></i>
-      <span class="inactive-count">{{ todayReservationsCount }}</span>
+
+    <div class="reservation-pill" 
+         (click)="onReservationNotificationClick()"
+         [ngClass]="{'has-urgent': lateReservationsCount > 0, 'has-soon': upcomingReservationsCount > 0}">
+         
+      <ng-container *ngIf="lateReservationsCount > 0 || upcomingReservationsCount > 0">
+          
+          <div class="alert-item late" *ngIf="lateReservationsCount > 0"
+               pTooltip="Reservas Atrasadas (Check-in urgente)" tooltipPosition="bottom">
+            <i class="pi pi-exclamation-triangle"></i>
+            <span>{{ lateReservationsCount }}</span>
+          </div>
+
+          <div class="separator" *ngIf="lateReservationsCount > 0 && upcomingReservationsCount > 0">|</div>
+
+          <div class="alert-item soon" *ngIf="upcomingReservationsCount > 0"
+               pTooltip="Reservas en la próxima hora" tooltipPosition="bottom">
+            <i class="pi pi-clock"></i>
+            <span>{{ upcomingReservationsCount }}</span>
+          </div>
+      </ng-container>
+
+      <ng-container *ngIf="lateReservationsCount === 0 && upcomingReservationsCount === 0">
+          <span class="normal-wrapper" pTooltip="Reservas totales de hoy" tooltipPosition="bottom">
+              <i class="pi pi-calendar"></i>
+              <span style="margin-left: 8px;">{{ todayReservationsCount }}</span>
+          </span>
+      </ng-container>
+
     </div>
   </div>
   

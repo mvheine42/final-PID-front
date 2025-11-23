@@ -297,6 +297,45 @@
   border-top: none ; /* Opcional: quita la línea del footer */
 }
 
+.time-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 15px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: help; /* Cursor de ayuda para indicar que hay tooltip */
+}
+
+/* Estilo para items ya servidos (Verde/Gris) */
+.time-badge.served {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #a5d6a7;
+}
+
+/* Estilo para items en espera (Azul normal) */
+.time-badge.waiting {
+  background-color: #e3f2fd;
+  color: #1565c0;
+  border: 1px solid #90caf9;
+}
+
+/* Estilo CRÍTICO (Rojo - si tarda mucho) */
+.time-badge.waiting.critical {
+  background-color: #ffebee;
+  color: #c62828;
+  border: 1px solid #ef9a9a;
+  animation: pulse 2s infinite; /* Pequeña animación para llamar la atención */
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(244, 67, 54, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0); }
+}
+
 @media (max-width: 768px) {
 
   .container-table-free {
