@@ -73,7 +73,8 @@ import { AssignReservationTableComponent } from './screens/my-tables/assign-rese
 import { TableReservedComponent } from './screens/my-tables/table-reserved/table-reserved.component';
 import { TimeComponent } from './screens/time/time.component'; 
 import { SelectButtonModule } from 'primeng/selectbutton';
-
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { AuthInterceptor } from './services/auth_interceptor';
 @NgModule({
   declarations: [
     AppComponent,
@@ -151,7 +152,16 @@ import { SelectButtonModule } from 'primeng/selectbutton';
     CarouselModule,
     SelectButtonModule
 ],
-  providers: [ConfirmationService, MessageService, DatePipe],
+  providers: [
+  ConfirmationService,
+  MessageService,
+  DatePipe,
+  {
+    provide: HTTP_INTERCEPTORS,
+    useClass: AuthInterceptor,
+    multi: true
+  }
+],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
