@@ -25,6 +25,16 @@ export class OrderService {
     }
   }
 
+  async onRegisterExternal(order: Order): Promise<any | null> {
+    try {
+        const response = await this.http.post(`${this.baseUrl}/external-order`, order).toPromise();
+        return response;
+    } catch (error: any) {
+        console.error('Error durante el registro externo:', error);
+        return null;
+    }
+  }
+
   async addOrderItems(orderId: string, newItems: any[], total: string): Promise<boolean> {
     try {
       const body = { new_order_items: newItems, new_order_total: total };
@@ -57,7 +67,7 @@ export class OrderService {
   assignOrderToTable(orderId: number, tableId: number): Observable<any> {
     console.log(`Assigning order ${orderId} to table ${tableId}`);
   
-    return this.http.put<any>(`${this.baseUrl}/asign-order-table/${orderId}/${tableId}`, null).pipe(
+    return this.http.put<any>(`${this.baseUrl}/assign-order-to-table/${orderId}/${tableId}`, null).pipe(
       tap(response => console.log('Response from API:', response)),
       catchError(error => {
         console.error('Error assigning order to table:', error);

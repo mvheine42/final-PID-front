@@ -211,81 +211,105 @@ ngOnDestroy() {
   }
 
   //UPDATE
-  async updateOrder() {
-    this.loading = true;
-    const total = this.calculateTotal().toString();
-  
-    if (this.table.order_id) {
-      try {
-        const success = await this.orderService.addOrderItems(this.table.order_id.toString(), this.orderItems, total);
-  
-        if (success) {
-          
-          await this.updateProductsStock();
-          console.log('Order items added and stock updated successfully');
-        } else {
-          console.error('Error adding order items.');
-        }
-      } catch (error) {
-        console.error('Error adding order items:', error);
-      } finally {
-        // Finaliza la carga y cierra el diálogo
-        this.loading = false;
-        this.closeDialog();
-      }
-    } else {
-      console.error('Order ID is undefined.');
-      this.loading = false;
-    }
+async updateOrder() {
+  this.loading = true;
+  const total = this.calculateTotal().toString();
+
+  // Si no se agregaron productos nuevos, no hace falta ir al backend
+  if (this.newOrderItems.length === 0) {
+    this.loading = false;
+    this.closeDialog();
+    return;
   }
+
+  if (this.table.order_id) {
+    try {
+      // ⬇⬇⬇ ENVIAMOS SOLO LOS NUEVOS ÍTEMS ⬇⬇⬇
+      const success = await this.orderService.addOrderItems(
+        this.table.order_id.toString(),
+        this.newOrderItems,
+        total
+      );
+
+      if (success) {
+        await this.updateProductsStock();
+        console.log('Order items added and stock updated successfully');
+
+        // Ya se guardaron, vaciamos el buffer de nuevos ítems
+        this.newOrderItems = [];
+      } else {
+        console.error('Error adding order items.');
+      }
+    } catch (error) {
+      console.error('Error adding order items:', error);
+    } finally {
+      this.loading = false;
+      this.closeDialog();
+    }
+  } else {
+    console.error('Order ID is undefined.');
+    this.loading = false;
+  }
+}
+
   
 
-  async closeAndUpdateOrder() {
-    this.loading = true;
-    const total = this.calculateTotal().toString();
-  
-    if (!this.table.order_id) {
-      console.error('Order ID is undefined.');
-      this.loading = false;
-      return;
-    }
-  
-    try {
-      // Agregar los elementos de la orden
-      const success = await this.orderService.addOrderItems(this.table.order_id.toString(), this.orderItems, total);
+async closeAndUpdateOrder() {
+  this.loading = true;
+  const total = this.calculateTotal().toString();
+
+  if (!this.table.order_id) {
+    console.error('Order ID is undefined.');
+    this.loading = false;
+    return;
+  }
+
+  try {
+    // 1) Si hay productos nuevos, primero los agregamos
+    if (this.newOrderItems.length > 0) {
+      const success = await this.orderService.addOrderItems(
+        this.table.order_id.toString(),
+        this.newOrderItems,
+        total
+      );
+
       if (!success) {
         console.error('Error adding order items.');
+        this.loading = false;
         return;
       }
 
       await this.updateProductsStock();
-  
-      // Finalizar la orden
-      await this.orderService.finalizeOrder(this.table.order_id.toString()).toPromise();
-      console.log('Order status updated to FINALIZED');
-      this.userService.checkUserLevel(this.actualOrder?.employee ?? '').subscribe({
-        next: (response) => {
-            console.log('User level checked successfully:', response);
-        },
-        error: (error) => {
-            console.error('Error checking user level:', error);
-        }
-    });
-        
-      // Cerrar la mesa
-      await this.tableService.closeTable(this.table).toPromise();
-      console.log('Table closed successfully');
-  
-      // Cierra el diálogo
-      this.closeDialog();
-    
-  
-    } catch (error) {
-      console.error('An error occurred:', error);
-    } finally {
-      this.loading = false;
+      this.newOrderItems = [];
     }
+
+    // 2) Finalizar la orden
+    await this.orderService.finalizeOrder(this.table.order_id.toString()).toPromise();
+    console.log('Order status updated to FINALIZED');
+
+    this.userService.checkUserLevel(this.actualOrder?.employee ?? '').subscribe({
+      next: (response) => {
+        console.log('User level checked successfully:', response);
+      },
+      error: (error) => {
+        console.error('Error checking user level:', error);
+      }
+    });
+
+    // 3) Cerrar la mesa
+    await this.tableService.closeTable(this.table).toPromise();
+    console.log('Table closed successfully');
+
+    // 4) Cerrar diálogo
+    this.closeDialog();
+
+  } catch (error) {
+    console.error('An error occurred:', error);
+  } finally {
+    this.loading = false;
   }
+}
+
   
 
   closeDialog() {
