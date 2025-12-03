@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { auth } from '../services/firebaseconfig';  // Import Firebase auth
+import { AuthService } from '../services/auth_service';
 import { signInWithEmailAndPassword, sendPasswordResetEmail, deleteUser, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, UserCredential, User, onAuthStateChanged, setPersistence, browserSessionPersistence, signOut, confirmPasswordReset } from 'firebase/auth';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 
 @Injectable({
@@ -11,6 +12,8 @@ import { Observable } from 'rxjs';
 
 export class UserService {
   currentUser: User | null = null;
+  currentUserData: any = null;
+  currentData: BehaviorSubject<any> = new BehaviorSubject<any>(null);
 
   //private baseUrl = 'https://candv-back.onrender.com';
   private baseUrl = 'http://127.0.0.1:8000';
@@ -18,16 +21,8 @@ export class UserService {
   maxIdleTime: number = 10 * 60 * 1000; // 10 minutos de inactividad
   idleInterval: any;
 
-  constructor(private http: HttpClient) { 
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        this.currentUser = user; // Usuario autenticado
-        console.log('User logged in:', user);
-      } else {
-        this.currentUser = null; // No hay usuario autenticado
-        console.log('No user is logged in');
-      }
-    });
+  constructor(private http: HttpClient, private authService: AuthService) { 
+
   }
 
   async onRegister(email: string, password: string, name: string, birthday: string, imageUrl: string): Promise<boolean>{
@@ -36,7 +31,7 @@ export class UserService {
       // Crear usuario en Firebase Authentication
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const firebaseUser = userCredential.user;
-      console.log('Usuario creado exitosamente:', firebaseUser);
+      const token = await firebaseUser.getIdToken();
       
       // Preparar los datos adicionales para enviar al backend
       const data = {
@@ -46,31 +41,54 @@ export class UserService {
         imageUrl: imageUrl
       };
       console.log(this.http.post(`${this.baseUrl}/register/`, data));
-      await this.http.post(`${this.baseUrl}/register/`, data).toPromise();
-      console.log('Datos adicionales guardados en Firestore');
+      await this.http.post(`${this.baseUrl}/register/`, data, { headers: { Authorization: `Bearer ${token}` } }).toPromise();
       return true;
     } catch (error: any) {
-      console.error('Error durante el registro:', error);
+      if (error.code === 'auth/email-already-in-use') {
+        const credential = await signInWithEmailAndPassword(auth, email, password);
+        const user = credential.user;
+        const token = await user.getIdToken();
+        const data = {
+          uid: user.uid,
+          name: name,
+          birthday: birthday,
+          imageUrl: imageUrl
+        };
+        await this.http.post(`${this.baseUrl}/register/`, data, { headers: { Authorization: `Bearer ${token}` } }).toPromise();
+        return true;
+      }
       throw error;
-      return false;
     }
   }
   
   async login(email: string, password: string): Promise<boolean> {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      localStorage.setItem('token', await userCredential.user?.getIdToken() ?? '');
-      return true;  // Retorna true si el login fue exitoso
+      const uid = userCredential.user?.uid;
+      this.currentUser = userCredential.user;
+      const user = userCredential.user;
+      const token = await user.getIdToken();
+      if(uid){
+        const userData = await this.getUserData(uid);
+        userData.uid = uid;
+        this.currentUserData = userData;
+        this.currentData.next(userData);
+      }
+      return true;  
     } catch (error) {
       console.error('Error al iniciar sesión', error);
-      return false;  // Retorna false si el login falla
+      return false;
     }
   }
 
-  async getUserDataFromFirestore(uid: string): Promise<Observable<any>> {
-    const url = `${this.baseUrl}/users/${uid}`; // URL del backend FastAPI
-    return this.http.get(url); // Retorna un Observable con los datos del usuario
+  async getUserData(uid: string): Promise<any> { 
+    const url = `${this.baseUrl}/users/${uid}`;
+    return this.http.get(url);
   }
+
+  async getUserDataFromFirestore(uid: string): Promise<Observable<any>> { 
+    const url = `${this.baseUrl}/users/${uid}`; 
+    return this.http.get(url);}
   
   async resetPassword(email: string): Promise<void> {
     try {
@@ -115,7 +133,11 @@ export class UserService {
   }
 
 logOut(){
-  return signOut(auth)
+  this.currentUser = null;
+  this.currentUserData = null;
+  this.currentData.next(null);
+  clearInterval(this.idleInterval);
+  return this.authService.logout();
 }
 
   // Monitorea la actividad del usuario (para resetear el temporizador de inactividad)
@@ -145,7 +167,7 @@ logOut(){
     });
   }
   getRanking(): Observable<any> {
-    return this.http.get(`${this.baseUrl}/ranking`);
+    return this.http.get(`${this.baseUrl}/ranking/`);
   }
 
   getRewards(levelId: string): Observable<any>{
@@ -154,7 +176,7 @@ logOut(){
   }
 
   checkUserLevel(employee: string): Observable<any>{
-    return this.http.get(`${this.baseUrl}/check-level/${employee}`);
+    return this.http.get(`${this.baseUrl}/check-level/`);
   }
 
   getTopLevelStatus(levelId: string): Observable<{ isTopLevel: boolean }> {
