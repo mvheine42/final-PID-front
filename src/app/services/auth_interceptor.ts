@@ -16,8 +16,7 @@ export class AuthInterceptor implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const isApiCall =
       req.url.startsWith('http://127.0.0.1:8000') 
-      //||req.url.includes('two024-plaza-final-back-4lpd.onrender.com');
-
+      
     if (!isApiCall) return next.handle(req);
 
     return from(this.attachToken(req, false)).pipe(

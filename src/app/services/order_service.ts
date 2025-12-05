@@ -67,7 +67,7 @@ export class OrderService {
   assignOrderToTable(orderId: number, tableId: number): Observable<any> {
     console.log(`Assigning order ${orderId} to table ${tableId}`);
   
-    return this.http.put<any>(`${this.baseUrl}/assign-order-to-table/${orderId}/${tableId}`, null).pipe(
+    return this.http.put<any>(`${this.baseUrl}/assign-table-and-order/${orderId}/${tableId}`, {}).pipe(
       tap(response => console.log('Response from API:', response)),
       catchError(error => {
         console.error('Error assigning order to table:', error);

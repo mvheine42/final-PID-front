@@ -34,6 +34,8 @@ export class TableFreeComponent implements OnInit {
   currentDate: string = this.formatDate(new Date());
   user: any | null
   uid: string = '';
+  prettyDate: string = '';
+
   @Input() reservation: Reservation | null = null; 
   
   selectedCategories: Array<{ id: any, name: string }> = [];
@@ -47,6 +49,11 @@ export class TableFreeComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
+
+    this.currentDate = this.getBuenosAiresISODate();
+    this.currentTime = this.getBuenosAiresTime();
+    this.prettyDate = this.getBuenosAiresDateFormatted();
+
     this.updateCurrentTime();
     this.loadProducts();
     this.loadCategories();
@@ -84,10 +91,9 @@ export class TableFreeComponent implements OnInit {
   }
 
   updateCurrentTime() {
-    const hours = new Date().getHours().toString().padStart(2, '0');
-    const minutes = new Date().getMinutes().toString().padStart(2, '0');
-    this.currentTime = `${hours}:${minutes}`;
-  }
+  this.currentTime = this.getBuenosAiresTime();
+}
+
 
   addOrderItem() {
     if (this.selectedProduct && this.selectedAmount > 0) {
@@ -269,5 +275,42 @@ export class TableFreeComponent implements OnInit {
       this.selectedAmount = enteredAmount;
     }
   }
+
+  getBuenosAiresISODate(): string {
+  const now = new Date();
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Argentina/Buenos_Aires",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).format(now);
+}
+
+getBuenosAiresTime(): string {
+  const now = new Date();
+  return new Intl.DateTimeFormat("en-GB", {
+    timeZone: "America/Argentina/Buenos_Aires",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false
+  }).format(now);
+}
+
+getBuenosAiresDateFormatted(): string {
+  const now = new Date();
+  const formatted = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Argentina/Buenos_Aires",
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false
+  }).format(now);
+
+  return formatted.replace(",", "") + "hs";
+}
+
 
 }
