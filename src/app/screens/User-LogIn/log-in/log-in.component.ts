@@ -1,9 +1,7 @@
-import { Component, OnInit, HostListener  } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { UserService } from 'src/app/services/user_service';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
-
-
 
 @Component({
   selector: 'app-log-in',
@@ -21,30 +19,34 @@ export class LogInComponent implements OnInit {
   displayEmailDialog: boolean = false;
   message: string = '';
 
-  
-  constructor(private userService: UserService, private router: Router, private messageService: MessageService) {}
-  
+  constructor(
+    private userService: UserService, 
+    private router: Router, 
+    private messageService: MessageService
+  ) {}
+
   ngOnInit(): void {
-    localStorage.removeItem("token");
+    // ✅ No need to manage tokens manually with sessionStorage
+    // Firebase + AuthService handle everything
   }
 
   async onLogin() {
     this.loading = true;
     const loginSuccess = await this.userService.login(this.email, this.password);
+    
     setTimeout(async () => {
       this.loading = false;
-  }, 1000);
-    
-    // Si el login es exitoso, redirige a la página 'home'
+    }, 1000);
+
     if (loginSuccess) {
+      // ✅ Session automatically stored in sessionStorage
+      // ✅ Inactivity detection automatically started by AuthService
       this.router.navigate(['/home']);
       this.loading = false;
     } else {
-      // Si falla, muestra un mensaje de error (puedes usar un modal, snackbar, etc.)
       this.showErrorDialog();    
     }
   }
-  
 
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
@@ -60,14 +62,8 @@ export class LogInComponent implements OnInit {
   }
 
   onSignUpClick() {
-    // Activamos la animación
     this.animateForm = true;
     this.router.navigate(['/user-register']);
-
-    // Después de 1 segundo (la duración de la animación), navegamos al registro
-    /*setTimeout(() => {
-      this.router.navigate(['/user-register']);
-    }, 1000); */ // 1000ms = 1 segundo, coincidiendo con 'animation-duration-1000'
   }
 
   showErrorDialog() {
@@ -78,7 +74,7 @@ export class LogInComponent implements OnInit {
     this.displayErrorDialog = false;
   }
 
-  showEmailDialog( message: string) {
+  showEmailDialog(message: string) {
     this.message = message;
     this.displayEmailDialog = true;
   }
@@ -86,5 +82,4 @@ export class LogInComponent implements OnInit {
   closeEmailDialog() {
     this.displayEmailDialog = false;
   }
-
 }

@@ -11,8 +11,8 @@ import { throwError } from 'rxjs';
 })
 export class OrderService {
 
-  private baseUrl = 'https://candv-back.onrender.com';
-  //private baseLocalUrl = 'http://127.0.0.1:8000';
+  //private baseUrl = 'https://candv-back.onrender.com';
+  private baseUrl = 'http://127.0.0.1:8000';
   constructor(private http: HttpClient) { }
 
   async onRegister(order: Order): Promise<any | null> {
@@ -21,6 +21,16 @@ export class OrderService {
         return response;
     } catch (error: any) {
         console.error('Error durante el registro:', error);
+        return null;
+    }
+  }
+
+  async onRegisterExternal(order: Order): Promise<any | null> {
+    try {
+        const response = await this.http.post(`${this.baseUrl}/external-order`, order).toPromise();
+        return response;
+    } catch (error: any) {
+        console.error('Error durante el registro externo:', error);
         return null;
     }
   }
@@ -57,7 +67,7 @@ export class OrderService {
   assignOrderToTable(orderId: number, tableId: number): Observable<any> {
     console.log(`Assigning order ${orderId} to table ${tableId}`);
   
-    return this.http.put<any>(`${this.baseUrl}/asign-order-table/${orderId}/${tableId}`, null).pipe(
+    return this.http.put<any>(`${this.baseUrl}/assign-table-and-order/${orderId}/${tableId}`, {}).pipe(
       tap(response => console.log('Response from API:', response)),
       catchError(error => {
         console.error('Error assigning order to table:', error);
@@ -66,13 +76,25 @@ export class OrderService {
     );
   }
 
-  assignEmployeeToOrder(orderId: number, uid: string){
-    return this.http.put<any>(`${this.baseUrl}/assign-order-employee/${orderId}/${uid}`, {});
+  assignEmployeeToOrder(orderId: number){
+    return this.http.put<any>(`${this.baseUrl}/assign-order-employee/${orderId}`, {});
   }
   deleteOrderItems(orderId: string, orderItems: string[]) {
     return this.http.delete(`${this.baseUrl}/delete-order-item/${orderId}`, {
       body: orderItems 
     });
+  }
+
+  serveOrderItem(orderId: string, itemId: string): Observable<any> {
+    return this.http.put(`${this.baseUrl}/orders/serve-item/${orderId}/${itemId}`, {});
+  }
+
+  getWaitTimeByProduct(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/reports/wait-time/products`);
+  }
+
+  getWaitTimeByDay(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/reports/wait-time/daily`);
   }
 
 }

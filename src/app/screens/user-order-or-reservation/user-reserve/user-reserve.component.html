@@ -1,0 +1,129 @@
+<div class="conteiner">
+  <!-- Header fijo -->
+  <div class="menu-header">
+    <div class="bar-info">
+      <img src="assets/images/taza.png" alt="Logo del Bar" class="bar-logo"/>
+      <h1 class="bar-name">C&V BAR</h1>
+    </div>
+  </div>
+
+  <!-- Contenido principal -->
+  <main class="hero">
+    <div class="reservation-box">
+      <h2 class="title">Reservá tu mesa</h2>
+
+      <form class="p-fluid" #reserveForm="ngForm" (ngSubmit)="createReservation()">
+        <!-- NOMBRE -->
+        <div class="p-field">
+          <label for="customerName">Nombre</label>
+          <input
+            id="customerName"
+            type="text"
+            pInputText
+            [(ngModel)]="customerName"
+            name="customerName"
+            placeholder="Ej: Wanda Nara"
+            required
+          />
+        </div>
+
+        <!-- EMAIL -->
+        <div class="p-field">
+          <label for="userEmail">Email</label>
+          <input
+            id="userEmail"
+            type="email"
+            pInputText
+            [(ngModel)]="userEmail"
+            name="userEmail"
+            (ngModelChange)="validateEmail()"
+            placeholder="chinatatiana@gmail.com"
+            required
+          />
+          <small *ngIf="!emailValid && userEmail" class="p-error">
+            Ingresá un email válido.
+          </small>
+        </div>
+
+        <!-- CANTIDAD -->
+        <div class="p-field">
+          <label for="amountOfPeople">Cantidad de personas</label>
+          <input
+            id="amountOfPeople"
+            type="number"
+            pInputText
+            [(ngModel)]="amountOfPeople"
+            name="amountOfPeople"
+            min="1"
+            max="4"
+            required
+          />
+          <small *ngIf="amountOfPeople > 4" class="p-error">
+            Máximo 4 personas por reserva.
+          </small>
+        </div>
+
+        <!-- FECHA -->
+        <div class="p-field">
+          <label for="reservationDate">Fecha</label>
+          <p-calendar
+            id="reservationDate"
+            [(ngModel)]="reservationDate"
+            name="reservationDate"
+            [minDate]="tomorrowLocal"
+            [maxDate]="maxDateLocal"
+            dateFormat="dd/mm/yy"
+            [showIcon]="true"
+            inputId="reservationDate"
+            (onSelect)="onDateChange($event)"  
+            required>
+          </p-calendar>
+        </div>
+
+        <!-- HORA -->
+        <div class="p-field">
+          <label for="reservationTime">Hora</label>
+          <p-dropdown
+            id="reservationTime"
+            [(ngModel)]="reservationTime"
+            name="reservationTime"
+            [options]="timesForUI"
+            [optionDisabled]="'disabled'"
+            placeholder="Seleccioná horario"
+            required>
+          </p-dropdown>
+        </div>
+
+        <!-- BOTÓN -->
+        <div class="p-field">
+          <button
+            pButton
+            type="submit"
+            label="Confirmar reserva"
+            [disabled]="!isFormValid()">
+          </button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <!-- Overlay para spinner -->
+  <div *ngIf="isLoading" class="overlay">
+    <p-progressSpinner styleClass="custom-spinner" [animationDuration]="'0.5'"></p-progressSpinner>
+  </div>
+
+  <!-- Diálogo de notificación -->
+  <div *ngIf="isNoticeVisible" class="overlay">
+    <p-dialog
+      header="Notificación"
+      [(visible)]="isNoticeVisible"
+      [modal]="true"
+      [closable]="true"
+      [baseZIndex]="20000">
+      <app-notice
+        [subtitle]="noticeMessage"
+        (onClose)="closeDialog()">
+      </app-notice>
+    </p-dialog>
+  </div>
+</div>

@@ -1,12 +1,49 @@
 <div class="container">
+  <!-- ... (Header e Imagen) ... -->
   <div class="section image-section">
     <img src="../../../../assets/images/tables2.jpg" alt="Imagen descriptiva" class="image">
   </div>
   <div class="section title-section">
     <p class="title">MY TABLES</p>
-    <div class="notification-bell"  (click)="onNotificationClick()">
+
+    <div class="order-pill" 
+         (click)="onNotificationClick()"
+         [ngClass]="{'has-orders': inactiveOrdersCount > 0}"
+         pTooltip="Pedidos sin mesa asignada" 
+         tooltipPosition="bottom">
+      
       <i class="pi pi-inbox"></i>
-      <span class="inactive-count">{{ inactiveOrdersCount }}</span>
+      <span>{{ inactiveOrdersCount }}</span>
+    </div>
+
+    <div class="reservation-pill" 
+         (click)="onReservationNotificationClick()"
+         [ngClass]="{'has-urgent': lateReservationsCount > 0, 'has-soon': upcomingReservationsCount > 0}">
+         
+      <ng-container *ngIf="lateReservationsCount > 0 || upcomingReservationsCount > 0">
+          
+          <div class="alert-item late" *ngIf="lateReservationsCount > 0"
+               pTooltip="Reservas Atrasadas (Check-in urgente)" tooltipPosition="bottom">
+            <i class="pi pi-exclamation-triangle"></i>
+            <span>{{ lateReservationsCount }}</span>
+          </div>
+
+          <div class="separator" *ngIf="lateReservationsCount > 0 && upcomingReservationsCount > 0">|</div>
+
+          <div class="alert-item soon" *ngIf="upcomingReservationsCount > 0"
+               pTooltip="Reservas en la próxima hora" tooltipPosition="bottom">
+            <i class="pi pi-clock"></i>
+            <span>{{ upcomingReservationsCount }}</span>
+          </div>
+      </ng-container>
+
+      <ng-container *ngIf="lateReservationsCount === 0 && upcomingReservationsCount === 0">
+          <span class="normal-wrapper" pTooltip="Reservas totales de hoy" tooltipPosition="bottom">
+              <i class="pi pi-calendar"></i>
+              <span style="margin-left: 8px;">{{ todayReservationsCount }}</span>
+          </span>
+      </ng-container>
+
     </div>
   </div>
   
@@ -25,7 +62,10 @@
           <tr (click)="onTableClick(table)">
             <td>{{ table.id }}</td>
             <td>{{ table.capacity}} </td>
-            <td [ngClass]="{'status-free': table.status === 'FREE', 'status-busy': table.status === 'BUSY', 'status-finished': table.status === 'FINISHED'}">
+            <td [ngClass]="{'status-free': table.status === 'FREE', 
+                           'status-busy': table.status === 'BUSY', 
+                           'status-finished': table.status === 'FINISHED', 
+                           'status-reserved': table.status === 'RESERVED'}">
               {{ table.status }}
             </td>
           </tr>
@@ -40,7 +80,12 @@
     </div>
 
     <div class="table-icons">
-      <div *ngFor="let table of tables" class="table-icon" [ngClass]="{'status-free': table.status === 'FREE', 'status-busy': table.status === 'BUSY', 'status-finished': table.status === 'FINISHED'}" (click)="onTableClick(table)">
+      <div *ngFor="let table of tables" class="table-icon" 
+           [ngClass]="{'status-free': table.status === 'FREE', 
+                      'status-busy': table.status === 'BUSY', 
+                      'status-finished': table.status === 'FINISHED',
+                      'status-reserved': table.status === 'RESERVED'}" 
+           (click)="onTableClick(table)">
         <i class="fas fa-utensils"></i>
         <span>{{ table.id }}</span>
       </div>
@@ -48,33 +93,59 @@
   </div>
 </div>
 
+<!-- MODAL PRINCIPAL DE MESAS -->
 <p-dialog class="custom-modal" [(visible)]="displayModal" modal="true" [closable]="false" [responsive]="true">
+  
   <ng-container *ngIf="selectedComponent === 'FREE'">
-    <app-table-free 
-      [table]="selectedTable" 
-      (close)="displayModal = false">
-    </app-table-free>
+    <app-table-free [table]="selectedTable" (close)="displayModal = false" [reservation]="reservationForCheckIn"></app-table-free>
   </ng-container>
 
   <ng-container *ngIf="selectedComponent === 'BUSY'">
-    <app-table-busy
-      [table]="selectedTable" 
-      (close)="displayModal = false">
-    </app-table-busy>
+    <app-table-busy [table]="selectedTable" (close)="displayModal = false"></app-table-busy>
   </ng-container>
 
   <ng-container *ngIf="selectedComponent === 'FINISHED'">
-    <app-table-finished
-      [table]="selectedTable" 
-      (close)="displayModal = false">
-    </app-table-finished>
+    <app-table-finished [table]="selectedTable" (close)="displayModal = false"></app-table-finished>
   </ng-container>
+
+  <!-- 5. AQUÍ CONECTAMOS EL EVENTO -->
+<ng-container *ngIf="selectedComponent === 'RESERVED'">
+    <app-table-reserved 
+      [table]="selectedTable" 
+      (close)="onReservedTableClosed()" 
+      (checkIn)="onReservationCheckIn($event)"
+      (showConfirmation)="openGlobalConfirmation($event)">
+    </app-table-reserved>
+  </ng-container>
+
 </p-dialog>
 
-<p-dialog class="custom-modal" [(visible)]="displayModalInactive" modal="true" header="Asign Table" [closable]="true" [responsive]="true">
-  <app-asign-inactive-order 
-    [orders]="inactiveOrders" 
-    [freeTables]="freeTables"
-    (close)="closeModalInactive()">
-  </app-asign-inactive-order>
+<!-- OTROS MODALES -->
+<p-dialog class="inactive-orders-modal" [(visible)]="displayModalInactive" modal="true" header="Asign Table" [closable]="true" [responsive]="true">
+  <app-asign-inactive-order [orders]="inactiveOrders" [freeTables]="freeTables" (close)="closeModalInactive()"></app-asign-inactive-order>
+</p-dialog>
+
+<p-dialog class="reservations-modal-container" [(visible)]="displayReservationsModal" modal="true" header="Reservations Today" [closable]="true" [responsive]="true">
+    <app-assign-reservation-table [dateISO]="todayISO" (close)="displayReservationsModal=false" (assigned)="onReservationAssigned()"></app-assign-reservation-table>
+</p-dialog>
+
+<!-- 6. MODAL GLOBAL DE CONFIRMACIÓN (Ahora vive aquí, encima de todo) -->
+<p-dialog [(visible)]="displayGlobalConfirmation"
+          [modal]="true"
+          header="Confirmación" 
+          [closable]="true"
+          class="confirmation-overlay-modal"> 
+  <ng-template pTemplate="header">
+    <i class="pi pi-exclamation-triangle" style="color: orange; font-size: 1.5rem;"></i>
+    <h2>Confirmar Gestión</h2>
+  </ng-template>
+  <app-confirmation-pop-up
+    (onSend)="handleGlobalConfirmationSend()"
+    (onClose)="displayGlobalConfirmation = false"
+    [subtitle]="globalConfirmationMessage">
+  </app-confirmation-pop-up>
+</p-dialog>
+
+<p-dialog [(visible)]="displayUpcomingAlert" [appendTo]="'body'" class="custom-modal" [modal]="true" [closable]="false" header="Alerta de Reservas">
+  <app-notice [subtitle]="upcomingAlertMessage" (onClose)="closeUpcomingAlert()"></app-notice>
 </p-dialog>

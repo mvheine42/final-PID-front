@@ -1,36 +1,36 @@
-::ng-deep .p-inputtext {
+:host ::ng-deep .p-inputtext {
     border-radius: 10px !important;
 }
 
-::ng-deep .p-button {
+:host ::ng-deep .p-button {
     border-radius: 8px !important;
 }
 
-::ng-deep .custom-send-button .p-button {
+:host ::ng-deep .custom-send-button .p-button {
     background-color: #ab602f !important;
     border-color: #ab602f !important;
 }
 
-::ng-deep .custom-send-button .p-button:hover {
+:host ::ng-deep .custom-send-button .p-button:hover {
     background-color: #894d26 !important;
     border-color: #894d26 !important;
 }
 
-::ng-deep .custom-cancel-button .p-button {
+:host ::ng-deep .custom-cancel-button .p-button {
     background-color: #533521c7 !important;
     border-color: #533521c7 !important;
 }
 
-::ng-deep .custom-cancel-button .p-button:hover {
+:host ::ng-deep .custom-cancel-button .p-button:hover {
     background-color: #533521da !important;
     border-color: #533521da !important;
 }
 
-::ng-deep .p-button:focus {
+:host ::ng-deep .p-button:focus {
     outline: none !important;
 }
 
-.container {
+:host .container {
     background-color: white;
 }
 

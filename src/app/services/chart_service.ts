@@ -7,7 +7,8 @@ import { Observable } from 'rxjs';
 })
 export class ChartService {
 
-  private baseUrl = 'https://candv-back.onrender.com';
+  //private baseUrl = 'https://candv-back.onrender.com';
+  private baseUrl = 'http://127.0.0.1:8000';
   constructor(private http: HttpClient) { }
 
   getCategoryRevenue(): Observable<any> {
@@ -21,10 +22,10 @@ export class ChartService {
     return this.http.get<any>(endpoint);
   }
   getAveragePerPerson(year: string, month: string): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/average_per_person/${year}/${month}`);
+    return this.http.get<any>(`${this.baseUrl}/average-per-person/${year}/${month}`);
 }
 
   getAveragePerTicket(year: string, month: string): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/averare_per_order/${year}/${month}`);
+    return this.http.get<any>(`${this.baseUrl}/average-per-order/${year}/${month}`);
 }
 }

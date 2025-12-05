@@ -1,0 +1,149 @@
+:host .container-table-reserved {
+  background-color: #fff;
+  border-radius: 30px;
+  width: 510px;     /* <--- CAMBIO AQUÍ (Antes 450px) */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  margin: auto;
+  min-height: 200px; 
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background-color: #c8731e;
+  color: white;
+}
+
+.table-number {
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.status {
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.body {
+  padding: 25px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.title {
+  font-size: 1.1rem;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.details {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #c8731e;
+  margin-bottom: 25px;
+}
+
+
+.action-buttons {
+  display: flex;
+  align-items: center; /* Centra todo verticalmente */
+  width: 100%;
+  gap: 8px;
+}
+
+/* --- EL ESPACIADOR --- */
+.spacer { 
+  flex-grow: 1; 
+} 
+
+/* --- LOS WRAPPERS (TOOLTIPS) --- */
+/* Importante: inline-flex para que se peguen al tamaño del botón */
+.action-buttons > span {
+  display: inline-flex; 
+  align-items: center;
+  vertical-align: middle;
+}
+
+.action-buttons button.p-button {
+  min-width: 110px !important;    /* <--- EL SECRETO: Ancho mínimo fijo para todos */
+  height: 42px !important;        /* Altura fija */
+  padding: 0 10px !important;     /* Padding lateral */
+  
+  display: flex !important;       /* Para centrar el texto */
+  justify-content: center !important;
+  align-items: center !important;
+  
+  font-size: 0.95rem !important;  /* Ajuste leve de fuente */
+  white-space: nowrap;            /* Que el texto no se baje de renglón */
+}
+
+.close-button {
+  background-color: #7f522e !important;
+  border: none !important;
+}
+.close-button:hover {
+  background-color: #613d20 !important;
+}
+
+.checkin-button {
+  background-color: #23ae43 !important;
+  border: none !important;
+}
+.checkin-button:hover {
+  background-color: #1b8734 !important;
+}
+
+/* ESTILOS ESPECÍFICOS DE PRIMENG (::ng-deep) */
+
+/* Botón de Cancelar (Rojo) */
+:host ::ng-deep .p-button-danger {
+    background-color: #f44336 !important;
+    border-color: #f44336 !important;
+}
+
+/* Botón de No Show (Naranja) */
+:host ::ng-deep .p-button-warning {
+    background-color: #ff9800 !important;
+    border-color: #ff9800 !important;
+}
+
+:host ::ng-deep .p-button-danger,
+:host ::ng-deep .p-button-warning {
+    border: none !important; 
+}
+
+/* Modales transparentes */
+::ng-deep .custom-modal .p-dialog {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+::ng-deep .custom-modal .p-dialog .p-dialog-header {
+  display: none !important;
+}
+::ng-deep .custom-modal .p-dialog .p-dialog-header-icon.p-dialog-header-close {
+  display: none !important;
+}
+::ng-deep .custom-modal .p-dialog .p-dialog-content {
+  background-color: transparent !important;
+  padding: 0 !important;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100; /* un poco más alto que el modal de la mesa */
+}
+
+.custom-spinner {
+  width: 60px;
+  height: 60px;
+}

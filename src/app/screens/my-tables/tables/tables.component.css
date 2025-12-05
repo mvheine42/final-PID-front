@@ -111,6 +111,11 @@ html, body {
     font-weight: bold;
 }
 
+.status-reserved {
+    color: #c8731e;
+    font-weight: bold;
+}
+
 th, td {
     text-align: center;
     vertical-align: middle;
@@ -149,13 +154,111 @@ th, td {
     background-color: #c41729;
 }
 
+.table-icon.status-reserved {
+    background-color: #c8731e; /* El mismo violeta */
+}
 .table-icon i {
     font-size: 18px;
     margin-right: 5px;
     color: white;
 }
 
+.reservation-pill {
+    background-color: #d49969; /* Color base (tranquilo) */
+    color: white;
+    border-radius: 50px;
+    padding: 8px 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin-right: 20px; /* Separación del borde o del otro icono */
+    height: 40px;       /* Altura fija para alinearse */
+}
 
+.reservation-pill:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* ESTADOS DE LA PÍLDORA */
+/* Si hay algo urgente (rojo), la píldora se pone blanca con borde rojo para destacar */
+.reservation-pill.has-urgent {
+    background-color: #fff;
+    border: 2px solid #d32f2f;
+    color: #d32f2f;
+}
+
+/* Si solo hay próximas (naranja), borde naranja */
+.reservation-pill.has-soon:not(.has-urgent) {
+    background-color: #fff;
+    border: 2px solid #d97706;
+    color: #d97706;
+}
+
+/* Ítems internos */
+.alert-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.alert-item.late { color: #d32f2f; }
+.alert-item.soon { color: #d97706; }
+
+.separator {
+    color: #ccc;
+    font-weight: 300;
+    font-size: 1.2rem;
+    margin: 0 5px;
+}
+
+.reservation-pill i {
+    font-size: 1.1rem;
+}
+
+.order-pill {
+    background-color: #d49969; /* Mismo marrón base */
+    color: white;
+    border-radius: 50px;
+    padding: 8px 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin-right: 15px; /* Espacio entre esta píldora y la de reservas */
+    height: 40px;       /* Misma altura para que queden alineadas */
+    border: 2px solid transparent; /* Para que el borde no cambie el tamaño al activarse */
+}
+
+.order-pill:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.order-pill i {
+    font-size: 1.1rem;
+}
+
+/* --- ESTADO ACTIVO (Cuando hay órdenes) --- */
+/* Se pone blanca con borde azul/celeste (o el color que prefieras) para diferenciarla de las reservas */
+.order-pill.has-orders {
+    background-color: #fff;
+    border: 2px solid #0288d1; /* Un azul para diferenciarlo del rojo/naranja de reservas */
+    color: #0288d1;
+}
+
+.normal-wrapper {
+    display: flex;
+    align-items: center;
+    /* El gap ya lo manejamos con el margin-left en el HTML o aquí */
+}
 
 @media (max-width: 600px) {
     .title{
@@ -210,3 +313,4 @@ th, td {
       }
       
 }
+

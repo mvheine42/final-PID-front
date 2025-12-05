@@ -9,8 +9,8 @@ import { Order } from '../models/order';
 })
 export class TableService {
 
-  private baseUrl ='https://candv-back.onrender.com';
-  //private baseLocalUrl = 'http://127.0.0.1:8000';
+  //private baseUrl ='https://candv-back.onrender.com';
+  private baseUrl = 'http://127.0.0.1:8000';
 
   constructor(private http: HttpClient) { }
 
@@ -36,5 +36,15 @@ export class TableService {
   cleanTable(table: Table): Observable<Table> {
     return this.http.put<Table>(`${this.baseUrl}/clean-table/${table.id}`, {status: "FREE", order_id: 0});
   }
+
+getAvailableTablesForReservation(reservationId: number | string): Observable<Table[]> {
+  return this.http.get<Table[]>(`${this.baseUrl}/tables-available-for-reservation/${reservationId}`);
+}
+
+
+assignReservationToTable(tableId: number | string, reservationId: number | string): Observable<any> {
+  return this.http.post(`${this.baseUrl}/assign-reservation-to-table/${tableId}/${reservationId}`, {});
+}
+
 
 }

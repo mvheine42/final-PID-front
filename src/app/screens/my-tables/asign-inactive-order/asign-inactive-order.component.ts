@@ -37,7 +37,7 @@ export class AsignInactiveOrderComponent implements OnInit {
     }
     const user = this.userService.currentUser;
     if (user) {
-      const userData =  (await this.userService.getUserDataFromFirestore(user.uid)).toPromise();
+      const userData =  (await this.userService.getUserData(user.uid)).toPromise();
       if (userData) {
         this.user = userData;
         this.uid = user.uid;
@@ -113,7 +113,8 @@ export class AsignInactiveOrderComponent implements OnInit {
         next: async (response) => {
          console.log(response);
           await this.updateProductsStock(); 
-          await this.createOrder(this.selectedOrder.id ?? 0, this.selectedTable.id ?? 0);
+          await this.createOrder(this.selectedOrder.id ?? 0, Number(this.selectedTable.id ?? 0)
+);
         },
         error: (error) => {
           console.error('Error al eliminar productos deshabilitados:', error);
@@ -121,7 +122,8 @@ export class AsignInactiveOrderComponent implements OnInit {
       });
     } else {
       await this.updateProductsStock();
-      this.createOrder(this.selectedOrder.id ?? 0, this.selectedTable.id ?? 0);
+      this.createOrder(this.selectedOrder.id ?? 0, Number(this.selectedTable.id ?? 0)
+);
     }
   }
 
@@ -147,23 +149,24 @@ export class AsignInactiveOrderComponent implements OnInit {
 
   // Función para crear la orden
   async createOrder(orderId: number, tableId: number) {
-    this.orderService.assignEmployeeToOrder(orderId, this.uid).subscribe(
+    this.orderService.assignEmployeeToOrder(orderId).subscribe(
       (response) => {
-          this.orderService.assignOrderToTable(orderId, tableId).subscribe({
-            next: async (response) => {
-              this.isLoading = false;
-              this.close.emit();
-            },
-            error: (error) => {
-              console.error('Error al asignar la orden:', error);
-              this.isLoading = false;
-              this.close.emit();
-            }
-          });
+        this.orderService.assignOrderToTable(orderId, tableId).subscribe({
+          next: (response) => {
+            this.isLoading = false;
+            this.close.emit();
+          },
+          error: (error) => {
+            console.error('Error al asignar la orden:', error);
+            this.isLoading = false;
+          }
+        });
       },
       (error) => {
-          console.error('Error assigning employee:', error);
-      });
+        console.error('Error assigning employee:', error);
+        this.isLoading = false;
+      }
+    );
   }
 
   showConfirmPopUp(){

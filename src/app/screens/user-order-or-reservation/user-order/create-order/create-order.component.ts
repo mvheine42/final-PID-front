@@ -51,7 +51,7 @@ export class CreateOrderComponent {
     };
   
     try {
-      const response = await this.orderService.onRegister(newOrder); 
+      const response = await this.orderService.onRegisterExternal(newOrder); 
       if (response && response.order_id) {
         const orderId = response.order_id; 
 

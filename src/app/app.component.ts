@@ -16,7 +16,7 @@ export class AppComponent {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {
-      const publicRoutes = ['/', '/user-register', '/user-forgot-password', '/menu-order'];
+      const publicRoutes = ['/', '/user-register', '/user-forgot-password', '/menu-order', '/user-reserve-order', '/user-reserve'];
       if (publicRoutes.includes(this.router.url) || this.router.url.startsWith('/reset-password')) {
         this.showHeader = false;
       } else {

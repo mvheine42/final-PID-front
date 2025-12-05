@@ -1,0 +1,143 @@
+<div class="asign-inactive-order-container p-card">
+  <div class="content-container">
+    <!-- Columna izquierda: lista de reservas del día -->
+    <div class="orders-list">
+      <div class="search-box">
+        <i class="pi pi-search search-icon"></i>
+        <input
+          type="text"
+          pInputText
+          placeholder="Search by name or time"
+          [(ngModel)]="searchText"
+          (ngModelChange)="applyFilter()" 
+        />
+      </div>
+
+      <p-table
+        [value]="filteredReservations"
+        selectionMode="single"
+        [(selection)]="selectedReservation"
+        dataKey="id"
+        scrollable="true"
+        scrollHeight="200px"
+      >
+        <ng-template pTemplate="body" let-r>
+    <tr (click)="selectReservation(r)" 
+        [class.selected]="r === selectedReservation"
+        [ngClass]="getRowClass(r)">
+        
+        <td>
+          <i *ngIf="getRowClass(r) === 'row-late'" 
+             class="pi pi-exclamation-circle" 
+             style="color: #d32f2f; margin-right: 4px;"></i>
+
+          <i *ngIf="getRowClass(r) === 'row-warning'" 
+             class="pi pi-clock" 
+             style="color: #d97706; margin-right: 4px;"
+             pTooltip="Se acerca la hora" tooltipPosition="top"></i>
+
+          {{ r.reservationTime }}
+        </td>
+        <td>{{ r.customerName }}</td>
+        <td class="people-column">
+           {{ r.amountOfPeople }} <i class="pi pi-users"></i>
+        </td>
+        <td>
+           <span *ngIf="r.table_id">#{{ r.table_id }} <i class="pi pi-check"></i></span>
+           <span *ngIf="!r.table_id">-</span>
+        </td>
+    </tr>
+</ng-template>
+      </p-table>
+    </div>
+
+    <!-- Columna derecha: detalle + asignación -->
+    <div class="order-details" *ngIf="selectedReservation">
+      <h4 class="selected-order-title">
+        Selected Reservation: {{ selectedReservation.customerName }}
+      </h4>
+
+      <p class="muted">
+        {{ selectedReservation.reservationDate }} ·
+        {{ selectedReservation.reservationTime }} ·
+        {{ selectedReservation.amountOfPeople }} people
+      </p>
+
+ <p-dropdown
+      [options]="availableTables"
+      [(ngModel)]="selectedTable"
+      appendTo="body"
+      optionLabel="label"
+      optionValue="id"
+      placeholder="Select Table"
+      [style]="{'width': '100%'}"
+      [filter]="true"
+      [filterPlaceholder]="'Asign table...'"
+      [showClear]="true"
+    >
+    </p-dropdown>
+
+   <div class="button-container">
+      
+      <button pButton 
+              icon="pi pi-trash" 
+              class="p-button-danger p-button-outlined" 
+              pTooltip="Eliminar Reserva"
+              tooltipPosition="top"
+              (click)="showConfirmPopUp('CANCEL')">
+      </button>
+
+      <button pButton 
+              label="Close" 
+              (click)="onCloseClick()" 
+              class="p-button-secondary">
+      </button>
+      
+     <span [pTooltip]="isTooEarlyToAssign(selectedReservation.reservationTime) ? 'Solo disponible 2hs antes' : ''" tooltipPosition="top">
+        <button pButton 
+                label="Asign table" 
+                (click)="showConfirmPopUp('ASSIGN')" 
+                class="p-button-success"
+                [disabled]="!selectedReservation || !selectedTable || isTooEarlyToAssign(selectedReservation.reservationTime)">
+        </button>
+      </span>
+
+    </div>
+    
+    <div *ngIf="selectedReservation && isTooEarlyToAssign(selectedReservation.reservationTime)" 
+         style="margin-top: 10px; color: #f59e0b; font-size: 0.9rem; text-align: right;">
+      <i class="pi pi-clock"></i> Disponible a partir de 2 horas antes de la reserva.
+    </div>
+
+  </div>
+</div>
+<p-confirmDialog key="assign-reservation-confirm"></p-confirmDialog>
+
+
+<!-- Loading overlay -->
+<div *ngIf="isLoading" class="overlay">
+  <p-progressSpinner styleClass="custom-spinner" [animationDuration]="'0.5'"></p-progressSpinner>
+</div>
+
+<p-dialog [(visible)]="displayErrorModal" 
+          [modal]="true" 
+          [closable]="false"
+          header="Error">
+  <app-notice
+    [subtitle]="errorMessage"
+    (onClose)="closeErrorModal()">
+  </app-notice>
+</p-dialog>
+
+
+<p-dialog [(visible)]="displaySuccessModal"
+          [modal]="true"
+          [closable]="false"
+          header="Éxito">
+
+  <app-notice
+    [subtitle]="successMessage"
+    (onClose)="closeSuccessModal()">
+  </app-notice>
+
+</p-dialog>

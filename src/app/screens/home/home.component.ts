@@ -24,4 +24,5 @@ export class HomeComponent {
     this.router.navigate(['/products-view']); 
   }
 
+
 }

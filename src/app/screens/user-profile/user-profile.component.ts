@@ -162,19 +162,19 @@ export class UserProfileComponent implements OnInit {
     );
   }
 
-  async onDeleteAccount() {
-    this.userService.deleteCurrentUser()
-      .then(() => {
-        console.log('Account deleted successfully');
-        setTimeout(() => {
-          this.router.navigate(['/']);
-        }, 2000);
-      })
-      .catch((error) => {
-        console.error('Error deleting account:', error);
-        this.showErrorDialog();
-      });
+async onDeleteAccount() {
+  try {
+    await this.userService.deleteCurrentUser();
+    console.log('Account deleted successfully');
+    
+    // Navegar inmediatamente, sin setTimeout
+    this.router.navigate(['/'], { replaceUrl: true });
+    
+  } catch (error) {
+    console.error('Error deleting account:', error);
+    this.showErrorDialog();
   }
+}
 
   async changePassword() {
     this.userService.resetPassword(this.email ?? '');
