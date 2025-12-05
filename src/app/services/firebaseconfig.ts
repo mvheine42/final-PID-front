@@ -23,4 +23,10 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 export const auth = getAuth(app);
 
-setPersistence(auth, browserSessionPersistence);
+setPersistence(auth, browserSessionPersistence)
+  .then(() => {
+    console.log('Session persistence configured');
+  })
+  .catch((error) => {
+    console.error('Error setting persistence:', error);
+  });

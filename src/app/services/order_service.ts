@@ -76,8 +76,8 @@ export class OrderService {
     );
   }
 
-  assignEmployeeToOrder(orderId: number, uid: string){
-    return this.http.put<any>(`${this.baseUrl}/assign-order-employee/${orderId}/${uid}`, {});
+  assignEmployeeToOrder(orderId: number){
+    return this.http.put<any>(`${this.baseUrl}/assign-order-employee/${orderId}`, {});
   }
   deleteOrderItems(orderId: string, orderItems: string[]) {
     return this.http.delete(`${this.baseUrl}/delete-order-item/${orderId}`, {

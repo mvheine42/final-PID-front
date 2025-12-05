@@ -149,23 +149,24 @@ export class AsignInactiveOrderComponent implements OnInit {
 
   // Función para crear la orden
   async createOrder(orderId: number, tableId: number) {
-    this.orderService.assignEmployeeToOrder(orderId, this.uid).subscribe(
+    this.orderService.assignEmployeeToOrder(orderId).subscribe(
       (response) => {
-          this.orderService.assignOrderToTable(orderId, tableId).subscribe({
-            next: async (response) => {
-              this.isLoading = false;
-              this.close.emit();
-            },
-            error: (error) => {
-              console.error('Error al asignar la orden:', error);
-              this.isLoading = false;
-              this.close.emit();
-            }
-          });
+        this.orderService.assignOrderToTable(orderId, tableId).subscribe({
+          next: (response) => {
+            this.isLoading = false;
+            this.close.emit();
+          },
+          error: (error) => {
+            console.error('Error al asignar la orden:', error);
+            this.isLoading = false;
+          }
+        });
       },
       (error) => {
-          console.error('Error assigning employee:', error);
-      });
+        console.error('Error assigning employee:', error);
+        this.isLoading = false;
+      }
+    );
   }
 
   showConfirmPopUp(){
