@@ -7,7 +7,7 @@
 
   .conteiner::before {
     content: "";
-    background-image: url('../../../../assets/images/login.jpg');
+    background-image: url('/assets/images/login.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
