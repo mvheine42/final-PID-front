@@ -2,6 +2,9 @@ import { Component, OnInit, HostListener } from '@angular/core';
 import { UserService } from 'src/app/services/user_service';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from 'src/app/services/firebaseconfig';
+
 
 @Component({
   selector: 'app-log-in',
@@ -26,8 +29,12 @@ export class LogInComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // ✅ No need to manage tokens manually with sessionStorage
-    // Firebase + AuthService handle everything
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        // Ya está autenticado → impedir ver login
+        this.router.navigate(['/home'], { replaceUrl: true });
+      }
+    });
   }
 
   async onLogin() {
