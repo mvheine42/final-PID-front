@@ -31,6 +31,9 @@ export class UserProfileComponent implements OnInit {
   displayInfoPointsDialog = false;
   responsiveOptions: any[] | undefined;
   loading: boolean = true;
+  loadingProfile: boolean = true;
+  loadingRewards: boolean = true;
+  deleting: boolean = false;
   ranking: any[] = [];
   rewards: any;
   achievedMonthlyPointsMessage: string | null = null;
@@ -50,7 +53,9 @@ export class UserProfileComponent implements OnInit {
     const user = this.userService.currentUser;
     if (user) {
       this.email = user.email;
-      this.loading = true; // Set loading to true when starting to fetch data
+      this.loading = true;
+      this.loadingProfile = true;
+      this.loadingRewards = true;
     
       // Fetch user data
       (await this.userService.getUserDataFromFirestore(user.uid)).subscribe(
@@ -73,20 +78,25 @@ export class UserProfileComponent implements OnInit {
                 // If at top level, fetch points needed to maintain this level
                 this.fetchTopLevelStatus();
               }
-              this.fetchRewards(); // Fetch rewards here
-              this.fetchRankingData(); // Fetch ranking data here
+              this.loadingProfile = false;
+              this.fetchRewards();
+              this.fetchRankingData();
             },
             (error) => {
               console.error('Error checking top-level status:', error);
               this.showErrorDialog();
-              this.loading = false; // Stop loading in case of error
+              this.loading = false;
+              this.loadingProfile = false;
+              this.loadingRewards = false;
             }
           );
         },
         (error) => {
           console.error('Error fetching user data:', error);
           this.showErrorDialog();
-          this.loading = false; // Stop loading in case of error
+          this.loading = false;
+          this.loadingProfile = false;
+          this.loadingRewards = false;
         }
       );
     } else {
@@ -134,35 +144,40 @@ export class UserProfileComponent implements OnInit {
 
   async fetchRewards() {
     if (this.levelId) {
+      this.loadingRewards = true;
       this.userService.getRewards(this.levelId).subscribe(
         (rewardsData) => {
           this.rewards = rewardsData;
+          this.loadingRewards = false;
         },
         (error) => {
           console.error('Error fetching rewards data:', error);
+          this.loadingRewards = false;
         }
       );
     } else {
       console.warn('No level ID; unable to fetch rewards.');
+      this.loadingRewards = false;
     }
   }
 
 
   async fetchRankingData() {
-    this.loading = true; // Set loading for ranking data
+    this.loading = true;
     this.userService.getRanking().subscribe(
       (rankingData) => {
         this.ranking = rankingData;
-        this.loading = false; // Stop loading when data is fetched
+        this.loading = false;
       },
       (error) => {
         console.error('Error fetching ranking data:', error);
-        this.loading = false; // Stop loading in case of error
+        this.loading = false;
       }
     );
   }
 
 async onDeleteAccount() {
+  this.deleting = true;
   try {
     await this.userService.deleteCurrentUser();
     console.log('Account deleted successfully');
@@ -172,6 +187,7 @@ async onDeleteAccount() {
     
   } catch (error) {
     console.error('Error deleting account:', error);
+    this.deleting = false;
     this.showErrorDialog();
   }
 }

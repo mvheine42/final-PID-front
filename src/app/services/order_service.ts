@@ -89,11 +89,28 @@ export class OrderService {
     return this.http.put(`${this.baseUrl}/orders/serve-item/${orderId}/${itemId}`, {});
   }
 
-  getWaitTimeByProduct(): Observable<any> {
+
+  getWaitTimeByProduct(month?: number, year?: number): Observable<any> {
+    // Si al menos uno de los filtros está definido, usar el endpoint con filtro
+    if (month !== undefined || year !== undefined) {
+      // Si falta alguno, pasar null al backend para que lo ignore
+      const monthParam = month !== undefined ? month : 'null';
+      const yearParam = year !== undefined ? year : 'null';
+      return this.http.get(`${this.baseUrl}/reports/wait-time-products-monthly/${monthParam}/${yearParam}`);
+    }
+    // Si ambos son undefined, usar el endpoint sin filtro (global)
     return this.http.get(`${this.baseUrl}/reports/wait-time/products`);
   }
 
-  getWaitTimeByDay(): Observable<any> {
+  getWaitTimeByDay(month?: number, year?: number): Observable<any> {
+    // Si al menos uno de los filtros está definido, usar el endpoint con filtro
+    if (month !== undefined || year !== undefined) {
+      // Si falta alguno, pasar null al backend para que lo ignore
+      const monthParam = month !== undefined ? month : 'null';
+      const yearParam = year !== undefined ? year : 'null';
+      return this.http.get(`${this.baseUrl}/reports/wait-time-monthly/${monthParam}/${yearParam}`);
+    }
+    // Si ambos son undefined, usar el endpoint sin filtro (global)
     return this.http.get(`${this.baseUrl}/reports/wait-time/daily`);
   }
 

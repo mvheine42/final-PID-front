@@ -3,61 +3,120 @@
         <p class="title">WAITING TIMES METRICS</p>
     </div>
 
-    <div class="dashboard-content">
+    <div *ngIf="loading" class="loading-container">
+        <p-progressSpinner 
+            strokeWidth="4" 
+            animationDuration=".5s">
+        </p-progressSpinner>
+    </div>
+
+    <div class="dashboard-content" *ngIf="!loading">
         
-        <div class="kpi-container">
-            <div class="kpi-card">
-                <div class="kpi-icon"><i class="pi pi-clock"></i></div>
-                <div class="kpi-info">
-                    <span class="kpi-label">Global Average</span>
-                    <span class="kpi-value">{{ avgWaitTotal }}</span>
-                </div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-icon success"><i class="pi pi-bolt"></i></div>
-                <div class="kpi-info">
-                    <span class="kpi-label">Fastest</span>
-                    <span class="kpi-value small">{{ fastestDish }}</span>
-                </div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-icon danger"><i class="pi pi-exclamation-circle"></i></div>
-                <div class="kpi-info">
-                    <span class="kpi-label">Slowest</span>
-                    <span class="kpi-value small">{{ slowestDish }}</span>
-                </div>
-            </div>
+        <!-- Filtros por Mes y Año -->
+        <div class="month-filter-container">
+            <label>Filter by:</label>
+            <p-dropdown 
+                [options]="months" 
+                [(ngModel)]="selectedMonth" 
+                optionLabel="label" 
+                optionValue="value"
+                placeholder="Select Month"
+                (onChange)="onMonthChange()"
+                [style]="{'min-width': '180px'}">
+            </p-dropdown>
+            <p-dropdown 
+                [options]="years" 
+                [(ngModel)]="selectedYear" 
+                optionLabel="label" 
+                optionValue="value"
+                placeholder="Select Year"
+                (onChange)="onMonthChange()"
+                [style]="{'min-width': '150px'}">
+            </p-dropdown>
         </div>
 
-        <div class="chart-card full-width">
-            <div class="chart-header">
-                <h3>Top Products Performance</h3>
-                
-                <div class="filters-bar">
-                    <p-multiSelect 
-                        [options]="availableProducts" 
-                        [(ngModel)]="selectedProducts" 
-                        defaultLabel="Select Products" 
-                        optionLabel="name" 
-                        selectedItemsLabel="{0} items selected"
-                        (onChange)="updateProductChart()"
-                        [style]="{'min-width': '200px'}">
-                    </p-multiSelect>
+        <!-- Mensaje cuando no hay data -->
+        <div *ngIf="noDataAvailable" class="no-data-message">
+            <i class="pi pi-info-circle"></i>
+            <p>No data available for the selected month and year.</p>
+        </div>
 
-                    <p-selectButton 
-                        [options]="sortOptions" 
-                        [(ngModel)]="selectedSort" 
-                        (onChange)="updateProductChart()">
-                    </p-selectButton>
+        <!-- Contenido cuando SÍ hay data -->
+        <div *ngIf="!noDataAvailable">
+            <div class="kpi-container">
+                <div class="kpi-card">
+                    <div class="kpi-icon"><i class="pi pi-clock"></i></div>
+                    <div class="kpi-info">
+                        <span class="kpi-label">Global Average</span>
+                        <span class="kpi-value">{{ avgWaitTotal }}</span>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon success"><i class="pi pi-bolt"></i></div>
+                    <div class="kpi-info">
+                        <span class="kpi-label">Fastest</span>
+                        <span class="kpi-value small">{{ fastestDish }}</span>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon danger"><i class="pi pi-exclamation-circle"></i></div>
+                    <div class="kpi-info">
+                        <span class="kpi-label">Slowest</span>
+                        <span class="kpi-value small">{{ slowestDish }}</span>
+                    </div>
                 </div>
             </div>
 
-            <p-chart type="bar" [data]="dataProducts" [options]="optionsProducts" height="300px"></p-chart>
-        </div>
+            <div class="chart-card full-width">
+                <div *ngIf="loadingProducts" class="loading-container-chart">
+                    <p-progressSpinner 
+                        strokeWidth="4" 
+                        animationDuration=".5s"
+                        [style]="{width: '50px', height: '50px'}">
+                    </p-progressSpinner>
+                </div>
 
-        <div class="chart-card full-width mt-4">
-            <h3>Daily Trend</h3>
-            <p-chart type="line" [data]="dataDaily" [options]="optionsDaily" height="250px"></p-chart>
+                <div *ngIf="!loadingProducts">
+                    <div class="chart-header">
+                        <h3>Top Products Performance</h3>
+                        
+                        <div class="filters-bar">
+                            <p-multiSelect 
+                                [options]="availableProducts" 
+                                [(ngModel)]="selectedProducts" 
+                                defaultLabel="Select Products" 
+                                optionLabel="name" 
+                                selectedItemsLabel="{0} items selected"
+                                (onChange)="updateProductChart()"
+                                [style]="{'min-width': '200px'}">
+                            </p-multiSelect>
+
+                            <p-selectButton 
+                                [options]="sortOptions" 
+                                [(ngModel)]="selectedSort" 
+                                (onChange)="updateProductChart()">
+                            </p-selectButton>
+                        </div>
+                    </div>
+
+                    <p-chart type="bar" [data]="dataProducts" [options]="optionsProducts" height="300px"></p-chart>
+                </div>
+            </div>
+
+            <div class="chart-card full-width mt-4">
+                <div *ngIf="loadingDaily" class="loading-container-chart">
+                    <p-progressSpinner 
+                        strokeWidth="4" 
+                        animationDuration=".5s"
+                        [style]="{width: '50px', height: '50px'}">
+                    </p-progressSpinner>
+                </div>
+
+                <div *ngIf="!loadingDaily">
+                    <h3>Daily Trend</h3>
+                    <p-chart type="line" [data]="dataDaily" [options]="optionsDaily" height="250px"></p-chart>
+                </div>
+            </div>
         </div>
 
     </div>

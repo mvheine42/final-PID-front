@@ -15,6 +15,11 @@ export class TimeComponent implements OnInit{
   dataDaily: any;
   optionsDaily: any;
 
+  // --- LOADING STATES ---
+  loading: boolean = true;
+  loadingProducts: boolean = true;
+  loadingDaily: boolean = true;
+
   // --- CONTROLES ---
   // Opciones para el botón de ordenamiento
   sortOptions: any[] = [
@@ -27,6 +32,31 @@ export class TimeComponent implements OnInit{
   availableProducts: any[] = []; // Lista para el dropdown
   selectedProducts: any[] = [];  // Lo que eligió el usuario
 
+  // --- FILTRO DE MES ---
+  months: any[] = [
+    { label: 'All Months', value: null },
+    { label: 'January', value: 1 },
+    { label: 'February', value: 2 },
+    { label: 'March', value: 3 },
+    { label: 'April', value: 4 },
+    { label: 'May', value: 5 },
+    { label: 'June', value: 6 },
+    { label: 'July', value: 7 },
+    { label: 'August', value: 8 },
+    { label: 'September', value: 9 },
+    { label: 'October', value: 10 },
+    { label: 'November', value: 11 },
+    { label: 'December', value: 12 }
+  ];
+  selectedMonth: number | null = null; // null = All Months
+  
+  // --- FILTRO DE AÑO ---
+  years: any[] = [];
+  selectedYear: number | null = null; // null = All Years
+
+  // --- NO DATA FLAG ---
+  noDataAvailable: boolean = false;
+
   // KPIs
   avgWaitTotal: string = '0m';
   fastestDish: string = '-';
@@ -35,33 +65,86 @@ export class TimeComponent implements OnInit{
   constructor(private orderService: OrderService) {}
 
   ngOnInit() {
+    this.initYears();
     this.initChartsConfig();
     this.loadData();
   }
 
+  initYears() {
+    const currentYear = new Date().getFullYear();
+    this.years = [{ label: 'All Years', value: null }];
+    // Generar desde 2020 hasta el año actual
+    for (let year = 2020; year <= currentYear; year++) {
+      this.years.push({ label: year.toString(), value: year });
+    }
+  }
+
   loadData() {
+    this.loading = true;
+    this.loadingProducts = true;
+    this.loadingDaily = true;
+    this.noDataAvailable = false;
+
+    // Determinar si hay algún filtro seleccionado
+    const hasMonthFilter = this.selectedMonth !== null;
+    const hasYearFilter = this.selectedYear !== null;
+    const hasAnyFilter = hasMonthFilter || hasYearFilter;
+
+    // Si hay al menos UN filtro, usar los endpoints con filtro
+    // Si ambos son null, usar los endpoints sin filtro (global)
+    const month = hasAnyFilter ? (this.selectedMonth || undefined) : undefined;
+    const year = hasAnyFilter ? (this.selectedYear || undefined) : undefined;
+
     // 1. TRAEMOS LOS DATOS
-    this.orderService.getWaitTimeByProduct().subscribe({
+    this.orderService.getWaitTimeByProduct(month, year).subscribe({
       next: (data) => {
-        this.rawProductData = data; // Guardamos el original
-        
-        // Preparamos el filtro (Dropdown) con todos los productos disponibles
-        this.availableProducts = Object.keys(data).map(key => ({ name: key, code: key }));
-        // Por defecto seleccionamos TODOS
-        this.selectedProducts = [...this.availableProducts];
-
-        this.calculateKPIs(data);
-        this.updateProductChart(); // Generamos el gráfico inicial
+        // Verificar si hay datos
+        if (!data || Object.keys(data).length === 0) {
+          this.noDataAvailable = true;
+          this.rawProductData = {};
+          this.availableProducts = [];
+          this.selectedProducts = [];
+          this.avgWaitTotal = '0m';
+          this.fastestDish = '-';
+          this.slowestDish = '-';
+          this.dataProducts = { labels: [], datasets: [] };
+        } else {
+          this.rawProductData = data;
+          this.availableProducts = Object.keys(data).map(key => ({ name: key, code: key }));
+          this.selectedProducts = [...this.availableProducts];
+          this.calculateKPIs(data);
+          this.updateProductChart();
+        }
+        this.loadingProducts = false;
       },
-      error: (err) => console.error(err)
+      error: (err) => {
+        console.error(err);
+        this.noDataAvailable = true;
+        this.loadingProducts = false;
+      }
     });
 
-    this.orderService.getWaitTimeByDay().subscribe({
+    this.orderService.getWaitTimeByDay(month, year).subscribe({
       next: (data) => {
-        this.setupDailyChart(data);
+        if (!data || Object.keys(data).length === 0) {
+          this.dataDaily = { labels: [], datasets: [] };
+        } else {
+          this.setupDailyChart(data);
+        }
+        this.loadingDaily = false;
+        this.loading = false;
       },
-      error: (err) => console.error(err)
+      error: (err) => {
+        console.error(err);
+        this.loadingDaily = false;
+        this.loading = false;
+      }
     });
+  }
+
+  // --- FILTRAR POR MES ---
+  onMonthChange() {
+    this.loadData();
   }
 
   // --- EL CORAZÓN DEL FILTRO ---
@@ -164,5 +247,3 @@ export class TimeComponent implements OnInit{
       };
   }
 }
-
-

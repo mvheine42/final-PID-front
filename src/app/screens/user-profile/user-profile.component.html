@@ -1,29 +1,38 @@
 <div class="container">
     <div class="column column-left">
-        <p class="title">PROFILE</p>
-        <div class="profile-info">
-            <div class="info-group">
-                <label for="name">Name</label>
-                <p class="user-data">{{ name }}</p>
-                <hr>
-            </div>
-            <div class="info-group">
-                <label for="email">Email</label>
-                <p class="user-data">{{ email }}</p>
-                <hr>
-            </div>
-            <div class="info-group">
-                <label for="birthday">Birthday</label>
-                <p class="user-data">{{ birthday }}</p>
-                <hr>
-            </div>
+        <div *ngIf="loadingProfile" class="loading-container">
+            <p-progressSpinner 
+                strokeWidth="4" 
+                animationDuration=".5s">
+            </p-progressSpinner>
         </div>
-        
-        <!-- Grupo de botones -->
-        <div class="button-group">
-            <button (click)="showChangePasswordDialog()" class="btn">Change Password</button>
-            <button (click)="showConfirmDeleteDialog()" class="btn">Delete Account</button>
-            <button (click)="showInfoPointsDialog()" class="btn">C&V's Points Program</button>
+
+        <div *ngIf="!loadingProfile">
+            <p class="title">PROFILE</p>
+            <div class="profile-info">
+                <div class="info-group">
+                    <label for="name">Name</label>
+                    <p class="user-data">{{ name }}</p>
+                    <hr>
+                </div>
+                <div class="info-group">
+                    <label for="email">Email</label>
+                    <p class="user-data">{{ email }}</p>
+                    <hr>
+                </div>
+                <div class="info-group">
+                    <label for="birthday">Birthday</label>
+                    <p class="user-data">{{ birthday }}</p>
+                    <hr>
+                </div>
+            </div>
+            
+            <!-- Grupo de botones -->
+            <div class="button-group">
+                <button (click)="showChangePasswordDialog()" class="btn">Change Password</button>
+                <button (click)="showConfirmDeleteDialog()" class="btn">Delete Account</button>
+                <button (click)="showInfoPointsDialog()" class="btn">C&V's Points Program</button>
+            </div>
         </div>
     </div>
     
@@ -32,45 +41,62 @@
         <ng-template pTemplate>
           <!-- Sección superior -->
           <div class="right-top-section">
-            <div class="mug-icon-container">
-              <i class="fa-solid fa-mug-hot mug-icon mr-2"></i>
-              <p>{{currentGlobalPoints}}</p>
+            <div *ngIf="loadingProfile" class="loading-container">
+                <p-progressSpinner 
+                    strokeWidth="4" 
+                    animationDuration=".5s">
+                </p-progressSpinner>
             </div>
-      
-            <h1 class="rewards-title">C&V Rewards</h1>
-            <div class="user-info">
-              <p>{{name}}'s Level: {{ levelName }}</p>
-      
-              <p *ngIf="isTopLevel && !achievedMonthlyPointsMessage">
-                You are at the top level! {{ pointsNeededToMaintain }} points left to maintain this level.
-              </p>
-              <p *ngIf="!isTopLevel && nextLevelData">
-                C&V's points needed to upgrade to {{ nextLevelData.name }}: {{ pointsToNextLevel }}.
-              </p>
-              <p *ngIf="achievedMonthlyPointsMessage">
-                {{ achievedMonthlyPointsMessage }}
-              </p>
-              <p *ngIf="!nextLevelData && !isTopLevel">Loading next level data...</p>
-            </div>
-      
-            <div class="card carousel">
-              <p-carousel
-                [value]="rewards"
-                [numVisible]="isMobile ? 1 : 3"
-                [numScroll]="1"
-                [responsiveOptions]="responsiveOptions"
-                [showIndicators]="false">
-                <ng-template let-reward pTemplate="item">
-                  <div class="reward-box" (click)="showDiscountCode(reward)">
-                    <div class="reward-image-container">
-                      <img src="{{ reward.imageUrl }}" [alt]="reward.name" />
-                    </div>
-                    <div class="reward-name">
-                      {{ reward.name }}
-                    </div>
-                  </div>
-                </ng-template>
-              </p-carousel>
+
+            <div *ngIf="!loadingProfile">
+                <div class="mug-icon-container">
+                  <i class="fa-solid fa-mug-hot mug-icon mr-2"></i>
+                  <p>{{currentGlobalPoints}}</p>
+                </div>
+          
+                <h1 class="rewards-title">C&V Rewards</h1>
+                <div class="user-info">
+                  <p>{{name}}'s Level: {{ levelName }}</p>
+          
+                  <p *ngIf="isTopLevel && !achievedMonthlyPointsMessage">
+                    You are at the top level! {{ pointsNeededToMaintain }} points left to maintain this level.
+                  </p>
+                  <p *ngIf="!isTopLevel && nextLevelData">
+                    C&V's points needed to upgrade to {{ nextLevelData.name }}: {{ pointsToNextLevel }}.
+                  </p>
+                  <p *ngIf="achievedMonthlyPointsMessage">
+                    {{ achievedMonthlyPointsMessage }}
+                  </p>
+                  <p *ngIf="!nextLevelData && !isTopLevel">Loading next level data...</p>
+                </div>
+          
+                <div *ngIf="loadingRewards" class="loading-container-rewards">
+                    <p-progressSpinner 
+                        strokeWidth="4" 
+                        animationDuration=".5s"
+                        [style]="{width: '50px', height: '50px'}">
+                    </p-progressSpinner>
+                </div>
+
+                <div class="card carousel" *ngIf="!loadingRewards">
+                  <p-carousel
+                    [value]="rewards"
+                    [numVisible]="isMobile ? 1 : 3"
+                    [numScroll]="1"
+                    [responsiveOptions]="responsiveOptions"
+                    [showIndicators]="false">
+                    <ng-template let-reward pTemplate="item">
+                      <div class="reward-box" (click)="showDiscountCode(reward)">
+                        <div class="reward-image-container">
+                          <img src="{{ reward.imageUrl }}" [alt]="reward.name" />
+                        </div>
+                        <div class="reward-name">
+                          {{ reward.name }}
+                        </div>
+                      </div>
+                    </ng-template>
+                  </p-carousel>
+                </div>
             </div>
             
       
@@ -128,8 +154,13 @@
     </div>
 </div>
 
-<p-dialog [(visible)]="displayConfirmDeleteDialog" [modal]="true" header="Delete Account" [closable]="true">
+<p-dialog [(visible)]="displayConfirmDeleteDialog" [modal]="true" header="Delete Account" [closable]="!deleting">
+    <div *ngIf="deleting" class="dialog-spinner-content">
+        <p-progressSpinner strokeWidth="4" animationDuration=".5s"></p-progressSpinner>
+    </div>
+
     <app-confirmation-pop-up
+      *ngIf="!deleting"
       [subtitle]="'Are you sure you want to proceed?'"
       (onClose)="closeConfirmDeleteDialog()"
       (onSend)="onDeleteAccount()">
