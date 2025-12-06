@@ -1,17 +1,11 @@
-html, body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-}
-
-.container {
+.charts-container {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    margin-left: 5%;
+    margin-left: 5%; /* Margen de escritorio */
 }
 
-.section {
+.charts-section {
     flex: 1;
 }
 
@@ -63,16 +57,15 @@ html, body {
     color: #482919;
     font-size: 1.2rem;
     margin-bottom: 10px;
+    margin-top: 0;
 }
 
 .chart-wrapper {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     padding: 10px;
-    height: auto;
-    min-height: 300px;
 }
 
 .chart-wrapper.category-revenue {
@@ -101,7 +94,6 @@ html, body {
 
 .card {
     width: 100%;
-    height: 100%;
     background-color: white;
     border-radius: 10px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
@@ -110,28 +102,57 @@ html, body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Agrega una transición suave */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+    min-height: 400px;
 }
 
 .card:hover {
-    transform: translateY(-10px); /* Un desplazamiento un poco mayor para mayor impacto */
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3); /* Incrementa el sombreado en hover */
+    transform: translateY(-10px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
 
 .per-day-chart .card, .per-person-chart .card {
-    width: 96%; 
-    height: auto; 
+    width: 96%;
+    min-height: 350px;
 }
 
-.per-day-chart .card, .per-person-chart .card {
-    width: 96%; 
-    height: auto; 
+/* Fix chart sizing to be properly responsive */
+::ng-deep .category-revenue p-chart {
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+::ng-deep .category-revenue p-chart canvas {
+    width: 100% !important;
+    height: auto !important;
+    max-width: 350px !important;
+    max-height: 350px !important;
+}
+
+::ng-deep .monthly-revenue p-chart {
+    width: 100%;
+}
+
+::ng-deep .monthly-revenue p-chart canvas {
+    width: 100% !important;
+    height: auto !important;
+    max-height: 320px !important;
 }
 
 ::ng-deep .per-day-chart p-chart, 
 ::ng-deep .per-person-chart p-chart {
-    width: 70%;
-    height: auto;
+    width: 90%;
+}
+
+::ng-deep .per-day-chart p-chart canvas,
+::ng-deep .per-person-chart p-chart canvas {
+    width: 100% !important;
+    height: auto !important;
+    max-height: 350px !important;
 }
 
 
@@ -187,7 +208,6 @@ html, body {
     margin-top: 20px;
 }
 
-/* Spinner overlay */
 /* Spinner overlay completo (carga inicial) */
 .spinner-container {
     position: fixed;
@@ -217,8 +237,10 @@ html, body {
 
 @media (max-width: 768px) {
    
-    .container {
-        margin-left: 10%;
+    .charts-container {
+        /* FIX: Eliminar margen para que el contenido ocupe el 100% en móvil */
+        margin-left: 0;
+        padding: 0 10px; /* Pequeño padding general para los bordes */
     }
 
     .title-section {
@@ -229,56 +251,97 @@ html, body {
         font-size: 1.5rem;
     }
 
+    /* FIX: Hacemos que la fila de gráficos sea columna en móvil */
     .all-charts-container {
         flex-direction: column;
-        padding: 10px;
+        padding: 5px 0; 
+        gap: 15px;
     }
 
     .chart-wrapper.category-revenue,
     .chart-wrapper.monthly-revenue {
         max-width: 100%;
-        margin-bottom: 10px; 
+        margin-bottom: 0;
     }
 
     .chart-wrapper.per-day-chart,
     .chart-wrapper.per-person-chart {
         max-width: 100%; 
-        margin-top: -10%; 
+        margin-top: 0;
     }
 
     .card {
         width: 100%;
+        padding: 15px;
     }
 
+    .per-day-chart .card,
+    .per-person-chart .card {
+        padding: 15px;
+    }
+
+    /* Aseguramos que los gráficos usen el espacio apropiado en móvil */
     ::ng-deep .per-day-chart p-chart, 
-    ::ng-deep .per-person-chart p-chart{
+    ::ng-deep .per-person-chart p-chart {
         width: 100%;
-        height: auto;
+    }
+
+    ::ng-deep .per-day-chart p-chart canvas,
+    ::ng-deep .per-person-chart p-chart canvas {
+        width: 100% !important;
+        height: auto !important;
+        max-height: 280px !important;
     }
 
     ::ng-deep .category-revenue p-chart {
-        width: 80%;
-        height: auto;
+        width: 100%;
+        max-width: 250px;
     }
 
-    .charts{
+    ::ng-deep .category-revenue p-chart canvas {
+        width: 100% !important;
+        height: auto !important;
+        max-width: 250px !important;
+        max-height: 250px !important;
+    }
+
+    ::ng-deep .monthly-revenue p-chart {
+        width: 100%;
+    }
+
+    ::ng-deep .monthly-revenue p-chart canvas {
+        width: 100% !important;
+        height: auto !important;
+        max-height: 260px !important;
+    }
+
+    .chart-title {
+        font-size: 1rem;
+        margin-bottom: 8px;
+        margin-top: 0;
+    }
+
+    .charts {
         margin-bottom: 15%;
     }
 
     .date-selectors {
         flex-direction: column;
         align-items: flex-start;
-        padding: 10px;
+        padding: 12px;
         width: 90%;
+        margin: 15px auto;
     }
 
     .date-selectors label {
         margin-right: 0;
-        margin-bottom: 10px;
+        margin-bottom: 6px;
+        font-size: 0.95rem;
     }
 
     .date-selectors select {
-        margin: 0 0 10px 0;
+        margin: 0 0 12px 0;
         width: 100%;
+        padding: 6px;
     }
 }

@@ -1,14 +1,13 @@
 <div *ngIf="loading" class="spinner-container">
     <p-progressSpinner ariaLabel="loading" />
 </div>
-<div *ngIf="!loading" class="container">
-    <div class="section title-section">
+<div *ngIf="!loading" class="charts-container">
+    <div class="charts-section title-section">
         <p class="title">CHARTS</p>
     </div>
     
     <div class="charts" scrollable="true">
         <div class="all-charts-container">
-            <!-- Category Revenue Chart -->
             <div class="chart-wrapper category-revenue">
                 <h2 class="chart-title">Revenue by Category</h2>
                 <div class="card flex justify-content-center">
@@ -21,7 +20,6 @@
                 </div>
             </div>
             
-            <!-- Monthly Revenue Chart -->
             <div class="chart-wrapper monthly-revenue">
                 <h2 class="chart-title">Monthly Revenue</h2>
                 <div class="card flex justify-content-center">
@@ -29,14 +27,12 @@
                         *ngIf="monthlyData" 
                         type="line" 
                         [data]="monthlyData" 
-                        [options]="monthlyOptions" 
-                        style="width: 100%; height: 100%;">
+                        [options]="monthlyOptions">
                     </p-chart>
                 </div>
             </div>
         </div>
         
-        <!-- Date Selectors -->
         <div class="date-selectors">
             <label for="year">Select Year:</label>
             <select id="year" [(ngModel)]="selectedYear" (change)="onDateChange()">
@@ -55,14 +51,11 @@
             <p-progressSpinner ariaLabel="loading charts" />
         </div>
 
-<!-- 👇 Gráficos que se recargan (ocultos cuando loadingCharts = true) -->
         <div *ngIf="!loadingCharts">
-            <!-- No Data Message -->
             <div class="no-data-alert" *ngIf="noDataMessage">
                 {{ noDataMessage }}
             </div>
             
-            <!-- Average Per Person Chart -->
             <div class="chart-wrapper per-day-chart" *ngIf="!noDataMessage && averagePerPersonData">
                 <h2 class="chart-title">Average Per Person (Daily)</h2>
                 <div class="card flex justify-content-center">
@@ -74,7 +67,6 @@
                 </div>
             </div>
             
-            <!-- Average Per Ticket Chart -->
             <div class="chart-wrapper per-person-chart" *ngIf="!noDataMessage && averagePerTicketData">
                 <h2 class="chart-title">Average Per Ticket (Daily)</h2>
                 <div class="card flex justify-content-center">
