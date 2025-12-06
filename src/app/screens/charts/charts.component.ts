@@ -15,8 +15,8 @@ export class ChartsComponent implements OnInit {
         '07', '08', '09', '10', '11', '12'
     ];
 
-    loading: boolean = false;
-    loadingCharts: boolean = false;
+    loading: boolean = false; // Spinner global (carga inicial)
+    loadingCharts: boolean = false; // Spinner parcial (cambio de fecha)
     categoryData: any;
     categoryOptions: any;
     monthlyData: any;
@@ -46,7 +46,7 @@ export class ChartsComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.loading = true;
+        this.loading = true; // <--- INICIA SPINNER GLOBAL
 
         Promise.all([
             this.loadCategoryRevenuePromise(),
@@ -55,9 +55,9 @@ export class ChartsComponent implements OnInit {
             this.loadAveragePerTicketDataPromise()
         ])
         .then(() => {
-            this.loading = false;
+            this.loading = false; // <--- FINALIZA SPINNER GLOBAL
         }).catch(() => {
-            this.loading = false;
+            this.loading = false; // <--- FINALIZA SPINNER GLOBAL EN ERROR
         });
 
         this.setScrollHeight();
@@ -119,14 +119,14 @@ export class ChartsComponent implements OnInit {
     }
 
     onDateChange(): void {
-    this.loadingCharts = true;  // 👈 Solo loading parcial
+    this.loadingCharts = true;  // 👈 INICIA SPINNER PARCIAL
     Promise.all([
         this.loadAveragePerPersonDataPromise(),
         this.loadAveragePerTicketDataPromise()
     ]).then(() => {
-        this.loadingCharts = false;
+        this.loadingCharts = false; // 👈 FINALIZA SPINNER PARCIAL
     }).catch(() => {
-        this.loadingCharts = false;
+        this.loadingCharts = false; // 👈 FINALIZA SPINNER PARCIAL EN ERROR
     });
     }
     

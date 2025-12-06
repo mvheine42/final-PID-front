@@ -12,7 +12,7 @@ export class AuthService {
   private inactivityTimeout: any;
   
   // Tiempo de inactividad antes de logout automático
-  private readonly INACTIVITY_TIME = 30 * 60 * 1000; // 10 minutos
+  private readonly INACTIVITY_TIME = 120 * 60 * 1000; // 10 minutos
   
   // 🔧 FIX: Store bound function reference for proper cleanup
   private boundResetTimer: any;
