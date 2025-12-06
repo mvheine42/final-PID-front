@@ -1,10 +1,13 @@
-<div class="container">
+<div *ngIf="loading" class="spinner-container">
+    <p-progressSpinner ariaLabel="loading" />
+</div>
+
+
+<div *ngIf="!loading" class="container">
     <div class="section title-section">
         <p class="title">GOALS</p>
     </div>
-
     <div class="goals-section">
-
         <div class="goals-content">
             <div class="avarage-goals">
                 <p-meterGroup [value]="goals" labelPosition="start">
@@ -86,5 +89,17 @@
 </div>
 
 <p-dialog header="Add New Goal" class="new-goal-dialog" [(visible)]="displayDialog" [modal]="true" [closable]="true">
-    <app-new-goal (goalAdded)="onGoalAdded($event)"></app-new-goal>
+    <app-new-goal 
+        (goalAdded)="onGoalAdded($event)"
+        (onSuccess)="showNoticeDialog($event)"
+        (onError)="showNoticeDialog($event)">
+    </app-new-goal>
+</p-dialog>
+
+<!-- 👇 Nuevo dialog para mostrar notice -->
+<p-dialog [(visible)]="displayNoticeDialog" [modal]="true" header="Notice" [closable]="true">
+    <app-notice
+        [subtitle]="noticeMessage" 
+        (onClose)="closeNoticeDialog()">
+    </app-notice>
 </p-dialog>

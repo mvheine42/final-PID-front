@@ -21,6 +21,7 @@ export class GoalsComponent implements OnInit {
   colors: string[] = ['#7f522e', '#b37a3a'];
   displayDialog: boolean = false;
   totalIncomeExpected: number = 0;
+  loading: boolean = false;
 
   constructor(private goalService: GoalService) { 
     this.checkIfMobile();
@@ -54,7 +55,7 @@ export class GoalsComponent implements OnInit {
 
 
   getGoals(month: string, year: string){
-
+    this.loading = true;
     this.goalService.getGoals(month, year).subscribe(
       (goals: Goal[]) => {
         this.goals = goals; 
@@ -118,6 +119,7 @@ export class GoalsComponent implements OnInit {
             }
           }
         };
+        this.loading = false;
       },
       (error) => {
         console.error('Error fetching goals:', error);  // Error handling
@@ -226,12 +228,23 @@ export class GoalsComponent implements OnInit {
     this.displayDialog = true;
   }
 
-  onGoalAdded(newGoal: any) {
-    this.goals.push(newGoal);
-    console.log(newGoal);
-    this.displayDialog = false;
-  }
-  
+displayNoticeDialog: boolean = false;
+noticeMessage: string = '';
+
+showNoticeDialog(message: string) {
+  this.noticeMessage = message;
+  this.displayNoticeDialog = true;
+}
+
+closeNoticeDialog() {
+  this.displayNoticeDialog = false;
+}
+
+onGoalAdded(newGoal: any) {
+  this.goals.push(newGoal);
+  console.log(newGoal);
+  this.displayDialog = false;
+}
   
 
 }

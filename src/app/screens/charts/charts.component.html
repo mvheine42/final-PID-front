@@ -1,4 +1,7 @@
-<div class="container">
+<div *ngIf="loading" class="spinner-container">
+    <p-progressSpinner ariaLabel="loading" />
+</div>
+<div *ngIf="!loading" class="container">
     <div class="section title-section">
         <p class="title">CHARTS</p>
     </div>
@@ -47,33 +50,40 @@
                 </option>
             </select>
         </div>
-        
-        <!-- No Data Message -->
-        <div class="no-data-alert" *ngIf="noDataMessage">
-            {{ noDataMessage }}
+
+        <div *ngIf="loadingCharts" class="charts-spinner-container">
+            <p-progressSpinner ariaLabel="loading charts" />
         </div>
-        
-        <!-- Average Per Person Chart -->
-        <div class="chart-wrapper per-day-chart" *ngIf="!noDataMessage && averagePerPersonData">
-            <h2 class="chart-title">Average Per Person (Daily)</h2>
-            <div class="card flex justify-content-center">
-                <p-chart 
-                    type="line" 
-                    [data]="averagePerPersonData" 
-                    [options]="averagePerPersonOptions">
-                </p-chart>
+
+<!-- 👇 Gráficos que se recargan (ocultos cuando loadingCharts = true) -->
+        <div *ngIf="!loadingCharts">
+            <!-- No Data Message -->
+            <div class="no-data-alert" *ngIf="noDataMessage">
+                {{ noDataMessage }}
             </div>
-        </div>
-        
-        <!-- Average Per Ticket Chart -->
-        <div class="chart-wrapper per-person-chart" *ngIf="!noDataMessage && averagePerTicketData">
-            <h2 class="chart-title">Average Per Ticket (Daily)</h2>
-            <div class="card flex justify-content-center">
-                <p-chart 
-                    type="line" 
-                    [data]="averagePerTicketData" 
-                    [options]="averagePerTicketOptions">
-                </p-chart>
+            
+            <!-- Average Per Person Chart -->
+            <div class="chart-wrapper per-day-chart" *ngIf="!noDataMessage && averagePerPersonData">
+                <h2 class="chart-title">Average Per Person (Daily)</h2>
+                <div class="card flex justify-content-center">
+                    <p-chart 
+                        type="line" 
+                        [data]="averagePerPersonData" 
+                        [options]="averagePerPersonOptions">
+                    </p-chart>
+                </div>
+            </div>
+            
+            <!-- Average Per Ticket Chart -->
+            <div class="chart-wrapper per-person-chart" *ngIf="!noDataMessage && averagePerTicketData">
+                <h2 class="chart-title">Average Per Ticket (Daily)</h2>
+                <div class="card flex justify-content-center">
+                    <p-chart 
+                        type="line" 
+                        [data]="averagePerTicketData" 
+                        [options]="averagePerTicketOptions">
+                    </p-chart>
+                </div>
             </div>
         </div>
     </div>

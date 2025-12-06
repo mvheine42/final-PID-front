@@ -4,65 +4,71 @@
             <div class="title">CALORIES</div>
         </div>
         <div class="panel-body">
-            <div class="table-container">
-                <p-table [value]="ingredients" dataKey="id" [tableStyle]="{'min-width': '100%', 'max-height':'100px'}">
-                    <ng-template pTemplate="header">
-                        <tr>
-                            <th style="width:40%">Ingredient</th>
-                            <th style="width:40%">Calories</th>
-                            <th style="width:20%"></th>
-                        </tr>
-                    </ng-template>
-                    <ng-template pTemplate="body" let-ingredient>
-                        <tr>
-                            <td>{{ ingredient.name }}</td>
-                            <td>{{ ingredient.calories }}</td>
-                            <td>
-                                <button (click)="removeIngredient(ingredient.id)" class="p-button p-component p-button-danger">
-                                    <i class="pi pi-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    </ng-template>
-                </p-table>  
+            
+            <div *ngIf="loadingInitial" class="loading-spinner-container">
+                <p-progressSpinner strokeWidth="4" animationDuration=".5s"></p-progressSpinner>
             </div>
-
-            <div class="mt-3">
-                <button *ngIf="!showDropdown" (click)="toggleDropdown()" class="add-ingredient p-button p-component">
-                    Add Ingredient
-                </button>
-
-                <div *ngIf="showDropdown" class="dropdown-container">
-                    <p-dropdown 
-                        [options]="getFilteredIngredients()" 
-                        [(ngModel)]="selectedIngredient" 
-                        optionLabel="name"
-                        placeholder="Choose one"
-                        [filter]="true"
-                        (onFilter)="onDropdownFilter($event)">  <!-- Detecta el filtrado para saber si el ingrediente no está -->
-                    </p-dropdown>
-                
-                    <button 
-                        *ngIf="canAddCustomIngredient && !selectedIngredient" 
-                        (click)="addCustomIngredient()" 
-                        class="p-button p-component p-button-info" 
-                        pTooltip="Create Ingredient" 
-                        tooltipPosition="top">
-                        <i class="pi pi-plus"></i>
-                    </button>
-                    <button (click)="addIngredient()" class="p-button p-component p-button-success" [disabled]="!selectedIngredient">
-                        <i class="pi pi-check"></i>
-                    </button>
-                
-                    <button (click)="cancelSelection()" class="p-button p-component p-button-danger">
-                        <i class="pi pi-times"></i>
-                    </button>
+            
+            <div *ngIf="!loadingInitial">
+                <div class="table-container">
+                    <p-table [value]="ingredients" dataKey="id" [tableStyle]="{'min-width': '100%', 'max-height':'100px'}">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th style="width:40%">Ingredient</th>
+                                <th style="width:40%">Calories</th>
+                                <th style="width:20%"></th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-ingredient>
+                            <tr>
+                                <td>{{ ingredient.name }}</td>
+                                <td>{{ ingredient.calories }}</td>
+                                <td>
+                                    <button (click)="removeIngredient(ingredient.id)" class="p-button p-component p-button-danger">
+                                        <i class="pi pi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>  
                 </div>
-                
-            </div>
 
-            <div class="total-calories">
-                <strong>Total Calories: {{ getTotalCalories() }}</strong>
+                <div class="mt-3">
+                    <button *ngIf="!showDropdown" (click)="toggleDropdown()" class="add-ingredient p-button p-component">
+                        Add Ingredient
+                    </button>
+
+                    <div *ngIf="showDropdown" class="dropdown-container">
+                        <p-dropdown 
+                            [options]="getFilteredIngredients()" 
+                            [(ngModel)]="selectedIngredient" 
+                            optionLabel="name"
+                            placeholder="Choose one"
+                            [filter]="true"
+                            (onFilter)="onDropdownFilter($event)">  </p-dropdown>
+                    
+                        <button 
+                            *ngIf="canAddCustomIngredient && !selectedIngredient" 
+                            (click)="addCustomIngredient()" 
+                            class="p-button p-component p-button-info" 
+                            pTooltip="Create Ingredient" 
+                            tooltipPosition="top">
+                            <i class="pi pi-plus"></i>
+                        </button>
+                        <button (click)="addIngredient()" class="p-button p-component p-button-success" [disabled]="!selectedIngredient">
+                            <i class="pi pi-check"></i>
+                        </button>
+                    
+                        <button (click)="cancelSelection()" class="p-button p-component p-button-danger">
+                            <i class="pi pi-times"></i>
+                        </button>
+                    </div>
+                    
+                </div>
+
+                <div class="total-calories">
+                    <strong>Total Calories: {{ getTotalCalories() }}</strong>
+                </div>
             </div>
 
         </div>

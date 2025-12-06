@@ -204,3 +204,12 @@
   
   }
   
+  /* --- NUEVO ESTILO PARA SPINNER DE CARGA INICIAL (Responsive) --- */
+.loading-spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 350px; /* Asegura que el spinner tenga el espacio de la tabla */
+    margin-top: 10px;
+}

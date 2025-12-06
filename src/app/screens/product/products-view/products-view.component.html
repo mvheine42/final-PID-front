@@ -16,7 +16,14 @@
   </div>
 
   <div class="section table-section">
-      <div class="card">
+      <div *ngIf="loading" class="loading-container">
+          <p-progressSpinner 
+              strokeWidth="4" 
+              animationDuration=".5s">
+          </p-progressSpinner>
+      </div>
+
+      <div class="card" *ngIf="!loading">
         <p-table [value]="filteredProducts" dataKey="id" editMode="row" scrollable="true" selectionMode="single" 
         [(selection)]="selectedProduct"  [scrollHeight]="tableScrollHeight">
               <ng-template pTemplate="header">
@@ -28,7 +35,6 @@
                       <th style="min-width:10rem">
                         <div class="flex align-items-center">
                           Category
-                          <!-- Filtro existente de Status -->
                           <p-columnFilter field="category" matchMode="in" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
                             <ng-template pTemplate="header">
                               <div class="px-3 pt-3 pb-0"><span class="font-bold">Category Picker</span></div>
@@ -59,10 +65,8 @@
 
               <ng-template pTemplate="body" let-product let-editing="editing" let-ri="rowIndex">
                   <tr [pEditableRow]="product" [pSelectableRow]="product"   [ngClass]="{'low-stock-row': isLowStock(product.stock)}">
-                      <!-- Name NO editable -->
                       <td>{{ product.name }}</td>
 
-                      <!-- Price editable con validación -->
                       <td>
                           <p-cellEditor>
                               <ng-template pTemplate="input">
@@ -74,7 +78,6 @@
                           </p-cellEditor>
                       </td>
 
-                      <!-- Description editable -->
                       <td>
                           <p-cellEditor>
                               <ng-template pTemplate="input">
@@ -117,21 +120,26 @@
                     </td>
 
 
-                      <!-- Columna para íconos de editar y eliminar -->
                       <td>
                           <div class="flex align-items-center justify-content-center gap-2">
-                              <!-- Botón para editar -->
                               <button *ngIf="!editing" pButton pRipple type="button" pInitEditableRow icon="pi pi-pencil"
                                   (click)="onRowEditInit(product)" class="p-button-rounded p-button-text"></button>
-                              <!-- Botón para guardar cambios -->
-                              <button *ngIf="editing" pButton pRipple type="button" pSaveEditableRow icon="pi pi-check"
-                                  (click)="onRowEditSave(product)" [disabled]="!isProductDataValid(product)" class="p-button-rounded p-button-text p-button-success"></button>
-                              <!-- Botón para cancelar edición -->
-                              <button *ngIf="editing" pButton pRipple type="button" pCancelEditableRow icon="pi pi-times"
-                                  (click)="onRowEditCancel(product, ri)" class="p-button-rounded p-button-text p-button-danger"></button>
-                              <!-- Botón para eliminar producto -->
+                              
+                              <ng-container *ngIf="editing">
+                                  <button *ngIf="savingRowId === product.id" pButton type="button" [disabled]="true" 
+                                      class="p-button-rounded p-button-text p-button-success inline-spinner-button">
+                                      <p-progressSpinner strokeWidth="5" [style]="{width: '18px', height: '18px'}"></p-progressSpinner>
+                                  </button>
+                                  
+                                  <button *ngIf="savingRowId !== product.id" pButton pRipple type="button" pSaveEditableRow icon="pi pi-check"
+                                      (click)="onRowEditSave(product)" [disabled]="!isProductDataValid(product)" class="p-button-rounded p-button-text p-button-success"></button>
+                                  
+                                  <button *ngIf="savingRowId !== product.id" pButton pRipple type="button" pCancelEditableRow icon="pi pi-times"
+                                      (click)="onRowEditCancel(product, ri)" class="p-button-rounded p-button-text p-button-danger"></button>
+                              </ng-container>
+                              
                               <button pButton pRipple type="button" icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger"
-                                  (click)="showConfirmDialog(product.id)"></button>
+                                  (click)="showConfirmDialog(product.id)" [disabled]="editing"></button>
                           </div>
                       </td>
                   </tr>
@@ -147,8 +155,14 @@
   </div>
 </div>
 
-<p-dialog [(visible)]="displayConfirmDialog" [modal]="true" header="Delete product" [closable]="true">
+<p-dialog [(visible)]="displayConfirmDialog" [modal]="true" header="Delete product" [closable]="!deleting"> 
+  
+  <div *ngIf="deleting" class="dialog-spinner-content"> 
+      <p-progressSpinner strokeWidth="4" animationDuration=".5s"></p-progressSpinner>
+  </div>
+
   <app-confirmation-pop-up
+    *ngIf="!deleting"
     [subtitle]="'Are you sure you want to proceed?'"
     (onClose)="closeConfirmDialog()"
     (onSend)="deleteProduct()">

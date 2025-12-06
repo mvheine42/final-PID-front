@@ -14,7 +14,9 @@ export class ChartsComponent implements OnInit {
         '01', '02', '03', '04', '05', '06', 
         '07', '08', '09', '10', '11', '12'
     ];
-    
+
+    loading: boolean = false;
+    loadingCharts: boolean = false;
     categoryData: any;
     categoryOptions: any;
     monthlyData: any;
@@ -44,10 +46,20 @@ export class ChartsComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.loadCategoryRevenue();
-        this.loadMonthlyRevenue();
-        this.loadAveragePerPersonData();
-        this.loadAveragePerTicketData();
+        this.loading = true;
+
+        Promise.all([
+            this.loadCategoryRevenuePromise(),
+            this.loadMonthlyRevenuePromise(),
+            this.loadAveragePerPersonDataPromise(),
+            this.loadAveragePerTicketDataPromise()
+        ])
+        .then(() => {
+            this.loading = false;
+        }).catch(() => {
+            this.loading = false;
+        });
+
         this.setScrollHeight();
 
         window.addEventListener('resize', () => {
@@ -107,10 +119,17 @@ export class ChartsComponent implements OnInit {
     }
 
     onDateChange(): void {
-        this.loadAveragePerPersonData();
-        this.loadAveragePerTicketData();
+    this.loadingCharts = true;  // 👈 Solo loading parcial
+    Promise.all([
+        this.loadAveragePerPersonDataPromise(),
+        this.loadAveragePerTicketDataPromise()
+    ]).then(() => {
+        this.loadingCharts = false;
+    }).catch(() => {
+        this.loadingCharts = false;
+    });
     }
-
+    
     getHostElement(): HTMLElement {
         const hostElement = document.querySelector('app-charts');
         if (!hostElement) {
@@ -119,11 +138,13 @@ export class ChartsComponent implements OnInit {
         return hostElement as HTMLElement;
     }
 
-    loadCategoryRevenue() {
+    loadCategoryRevenuePromise(): Promise<void> {
+        return new Promise((resolve, reject) => {
         const now = Date.now();
         
         if (this.categoryRevenueCache && (now - this.categoryRevenueCacheTime < this.CACHE_DURATION)) {
             this.categoryData = this.categoryRevenueCache;
+            resolve();
             return;
         }
         
@@ -155,11 +176,13 @@ export class ChartsComponent implements OnInit {
                     console.warn('No revenue data available');
                     this.categoryData = { labels: [], datasets: [] };
                 }
+                resolve();
             },
             (error) => {
                 console.error('Error fetching category revenue', error);
             }
         );
+        });
     }
 
     clearCategoryRevenueCache() {
@@ -167,13 +190,15 @@ export class ChartsComponent implements OnInit {
         this.categoryRevenueCacheTime = 0;
     }
 
-    loadMonthlyRevenue() {
-        const now = Date.now();
-        
-        if (this.monthlyRevenueCache && (now - this.monthlyRevenueCacheTime < this.CACHE_DURATION)) {
-            this.monthlyData = this.monthlyRevenueCache;
-            return;
-        }
+    loadMonthlyRevenuePromise(): Promise<void> {
+        return new Promise((resolve, reject) => {
+            const now = Date.now();
+            
+            if (this.monthlyRevenueCache && (now - this.monthlyRevenueCacheTime < this.CACHE_DURATION)) {
+                this.monthlyData = this.monthlyRevenueCache;
+                resolve();
+                return;
+            }
         
         this.chartService.getMonthlyRevenue().subscribe(
             (response) => {
@@ -226,11 +251,13 @@ export class ChartsComponent implements OnInit {
                     console.warn('No monthly revenue data available');
                     this.monthlyData = { labels: [], datasets: [] };
                 }
+                resolve();
             },
             (error) => {
                 console.error('Error fetching monthly revenue', error);
             }
         );
+        });
     }
 
     clearMonthlyRevenueCache() {
@@ -238,7 +265,8 @@ export class ChartsComponent implements OnInit {
         this.monthlyRevenueCacheTime = 0;
     }
 
-    loadAveragePerPersonData() {
+    loadAveragePerPersonDataPromise(): Promise<void> {
+        return new Promise((resolve, reject) => {
         const year = this.selectedYear ?? this.yearActual.toString();
         const month = this.selectedMonth ?? this.monthActual.toString().padStart(2, '0');
 
@@ -270,15 +298,18 @@ export class ChartsComponent implements OnInit {
                         }]
                     };
                 }
+                resolve();
             },
             error => {
                 console.error('Error fetching average per person', error);
                 this.noDataMessage = 'Error loading data';
             }
         );
+        });
     }
     
-    loadAveragePerTicketData() {
+    loadAveragePerTicketDataPromise(): Promise<void> {
+        return new Promise((resolve, reject) => {
         const year = this.selectedYear ?? this.yearActual.toString();
         const month = this.selectedMonth ?? this.monthActual.toString().padStart(2, '0');
         
@@ -310,12 +341,14 @@ export class ChartsComponent implements OnInit {
                         }]
                     };
                 }
+                resolve();
             },
             error => {
                 console.error('Error fetching average per ticket', error);
                 this.noDataMessage = 'Error loading data';
             }
         );
+        });
     }
 
     setScrollHeight() {
@@ -325,4 +358,22 @@ export class ChartsComponent implements OnInit {
             this.scrollHeight = '400px';
         }
     }
+
+    loadCategoryRevenue() {
+    this.loadCategoryRevenuePromise();
+}
+
+loadMonthlyRevenue() {
+    this.loadMonthlyRevenuePromise();
+}
+
+loadAveragePerPersonData() {
+    this.loadAveragePerPersonDataPromise();
+}
+
+loadAveragePerTicketData() {
+    this.loadAveragePerTicketDataPromise();
+}
+
+
 }

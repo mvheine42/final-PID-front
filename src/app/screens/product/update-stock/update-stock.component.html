@@ -21,7 +21,7 @@
 
     <div class="flex buttons justify-content-end gap-2">
         <p-button label="Cancel" (onClick)="closeDialog()" class="custom-cancel-button"></p-button>
-        <p-button label="Update" (onClick)="openConfirmationPopup()" class="custom-send-button"></p-button>
+        <p-button label="Update" (onClick)="openConfirmationPopup()" class="custom-send-button" [disabled]="loading"></p-button>
     </div>
 </div>
 
