@@ -23,9 +23,12 @@ export class CategoriesComponent implements OnInit {
   displayDeleteDialog: boolean = false;
   categoryToDelete: any;
 
-  /*categories: Category[] = [
-    new Category('Breakfast','Default', 1), new Category('Lunch','Default', 2), 
-    new Category('Dinner','Default', 3), new Category('Drinks','Custom', 4)];*/
+  // --- VARIABLES DE ESTADO PARA SPINNERS ---
+  loadingInitial: boolean = false; 
+  savingNew: boolean = false;
+  deletingCategory: boolean = false;
+  savingEdit: boolean = false;
+  // ----------------------------------------
 
   constructor(private categoryService: CategoryService) {}
 
@@ -34,6 +37,7 @@ export class CategoriesComponent implements OnInit {
   }
 
   loadCategories():void{
+    this.loadingInitial = true; // <--- INICIA CARGA INICIAL
     this.categoryService.getCategories().subscribe({
       next: (data) => {
         console.log('Categories fetched:', data);
@@ -42,9 +46,11 @@ export class CategoriesComponent implements OnInit {
         } else {
           console.error('Unexpected data format:', data);
         }
+        this.loadingInitial = false; // <--- FINALIZA
       },
       error: (err) => {
         console.error('Error fetching products:', err);
+        this.loadingInitial = false; // <--- FINALIZA EN ERROR
       }
     });
   }
@@ -70,16 +76,19 @@ export class CategoriesComponent implements OnInit {
             return;
         }
 
-        this.categoryService.updateCategoryName(category.id, category.name).subscribe(
-            () => {
+        this.savingEdit = true; // <--- INICIA EDICIÓN
+        this.categoryService.updateCategoryName(category.id, category.name).subscribe({
+            next: () => {
                 delete this.clonedCategories[category.id];
                 this.editingCategory = null;
                 this.loadCategories();
+                this.savingEdit = false; // <--- FINALIZA
             },
-            (error: any) => {
+            error: (error: any) => {
                 console.error('Error updating category', error);
+                this.savingEdit = false; // <--- FINALIZA EN ERROR
             }
-        );
+        });
     }
     this.displayConfirmDialog = false;
 }
@@ -99,6 +108,7 @@ export class CategoriesComponent implements OnInit {
         return;
     }
 
+    this.savingNew = true; // <--- INICIA CREACIÓN
     const category = new Category(this.newCategoryName, 'Custom');
     try {
         await this.categoryService.createCategory(category).toPromise();
@@ -109,20 +119,35 @@ export class CategoriesComponent implements OnInit {
     } catch (error: any) {
         this.message = 'Something went wrong';
         this.showNoticeDialog();
+    } finally {
+        this.savingNew = false; // <--- FINALIZA
     }
 }
 
   onDeleteCategory() {
-    this.displayDeleteDialog = false;
+    // FIX: El diálogo de confirmación NO se cierra aquí. Se cierra al final.
     if (this.categoryToDelete.id !== undefined) {
-      this.categoryService.deleteCategory(this.categoryToDelete.id.toString()).subscribe(
-        () => {
+      this.deletingCategory = true; // <--- INICIA ELIMINACIÓN
+      this.categoryService.deleteCategory(this.categoryToDelete.id.toString()).subscribe({
+        next: () => {
+          this.message = 'Category deleted successfully.'; // Mensaje de éxito
           this.loadCategories(); // Recargar categorías después de eliminar
+          
+          // TAREAS DE LIMPIEZA EN ÉXITO
+          this.deletingCategory = false; 
+          this.displayDeleteDialog = false; // Cierra el diálogo de confirmación
+          this.showNoticeDialog(); // Muestra el mensaje de éxito
         },
-        (error) => {
+        error: (error) => {
+          this.message = 'Error deleting category.'; // Mensaje de error
           console.error('Error deleting category:', error);
+          
+          // TAREAS DE LIMPIEZA EN ERROR
+          this.deletingCategory = false; 
+          this.displayDeleteDialog = false; // Cierra el diálogo de confirmación
+          this.showNoticeDialog(); // Muestra el mensaje de error
         }
-      );
+      });
     } else {
       console.error('Category ID is undefined');
     }
@@ -131,13 +156,11 @@ export class CategoriesComponent implements OnInit {
   showDeleteDialog(category: any){
     this.categoryToDelete = category;
     this.displayDeleteDialog = true;
-
   }
 
   closeDeleteDialog() {
     this.displayDeleteDialog = false;
   }
-
   
   showConfirmDialog(category: any) {
     this.editingCategory = category;

@@ -18,6 +18,10 @@ export class CaloriesComponent implements OnInit {
   ingredients: any[] = [];
   availableIngredients: any[] = [];
   canAddCustomIngredient: boolean = false;
+  
+  // --- NUEVA VARIABLE DE ESTADO ---
+  loadingInitial: boolean = false; // Indica si se está cargando la lista de ingredientes disponibles
+  // ------------------------------
 
   constructor(private calorieService: CalorieService) {}  // Inyecta el servicio
 
@@ -27,19 +31,25 @@ export class CaloriesComponent implements OnInit {
 
   // Función para cargar las comidas desde el servicio
   loadCalories() {
-    this.calorieService.getCalories().subscribe(response => {
-      if (response && response.message && response.message.food) {
-        this.availableIngredients = response.message.food.map((item: any) => ({
-          name: item.name,
-          id: item.id ? item.id.toString() : '',  // Manejo de undefined
-          calories: item.calories_portion
-        }));
-        console.log(this.availableIngredients);  // Verifica los datos
-      } else {
-        console.error("No se encontraron alimentos en la respuesta.");
+    this.loadingInitial = true; // <--- INICIA LA CARGA
+    this.calorieService.getCalories().subscribe({
+      next: (response) => {
+        if (response && response.message && response.message.food) {
+          this.availableIngredients = response.message.food.map((item: any) => ({
+            name: item.name,
+            id: item.id ? item.id.toString() : '',  // Manejo de undefined
+            calories: item.calories_portion
+          }));
+          console.log(this.availableIngredients);  // Verifica los datos
+        } else {
+          console.error("No se encontraron alimentos en la respuesta.");
+        }
+        this.loadingInitial = false; // <--- FINALIZA EN ÉXITO
+      },
+      error: (error) => {
+        console.error("Error al cargar las calorías: ", error);
+        this.loadingInitial = false; // <--- FINALIZA EN ERROR
       }
-    }, error => {
-      console.error("Error al cargar las calorías: ", error);
     });
   }
   
@@ -108,4 +118,4 @@ export class CaloriesComponent implements OnInit {
     // Si no hay ingredientes con 0 calorías, suma las calorías de todos
     return this.ingredients.reduce((total, ingredient) => total + ingredient.calories, 0);
   }
-}  
+}

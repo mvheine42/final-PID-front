@@ -126,7 +126,13 @@
       
       <div class="card flex justify-content-center">
         <button (click)="showConfirmDialog()" [disabled]="!isFormValid() || loading"   class="btn-save">
-          Save
+          <ng-container *ngIf="loading">
+            <p-progressSpinner strokeWidth="5" [style]="{width: '20px', height: '20px'}"></p-progressSpinner>
+            Saving...
+          </ng-container>
+          <ng-container *ngIf="!loading">
+            Save
+          </ng-container>
         </button>
       </div>
   </form>

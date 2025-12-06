@@ -12,6 +12,11 @@ import { GoalService } from 'src/app/services/goal_service';
 })
 export class NewGoalComponent implements OnInit  {
   @Output() goalAdded = new EventEmitter<any>();
+  @Output() onSuccess = new EventEmitter<string>();
+  @Output() onError = new EventEmitter<string>();
+  displayNoticeDialog: boolean = false;
+  noticeMessage: string = '';
+
   selectedGoalType: string = '';
   selectedCategory: any;
   targetAmount!: number;
@@ -24,6 +29,7 @@ export class NewGoalComponent implements OnInit  {
   minDate: Date = new Date();
   isFormComplete: boolean = false;
   goals: Goal[] = [];
+  loading: boolean = false;
   icons = [
     { label: 'Briefcase', value: 'pi-briefcase' },
     { label: 'Bullseye', value: 'pi-bullseye' },
@@ -55,45 +61,56 @@ export class NewGoalComponent implements OnInit  {
     this.selectedCategory = null;
   }
 
-  async addTotalGainGoal() {
-    const newGoal = new Goal(this.goalTitle, this.goalDescription, this.targetAmount, 0, this.goalColor, 'pi ' + this.selectedIcon, this.formatDeadline(this.goalDeadline), this.selectedCategory?.id ?? null);
-    console.log(newGoal);
+async addTotalGainGoal() {
+  this.loading = true;
+  const newGoal = new Goal(this.goalTitle, this.goalDescription, this.targetAmount, 0, this.goalColor, 'pi ' + this.selectedIcon, this.formatDeadline(this.goalDeadline), this.selectedCategory?.id ?? null);
+  
+  try {
     const response = await this.goalService.createGoal(newGoal);
+    this.loading = false;
 
     if (response) {
-        // Si la respuesta es válida, emitimos el evento
-        this.goalAdded.emit(newGoal);
+      this.goalAdded.emit(newGoal);
+      this.onSuccess.emit('Goal successfully created!');
     } else {
-        // Manejo de errores si la creación falla
-        console.error("Failed to create goal");
-        // Puedes agregar aquí lógica adicional si deseas mostrar un mensaje de error al usuario
+      this.onError.emit('Something went wrong.');
     }
+  } catch (error: any) {
+    this.loading = false;
+    const errorMessage = error?.error?.message || error?.message || 'Something went wrong.';
+    this.onError.emit(errorMessage);
   }
+}
 
-  async addCategoryGoal() {
+async addCategoryGoal() {
+    this.loading = true;
     const newGoal = new Goal(
-        this.goalTitle, 
-        this.goalDescription, 
-        this.targetAmount, 
-        0, 
-        this.goalColor, 
-        'pi ' + this.selectedIcon, 
-        this.formatDeadline(this.goalDeadline), 
-        this.selectedCategory?.id // Usamos `?.` para evitar errores si no hay categoría seleccionada
+      this.goalTitle, 
+      this.goalDescription, 
+      this.targetAmount, 
+      0, 
+      this.goalColor, 
+      'pi ' + this.selectedIcon, 
+      this.formatDeadline(this.goalDeadline), 
+      this.selectedCategory?.id
     );
-    console.log(newGoal);
+    
+    try {
+      const response = await this.goalService.createGoal(newGoal);
+      this.loading = false;
 
-    // Llamada al servicio para crear el objetivo
-    const response = await this.goalService.createGoal(newGoal);
-
-    if (response) {
-        // Si la respuesta es válida, emitimos el evento
+      if (response) {
         this.goalAdded.emit(newGoal);
-    } else {
-        // Manejo de errores si la creación falla
-        console.error("Failed to create goal");
-        // Puedes agregar aquí lógica adicional si deseas mostrar un mensaje de error al usuario
-    }
+        this.onSuccess.emit('Goal successfully created!');  // 👈 Emitir éxito
+      } else {
+        this.onError.emit('Something went wrong.');  // 👈 Emitir error
+      }
+    } catch (error: any) {
+      this.loading = false;
+      // Aquí podés capturar el mensaje del backend si viene en error.message o error.error.message
+      const errorMessage = error?.error?.message || error?.message || 'Something went wrong.';
+      this.onError.emit(errorMessage);  // 👈 Emitir el error del backend
+  }
 }
 
   addGoal(){
@@ -128,6 +145,7 @@ export class NewGoalComponent implements OnInit  {
     this.selectedGoalType = type;
   }
   loadCategories(): void {
+    this.loading = true;
     const month = (this.goalDeadline.getMonth() + 1).toString(); 
     const year = (this.goalDeadline.getFullYear().toString()).slice(-2); 
   
@@ -146,6 +164,7 @@ export class NewGoalComponent implements OnInit  {
               !categoryIdsWithGoals.includes(category.id?.toString())
             );
           }
+          this.loading = false;
         },
         error: (err) => {
           console.error('Error loading categories:', err);

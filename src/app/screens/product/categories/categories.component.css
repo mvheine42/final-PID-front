@@ -160,3 +160,17 @@ ng::p-cellEditor input {
 
 }
 
+/* --- NUEVOS ESTILOS PARA CENTRADO DEL SPINNER EN DIÁLOGOS (Responsive) --- */
+.dialog-spinner-content {
+    display: flex;
+    justify-content: center; /* Centrar horizontalmente */
+    align-items: center; /* Centrar verticalmente */
+    padding: 20px;
+    min-height: 100px; /* Dar espacio al spinner en el diálogo */
+}
+
+/* Estilo para spinner dentro del botón (ajustar si es necesario) */
+.p-button .p-progress-spinner {
+    display: block;
+    margin: 0 auto;
+}

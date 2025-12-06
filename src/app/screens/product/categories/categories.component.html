@@ -2,11 +2,16 @@
     <div class="category-panel">
         <div class="panel-header">
             <div class="title">CATEGORIES</div>
-            <button class="add-new" (click)="showNewCategoryDialog()">+ Add New</button>
+            <button class="add-new" (click)="showNewCategoryDialog()" [disabled]="savingNew">+ Add New</button>
         </div>
         <div class="panel-body">
             <p-toast></p-toast>
-            <p-table [value]="categories" dataKey="id" editMode="row" [tableStyle]="{'min-width': '100%'}">
+            
+            <div *ngIf="loadingInitial" class="dialog-spinner-content" style="min-height: 200px;"> 
+                <p-progressSpinner strokeWidth="4" animationDuration=".5s"></p-progressSpinner>
+            </div>
+            
+            <p-table *ngIf="!loadingInitial" [value]="categories" dataKey="id" editMode="row" [tableStyle]="{'min-width': '100%'}">
                 <ng-template pTemplate="header">
                     <tr>
                         <th style="width:40%">Name</th>
@@ -15,7 +20,6 @@
                 </ng-template>
                 <ng-template pTemplate="body" let-category let-editing="editing" let-ri="rowIndex">
                     <tr [pEditableRow]="category">
-                        <!-- Name column -->
                         <td>
                             <p-cellEditor>
                                 <ng-template pTemplate="input">
@@ -24,7 +28,7 @@
                                         type="text" 
                                         [(ngModel)]="category.name"
                                         [style.width.px]="140" 
-                                        [disabled]="category.type === 'Default'" />
+                                        [disabled]="category.type === 'Default' || savingEdit" />
                                 </ng-template>
                                 <ng-template pTemplate="output">
                                     {{ category.name }}
@@ -33,10 +37,8 @@
                         </td>
 
                         
-                        <!-- Action buttons column -->
                         <td>
                             <div class="flex align-items-center justify-content-center gap-2">
-                                <!-- Edit button for custom types only -->
                                 <button 
                                     *ngIf="!editing && category.type !== 'Default'" 
                                     pButton 
@@ -45,34 +47,43 @@
                                     pInitEditableRow 
                                     icon="pi pi-pencil" 
                                     (click)="onRowEditInit(category)" 
-                                    class="p-button-rounded p-button-text">
+                                    class="p-button-rounded p-button-text"
+                                    [disabled]="savingEdit">
                                 </button>
                         
-                                <!-- Save button when editing -->
-                                <button 
-                                    *ngIf="editing && category.type !== 'Default'" 
-                                    pButton 
-                                    pRipple 
-                                    type="button" 
-                                    pSaveEditableRow 
-                                    icon="pi pi-check" 
-                                    (click)="showConfirmDialog(category)" 
-                                    class="p-button-rounded p-button-text p-button-success mr-2">
-                                </button>
+                                <ng-container *ngIf="editing && category.type !== 'Default'">
+                                    <button 
+                                        *ngIf="!savingEdit"
+                                        pButton 
+                                        pRipple 
+                                        type="button" 
+                                        pSaveEditableRow 
+                                        icon="pi pi-check" 
+                                        (click)="showConfirmDialog(category)" 
+                                        class="p-button-rounded p-button-text p-button-success mr-2">
+                                    </button>
+
+                                    <button 
+                                        *ngIf="savingEdit"
+                                        pButton 
+                                        type="button" 
+                                        [disabled]="true"
+                                        class="p-button-rounded p-button-text p-button-success mr-2">
+                                        <p-progressSpinner strokeWidth="5" [style]="{width: '18px', height: '18px'}"></p-progressSpinner>
+                                    </button>
+                            
+                                    <button 
+                                        *ngIf="!savingEdit"
+                                        pButton 
+                                        pRipple 
+                                        type="button" 
+                                        pCancelEditableRow 
+                                        icon="pi pi-times" 
+                                        (click)="onRowEditCancel(category, ri)" 
+                                        class="p-button-rounded p-button-text p-button-danger">
+                                    </button>
+                                </ng-container>
                         
-                                <!-- Cancel button when editing -->
-                                <button 
-                                    *ngIf="editing && category.type !== 'Default'" 
-                                    pButton 
-                                    pRipple 
-                                    type="button" 
-                                    pCancelEditableRow 
-                                    icon="pi pi-times" 
-                                    (click)="onRowEditCancel(category, ri)" 
-                                    class="p-button-rounded p-button-text p-button-danger">
-                                </button>
-                        
-                                <!-- Delete button (tachito) -->
                                 <button 
                                     *ngIf="category.type !== 'Default'" 
                                     pButton 
@@ -80,7 +91,8 @@
                                     type="button" 
                                     icon="pi pi-trash" 
                                     (click)="showDeleteDialog(category)" 
-                                    class="p-button-rounded p-button-text custom-delete-button">
+                                    class="p-button-rounded p-button-text custom-delete-button"
+                                    [disabled]="savingEdit || deletingCategory">
                                 </button>
                             </div>
                         </td>
@@ -95,34 +107,52 @@
     </div>
 </div>
 
-<p-dialog [(visible)]="displayConfirmDialog" [modal]="true" header="Editing category" [closable]="true">
+<p-dialog [(visible)]="displayConfirmDialog" [modal]="true" header="Editing category" [closable]="!savingEdit">
+    
+    <div *ngIf="savingEdit" class="dialog-spinner-content"> 
+        <p-progressSpinner strokeWidth="4" animationDuration=".5s"></p-progressSpinner>
+    </div>
+
     <app-confirmation-pop-up
+      *ngIf="!savingEdit"
       [subtitle]="'Are you sure you want to proceed?'"
       (onClose)="closeConfirmDialog()"
       (onSend)="onRowEditSave()">
     </app-confirmation-pop-up>
   </p-dialog>
   
-<p-dialog header="New Category" [(visible)]="displayNewCategoryDialog" [modal]="true" [closable]="true">
+<p-dialog header="New Category" [(visible)]="displayNewCategoryDialog" [modal]="true" [closable]="!savingNew">
     <div class="flex align-items-center mt-2 gap-3 mb-5">
         <label for="newCategoryName" class="font-semibold w-6rem">Name</label>
-        <input pInputText id="newCategoryName" class="flex-auto" autocomplete="off" [(ngModel)]="newCategoryName" />
+        <input pInputText id="newCategoryName" class="flex-auto" autocomplete="off" [(ngModel)]="newCategoryName" [disabled]="savingNew" />
     </div>
     <div class="flex justify-content-end gap-2">
-        <p-button label="Cancel" (onClick)="closeNewCategoryDialog()" class="custom-cancel-button"></p-button>
-        <p-button label="Send" (onClick)="onNewCategory()" class="custom-send-button"></p-button>
+        <p-button label="Cancel" (onClick)="closeNewCategoryDialog()" class="custom-cancel-button" [disabled]="savingNew"></p-button>
+        
+        <p-button (onClick)="onNewCategory()" class="custom-send-button" [disabled]="!newCategoryName.trim() || savingNew">
+            <ng-container *ngIf="!savingNew">Send</ng-container>
+            <ng-container *ngIf="savingNew">
+                <p-progressSpinner strokeWidth="5" [style]="{width: '18px', height: '18px'}"></p-progressSpinner>
+            </ng-container>
+        </p-button>
     </div>
 </p-dialog>
 
-<p-dialog [(visible)]="displayNoticeDialog" [modal]="true" header="Category Creation" [closable]="true">
+<p-dialog [(visible)]="displayNoticeDialog" [modal]="true" header="Category Update" [closable]="true">
     <app-notice
       [subtitle]="message"
       (onClose)="closeNoticeDialog()">
     </app-notice>
   </p-dialog>
 
-  <p-dialog [(visible)]="displayDeleteDialog" [modal]="true" header="Confirm Deletion" [closable]="true">
+  <p-dialog [(visible)]="displayDeleteDialog" [modal]="true" header="Confirm Deletion" [closable]="!deletingCategory">
+    
+    <div *ngIf="deletingCategory" class="dialog-spinner-content"> 
+        <p-progressSpinner strokeWidth="4" animationDuration=".5s"></p-progressSpinner>
+    </div>
+
     <app-confirmation-pop-up
+      *ngIf="!deletingCategory"
       [subtitle]="'Are you sure you want to proceed?'"
       (onClose)="closeDeleteDialog()"
       (onSend)="onDeleteCategory()">

@@ -28,10 +28,14 @@ export class ProductsViewComponent implements OnInit {
   lowStockCount: number = 0; 
   alertStockDialog: boolean = false;
   public tableScrollHeight: string='';
+  loading: boolean = true;
+  deleting: boolean = false;
+  savingRowId: number | null = null; 
 
   constructor(private productService: ProductService, private router: Router, private categoryService: CategoryService) {}
 
   ngOnInit(): void {
+    this.loading = true;
     this.loadCategories();
     this.loadProducts();
     this.setScrollHeight();
@@ -106,9 +110,11 @@ filterByCategory(selectedCategoryIds: string[]): void {
         } else {
           console.error('Unexpected data format:', data);
         }
+        this.loading = false; 
       },
       error: (err) => {
         console.error('Error fetching products:', err);
+        this.loading = false; 
       }
       
     });
@@ -153,6 +159,8 @@ filterByCategory(selectedCategoryIds: string[]): void {
       return;
     }
 
+    this.savingRowId = product.id; 
+
     const originalProduct = this.originalProductState[product.id];
     const tempCategories = this.editingProductCategories[product.id];
     
@@ -167,6 +175,7 @@ filterByCategory(selectedCategoryIds: string[]): void {
     // Validate price
     if (parseFloat(product.price.toString()) < 0) {
       console.error('Price cannot be negative');
+      this.savingRowId = null; 
       return;
     }
     
@@ -187,12 +196,13 @@ filterByCategory(selectedCategoryIds: string[]): void {
 
     try {
       await Promise.all(promises);
+      // Clear original product state after saving
+      delete this.originalProductState[product.id];
     } catch (error) {
       console.error('Failed to update product', error);
+    } finally {
+        this.savingRowId = null; 
     }
-
-    // Clear original product state after saving
-    delete this.originalProductState[product.id];
   }
 
   onRowEditCancel(product: Product, index: number) {  
@@ -210,24 +220,38 @@ filterByCategory(selectedCategoryIds: string[]): void {
       return false;
     }
   
+    // Check if the row is currently being saved (disable validation if saving)
+    if (this.savingRowId === product.id) {
+        return false;
+    }
+
     const price = Number(product.price);
     const tempCategories = this.editingProductCategories[product.id];
   
     return (
       !isNaN(price) &&
       price > 0 &&
-      !!product.description && // Convertimos el string a booleano
-      tempCategories !== undefined && // Aseguramos que tempCategories esté definido
+      !!product.description && 
+      tempCategories !== undefined && 
       tempCategories.length > 0
     );
   }
   
 
   deleteProduct() {
+    this.deleting = true; 
     this.productService.deleteProduct((this.deleteID).toString()).then(success => {
       if (success) {
+        // 1. Update the main source list
         this.products = this.products.filter(product => product.id !== this.deleteID);
+        
+        // 2. Re-apply the current filter to update the table's source list (filteredProducts)
+        this.filterByCategory(this.selectedFilterCategories); 
+        
+        // 3. Update low stock counts and dialogs
+        this.filterLowStockProducts();
       }
+      this.deleting = false; 
       this.closeConfirmDialog();
     });
   }

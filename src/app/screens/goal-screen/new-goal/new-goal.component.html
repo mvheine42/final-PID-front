@@ -1,4 +1,7 @@
-<div class="popup-content">
+<div *ngIf="loading" class="spinner-container">
+    <p-progressSpinner ariaLabel="loading" />
+</div>
+<div *ngIf="!loading" class="popup-content">
     <p class="subtitle">Choose what this new goal is for</p>
 
     <div class="form">
@@ -79,10 +82,10 @@
         
 
     </div>
-    
 
     <!-- Botón de confirmación -->
     <div *ngIf="selectedGoalType" class="confirm-button">
         <button pButton type="button" label="Add Goal" (click)="addGoal()" [disabled]="!isFormValid()"></button>
     </div>
 </div>
+

@@ -91,6 +91,11 @@ input {
     font-size: 1.2rem;
     cursor: pointer;
     transition: background-color 0.3s, color 0.3s;
+    /* --- NEW STYLES FOR INLINE SPINNER CENTERING --- */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px; /* Optional: adds a little space between spinner and text */
 }
 .btn-save:disabled {
     background-color: #ccc; /* Cambia el fondo a un color gris claro */
