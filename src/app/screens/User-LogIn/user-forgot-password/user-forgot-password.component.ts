@@ -16,18 +16,21 @@ export class UserForgotPasswordComponent {
 
   constructor(private userService: UserService) {}
 
+loading: boolean = false;
+
   async onForgotPassword() {
     try {
+      this.loading = true;
       const response = await this.userService.resetPassword(this.email);
       console.log('Reset successful', response);
       this.closeDialog();
       this.success();
-
     } catch (error: any) {
       console.error('Reset failed', error);
       this.failed();
+    } finally {
+      this.loading = false;
     }
-    
   }
 
   closeDialog() {
