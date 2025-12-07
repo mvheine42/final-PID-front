@@ -26,16 +26,18 @@ export class TablesComponent implements OnInit, OnDestroy {
   todayReservationsCount = 0;
   todayISO = this.getTodayISOString();
 
+  // --- LOADING STATES ---
+  loading: boolean = true;
+  loadingTables: boolean = true;
+  loadingOrders: boolean = true;
+
   // Notificaciones
   displayUpcomingAlert = false;
   upcomingAlertMessage = '';
   private notificationInterval: any;
 
-
-
   lateReservationsCount = 0;
   upcomingReservationsCount = 0;
-
 
   // Check-in
   reservationForCheckIn: Reservation | null = null;
@@ -52,6 +54,10 @@ export class TablesComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.loading = true;
+    this.loadingTables = true;
+    this.loadingOrders = true;
+
     this.loadTables();
     this.loadOrders();
     this.setScrollHeight();
@@ -74,6 +80,12 @@ export class TablesComponent implements OnInit, OnDestroy {
   setScrollHeight() {
     if (window.innerWidth <= 768) this.tableScrollHeight = '800px';
     else this.tableScrollHeight = '400px';
+  }
+
+  checkIfLoadingComplete(): void {
+    if (!this.loadingTables && !this.loadingOrders) {
+      this.loading = false;
+    }
   }
 
   onTableClick(table: any) {
@@ -140,6 +152,7 @@ export class TablesComponent implements OnInit, OnDestroy {
   closeModalInactive(){ this.displayModalInactive = false; location.reload(); }
 
   loadTables(): void {
+    this.loadingTables = true;
     this.tableService.getTables().subscribe({
       next: (data) => {
         if (Array.isArray(data)) {
@@ -147,8 +160,14 @@ export class TablesComponent implements OnInit, OnDestroy {
           this.sortTables();
           this.freeTables = this.tables.filter(table => table.status === 'FREE');
         }
+        this.loadingTables = false;
+        this.checkIfLoadingComplete();
       },
-      error: (err) => console.error('Error fetching tables:', err)
+      error: (err) => {
+        console.error('Error fetching tables:', err);
+        this.loadingTables = false;
+        this.checkIfLoadingComplete();
+      }
     });
   }
 
@@ -161,14 +180,21 @@ export class TablesComponent implements OnInit, OnDestroy {
   }
 
   loadOrders(): void {
+    this.loadingOrders = true;
     this.orderService.getInactiveOrders().subscribe({
       next: (data) => {
         if (data && Array.isArray(data)) {
           this.inactiveOrders = data.filter(order => order.status === 'INACTIVE');
           this.countInactiveOrders();
         }
+        this.loadingOrders = false;
+        this.checkIfLoadingComplete();
       },
-      error: (err) => console.error('Error fetching orders:', err)
+      error: (err) => {
+        console.error('Error fetching orders:', err);
+        this.loadingOrders = false;
+        this.checkIfLoadingComplete();
+      }
     });
   }
 

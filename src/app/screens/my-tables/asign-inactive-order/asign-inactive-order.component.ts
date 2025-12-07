@@ -19,25 +19,33 @@ export class AsignInactiveOrderComponent implements OnInit {
   searchId: string = '';
   selectedOrder!: Order; 
   selectedTable!: Table;
-  isLoading: boolean = false;
   productsStock: Map<number, number> = new Map(); 
   confirmationDialog: boolean = false;
 
-  // Lista para almacenar los product_ids deshabilitados
   disabledProductIds: string[] = [];
   user: any | null
   uid: string = '';
 
+  // --- LOADING STATES ---
+  loadingUser: boolean = true;
+  loadingStocks: boolean = false;
+  assigningTable: boolean = false;
+
   constructor(
-    private orderService: OrderService, private userService: UserService, private productService: ProductService) {}
+    private orderService: OrderService, 
+    private userService: UserService, 
+    private productService: ProductService) {}
 
   async ngOnInit() {
+    this.loadingUser = true;
+    
     if (this.selectedOrder) {
       this.loadProductStocks();
     }
+    
     const user = this.userService.currentUser;
     if (user) {
-      const userData =  (await this.userService.getUserData(user.uid)).toPromise();
+      const userData = (await this.userService.getUserData(user.uid)).toPromise();
       if (userData) {
         this.user = userData;
         this.uid = user.uid;
@@ -45,7 +53,9 @@ export class AsignInactiveOrderComponent implements OnInit {
       } else {
         console.error('Error fetching user points data.');
       }
-  }}
+    }
+    this.loadingUser = false;
+  }
 
   get filteredOrders() {
     return this.orders.filter(order => order.id.includes(this.searchId));
@@ -59,6 +69,10 @@ export class AsignInactiveOrderComponent implements OnInit {
 
   loadProductStocks(): void {
     if (this.selectedOrder) {
+      this.loadingStocks = true;
+      let loadedCount = 0;
+      const totalItems = this.selectedOrder.orderItems.length;
+
       this.selectedOrder.orderItems.forEach(item => {
         const productId = item.product_id.toString();
         this.productService.getProductById(productId).subscribe({
@@ -76,9 +90,18 @@ export class AsignInactiveOrderComponent implements OnInit {
             } else {
               console.error('La respuesta no contiene stock válido para el producto:', response);
             }
+
+            loadedCount++;
+            if (loadedCount === totalItems) {
+              this.loadingStocks = false;
+            }
           },
           error: (err) => {
             console.error('Error al obtener el producto:', err);
+            loadedCount++;
+            if (loadedCount === totalItems) {
+              this.loadingStocks = false;
+            }
           }
         });
       });
@@ -95,35 +118,33 @@ export class AsignInactiveOrderComponent implements OnInit {
   }
 
   assignTable() {
-    this.isLoading = true;
+    this.assigningTable = true;
     if (this.selectedTable && this.selectedOrder) {
       console.log(`Asignando la mesa ${this.selectedTable.id} a la orden ${this.selectedOrder.id}`);
       this.deleteDisabledItemsAndAssignOrder();
     } else {
       alert('Por favor selecciona una mesa y una orden.');
+      this.assigningTable = false;
     }
   }
 
-  
   async deleteDisabledItemsAndAssignOrder() {
     if (this.disabledProductIds.length > 0) {
-      
       const selectedOrderId = this.selectedOrder.id ?? '0';
       this.orderService.deleteOrderItems(selectedOrderId.toString(), this.disabledProductIds).subscribe({
         next: async (response) => {
-         console.log(response);
+          console.log(response);
           await this.updateProductsStock(); 
-          await this.createOrder(this.selectedOrder.id ?? 0, Number(this.selectedTable.id ?? 0)
-);
+          await this.createOrder(this.selectedOrder.id ?? 0, Number(this.selectedTable.id ?? 0));
         },
         error: (error) => {
           console.error('Error al eliminar productos deshabilitados:', error);
+          this.assigningTable = false;
         }
       });
     } else {
       await this.updateProductsStock();
-      this.createOrder(this.selectedOrder.id ?? 0, Number(this.selectedTable.id ?? 0)
-);
+      this.createOrder(this.selectedOrder.id ?? 0, Number(this.selectedTable.id ?? 0));
     }
   }
 
@@ -145,26 +166,24 @@ export class AsignInactiveOrderComponent implements OnInit {
       console.error('One or more updates failed', error);
     }
   }
-  
 
-  // Función para crear la orden
   async createOrder(orderId: number, tableId: number) {
     this.orderService.assignEmployeeToOrder(orderId).subscribe(
       (response) => {
         this.orderService.assignOrderToTable(orderId, tableId).subscribe({
           next: (response) => {
-            this.isLoading = false;
+            this.assigningTable = false;
             this.close.emit();
           },
           error: (error) => {
             console.error('Error al asignar la orden:', error);
-            this.isLoading = false;
+            this.assigningTable = false;
           }
         });
       },
       (error) => {
         console.error('Error assigning employee:', error);
-        this.isLoading = false;
+        this.assigningTable = false;
       }
     );
   }
@@ -175,5 +194,10 @@ export class AsignInactiveOrderComponent implements OnInit {
 
   closeConfirmationPopUp(){
     this.confirmationDialog = false;
+  }
+
+  // Helper para saber si está cargando algo
+  get isLoading(): boolean {
+    return this.loadingUser || this.loadingStocks || this.assigningTable;
   }
 }

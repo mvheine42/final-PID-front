@@ -16,14 +16,19 @@ export class OrderInfoComponent implements OnInit  {
   @Output() onClose = new EventEmitter<void>();
   @Output() onSend = new EventEmitter<void>();
 
+  // --- LOADING STATE ---
+  loading: boolean = true;
+
   constructor(private productService: ProductService) {}
 
   ngOnInit() {
+    this.loading = true;
     this.loadProducts();
   }
 
 
   loadProducts(): void {
+    this.loading = true;
     this.productService.getProducts().subscribe({
       next: (data) => {
         console.log('Products fetched:', data);
@@ -32,9 +37,11 @@ export class OrderInfoComponent implements OnInit  {
         } else {
           console.error('Unexpected data format:', data);
         }
+        this.loading = false;
       },
       error: (err) => {
         console.error('Error fetching products:', err);
+        this.loading = false;
       }
       
     });

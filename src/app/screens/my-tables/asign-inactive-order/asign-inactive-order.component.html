@@ -11,8 +11,21 @@
         />
       </div>
 
-      <p-table [value]="filteredOrders" selectionMode="single" [(selection)]="selectedOrder" dataKey="id"
-        scrollable="true" scrollHeight="200px">
+      <!-- Mensaje cuando NO hay órdenes -->
+      <div *ngIf="filteredOrders.length === 0" class="no-orders-message">
+        <i class="pi pi-inbox" style="font-size: 3rem; color: #ccc; margin-bottom: 10px;"></i>
+        <p>No inactive orders</p>
+      </div>
+
+      <!-- Tabla solo cuando HAY órdenes -->
+      <p-table 
+        *ngIf="filteredOrders.length > 0"
+        [value]="filteredOrders" 
+        selectionMode="single" 
+        [(selection)]="selectedOrder" 
+        dataKey="id"
+        scrollable="true" 
+        scrollHeight="200px">
         <ng-template pTemplate="header">
           <tr>
             <th>ID</th>
@@ -32,8 +45,21 @@
     <div class="order-details" *ngIf="selectedOrder">
       <h4 class="selected-order-title">Selected Order: {{ selectedOrder.id }}</h4>
       
-      <!-- Tabla de productos con su cantidad -->
-      <p-table [value]="selectedOrder.orderItems" [scrollable]="true" scrollHeight="200px">
+      <!-- Spinner mientras carga stocks -->
+      <div *ngIf="loadingStocks" style="min-height: 200px; display: flex; justify-content: center; align-items: center;">
+        <p-progressSpinner 
+            strokeWidth="4" 
+            animationDuration=".5s"
+            [style]="{width: '40px', height: '40px'}">
+        </p-progressSpinner>
+      </div>
+
+      <!-- Tabla de productos solo cuando terminó de cargar -->
+      <p-table 
+        *ngIf="!loadingStocks"
+        [value]="selectedOrder.orderItems" 
+        [scrollable]="true" 
+        scrollHeight="200px">
         <ng-template pTemplate="header">
           <tr>
             <th>Product</th>
@@ -49,7 +75,6 @@
           </tr>
         </ng-template>
       </p-table>
-      
 
       <p-dropdown
         [options]="freeTables"
@@ -61,18 +86,18 @@
         [filter]="true"
         [filterPlaceholder]="'Asign table...'"
         [showClear]="true"
+        [disabled]="loadingStocks"
       >
       </p-dropdown>
 
       <div class="button-container"> 
-        <button pButton label="Close" (click)="close.emit()" class="p-button-secondary"></button>
+        <button pButton label="Close" (click)="close.emit()" class="p-button-secondary" [disabled]="assigningTable"></button>
         <button pButton label="Asign table" (click)="showConfirmPopUp()" class="p-button-success" 
-          [disabled]="!selectedOrder || !selectedTable "></button>
+          [disabled]="!selectedOrder || !selectedTable || loadingStocks || assigningTable"></button>
       </div>
     </div>
   </div>
 </div>
-
 
 <p-dialog [(visible)]="confirmationDialog"  class="custom-modal" [modal]="true">
   <ng-template pTemplate="header">
@@ -82,8 +107,7 @@
   <app-confirmation-pop-up (onSend)="assignTable()" (onClose)="closeConfirmationPopUp()" [subtitle]="'Any product out of stock will not be assigned to the order'"></app-confirmation-pop-up>
 </p-dialog>
 
-
-
-<div *ngIf="isLoading" class="overlay">
+<!-- Overlay cuando está asignando la mesa -->
+<div *ngIf="assigningTable" class="overlay">
   <p-progressSpinner styleClass="custom-spinner" [animationDuration]="'0.5'"></p-progressSpinner>
 </div>

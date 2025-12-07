@@ -1,196 +1,237 @@
 <div class="container-table-free">
 
-  <div *ngIf="loading" class="loading-overlay">
-    <p-progressSpinner></p-progressSpinner>
+  <!-- Spinner PRINCIPAL solo en la tabla de productos mientras carga orden -->
+  <div class="header">
+    <h2 class="table-number">Table: {{ table.id }}</h2>
+    <span class="status">{{ table.status }}</span>
   </div>
 
-    <div class="header">
-      <h2 class="table-number">Table: {{ table.id }}</h2>
-      <span class="status">{{ table.status }}</span>
-    </div>
-  
-    <div class="body">
-      <div class="subtitle">
-        <div class="date-time-wrapper">
-          <p class="capacity">Capacity: {{ table.capacity }}</p>
-          <p>People: {{amountOfPeople}}</p>
-          <p>Employee: {{employee}}</p>
-        </div>
-        <div class="date-time-wrapper">
-          <p class="current-date">{{ currentDate }}</p>
-          <p class="current-time">{{ currentTime }}hs</p>
-        </div>
+  <div class="body">
+    <div class="subtitle">
+      <div class="date-time-wrapper">
+        <p class="capacity">Capacity: {{ table.capacity }}</p>
+        <p>People: {{amountOfPeople}}</p>
+        <p>Employee: {{employee}}</p>
       </div>
-  
-      <!-- Formulario de la orden -->
-      <div class="order-form">
-        <div class="table-wrapper">
-          <table class="product-table">
-            <thead>
-                <tr>
-                  <th>Product</th>
-                  <th>Amount</th>
-                  <th>Price</th>
-                  <th>Wait Time</th> <th>Status</th> 
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let item of orderItems">
-                  <td>{{ item.product_name }}</td>
-                  <td>{{ item.amount }}</td>
-                  <td>{{ item.product_price | currency }}</td>
-                  
-                  <td>
-                    <div *ngIf="item.served_at" class="time-badge served" 
-                        pTooltip="Pedido: {{item.created_at | date:'HH:mm'}} | Servido: {{item.served_at | date:'HH:mm'}}" 
-                        tooltipPosition="top">
-                      <i class="pi pi-check-circle"></i>
-                      <span>{{ getServedDuration(item.created_at!, item.served_at) }} min</span>
-                    </div>
+      <div class="date-time-wrapper">
+        <p class="current-date">{{ currentDate }}</p>
+        <p class="current-time">{{ currentTime }}hs</p>
+      </div>
+    </div>
 
-                    <div *ngIf="!item.served_at" class="time-badge waiting"
-                        [ngClass]="{'critical': isCriticalDelay(item.created_at!)}"
-                        pTooltip="Pedido a las {{item.created_at | date:'HH:mm'}}" 
-                        tooltipPosition="top">
-                      <i class="pi pi-clock"></i>
-                      <span>{{ getWaitTime(item.created_at!) }} min</span>
-                    </div>
-                  </td>
+    <!-- Formulario de la orden -->
+    <div class="order-form">
+      
+      <!-- Spinner mientras carga la orden inicial -->
+      <div *ngIf="loadingOrder" style="min-height: 200px; display: flex; justify-content: center; align-items: center;">
+        <p-progressSpinner 
+            strokeWidth="4" 
+            animationDuration=".5s"
+            [style]="{width: '50px', height: '50px'}">
+        </p-progressSpinner>
+      </div>
 
-                  <td style="text-align: center;">
-  
-                    <div *ngIf="!item.served_at">
-                        <button pButton 
-                                type="button" 
-                                icon="pi pi-check" 
-                                class="p-button-rounded p-button-text p-button-success"
-                                [disabled]="!item.item_id"
-                                (click)="onServeItem(item)"
-                                pTooltip="Marcar como entregado"
-                                tooltipPosition="left">
-                        </button>
-                    </div>
+      <!-- Tabla de productos - solo cuando terminó de cargar -->
+      <div *ngIf="!loadingOrder" class="table-wrapper">
+        <table class="product-table">
+          <thead>
+              <tr>
+                <th>Product</th>
+                <th>Amount</th>
+                <th>Price</th>
+                <th>Wait Time</th> 
+                <th>Status</th> 
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of orderItems">
+                <td>{{ item.product_name }}</td>
+                <td>{{ item.amount }}</td>
+                <td>{{ item.product_price | currency }}</td>
+                
+                <td>
+                  <div *ngIf="item.served_at" class="time-badge served" 
+                      pTooltip="Pedido: {{item.created_at | date:'HH:mm'}} | Servido: {{item.served_at | date:'HH:mm'}}" 
+                      tooltipPosition="top">
+                    <i class="pi pi-check-circle"></i>
+                    <span>{{ getServedDuration(item.created_at!, item.served_at) }} min</span>
+                  </div>
 
-                    <div *ngIf="item.served_at">
-                        <i class="pi pi-check-circle" style="color: green; font-size: 1.5rem; font-weight: bold;"></i>
-                    </div>
+                  <div *ngIf="!item.served_at" class="time-badge waiting"
+                      [ngClass]="{'critical': isCriticalDelay(item.created_at!)}"
+                      pTooltip="Pedido a las {{item.created_at | date:'HH:mm'}}" 
+                      tooltipPosition="top">
+                    <i class="pi pi-clock"></i>
+                    <span>{{ getWaitTime(item.created_at!) }} min</span>
+                  </div>
+                </td>
 
-                  </td>
-                </tr>
-              </tbody>
-          </table>           
-        </div>
+                <td style="text-align: center;">
+                  <div *ngIf="!item.served_at">
+                      <button pButton 
+                              type="button" 
+                              icon="pi pi-check" 
+                              class="p-button-rounded p-button-text p-button-success"
+                              [disabled]="!item.item_id"
+                              (click)="onServeItem(item)"
+                              pTooltip="Marcar como entregado"
+                              tooltipPosition="left">
+                      </button>
+                  </div>
 
-        <div *ngIf="wantToAddNewProduct">
+                  <div *ngIf="item.served_at">
+                      <i class="pi pi-check-circle" style="color: green; font-size: 1.5rem; font-weight: bold;"></i>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+        </table>           
+      </div>
 
-          <div class="category-selection">
-            <div class="category">
-              <label for="categories">Select Categories:</label>
-              <p-multiSelect 
-                id="categories" 
-                [options]="categories" 
-                [appendTo]="'body'"
-                [(ngModel)]="selectedCategories" 
-                optionLabel="name" 
-                placeholder="Choose Categories" 
-                (onChange)="filterProductsByCategory()">
-              </p-multiSelect>
+      <div *ngIf="wantToAddNewProduct">
+
+        <div class="category-selection">
+          <div class="category">
+            <label for="categories">Select Categories:</label>
+            
+            <!-- Spinner INLINE para categorías -->
+            <div *ngIf="loadingCategories" class="inline-spinner">
+              <p-progressSpinner 
+                  strokeWidth="6" 
+                  animationDuration=".5s"
+                  [style]="{width: '30px', height: '30px'}">
+              </p-progressSpinner>
             </div>
+            
+            <p-multiSelect 
+              *ngIf="!loadingCategories"
+              id="categories" 
+              [options]="categories" 
+              [appendTo]="'body'"
+              [(ngModel)]="selectedCategories" 
+              optionLabel="name" 
+              placeholder="Choose Categories" 
+              (onChange)="filterProductsByCategory()">
+            </p-multiSelect>
           </div>
-    
-          <div  *ngIf="selectedCategories.length > 0">
-            <div class="add-product">
-                <label for="product">Product:</label>
-                <p-dropdown 
-                  [options]="filteredProducts" 
-                  [(ngModel)]="selectedProduct" 
-                  optionLabel="name"
-                  [appendTo]="'body'"
-                  [filter]="true"
-                  filterBy="name"
-                  [showClear]="true"
-                  placeholder="Select a Product"
-                  (onChange)="onProductChange($event)">
-                
-                  <ng-template pTemplate="selectedItem" let-selectedProduct>
-                    <div class="flex align-items-center gap-2">
-                      <div>{{ selectedProduct?.name }}</div>
-                    </div>
-                  </ng-template>
-                
-                  <ng-template let-product pTemplate="item">
-                    <div 
-                      class="flex align-items-center gap-2" 
-                      [ngClass]="{'disabled-option': product.disabled}"
-                      [class.pointer-none]="product.disabled">
-                      <div>{{ product.name }}</div>
-                      <span *ngIf="product.disabled" class="out-of-stock"> (Out of stock)</span>
-                    </div>
-                  </ng-template>
-                </p-dropdown>
+        </div>
+  
+        <div *ngIf="selectedCategories.length > 0">
+          <div class="add-product">
+              <label for="product">Product:</label>
               
-                <div class="amount-price-wrapper">
-                  <div class="amount">
-                    <label for="amount">Amount:</label>
-                    <input id="amount" type="number"  (blur)="validateAmount()" [(ngModel)]="selectedAmount" min="1"  [max]="selectedProduct?.stock || 1" [title]="'Maximum stock: ' + (selectedProduct?.stock || 0)"/>
-                  </div>
-                  <div class="price">
-                    <label for="price">Price:</label>
-                    <input id="price" type="text" [value]="selectedProduct?.price" disabled />
-                  </div>
-                </div>
-                
+              <!-- Spinner INLINE para productos -->
+              <div *ngIf="loadingProducts" class="inline-spinner">
+                <p-progressSpinner 
+                    strokeWidth="6" 
+                    animationDuration=".5s"
+                    [style]="{width: '30px', height: '30px'}">
+                </p-progressSpinner>
               </div>
-    
+              
+              <p-dropdown 
+                *ngIf="!loadingProducts"
+                [options]="filteredProducts" 
+                [(ngModel)]="selectedProduct" 
+                optionLabel="name"
+                [appendTo]="'body'"
+                [filter]="true"
+                filterBy="name"
+                [showClear]="true"
+                placeholder="Select a Product"
+                (onChange)="onProductChange($event)">
+              
+                <ng-template pTemplate="selectedItem" let-selectedProduct>
+                  <div class="flex align-items-center gap-2">
+                    <div>{{ selectedProduct?.name }}</div>
+                  </div>
+                </ng-template>
+              
+                <ng-template let-product pTemplate="item">
+                  <div 
+                    class="flex align-items-center gap-2" 
+                    [ngClass]="{'disabled-option': product.disabled}"
+                    [class.pointer-none]="product.disabled">
+                    <div>{{ product.name }}</div>
+                    <span *ngIf="product.disabled" class="out-of-stock"> (Out of stock)</span>
+                  </div>
+                </ng-template>
+              </p-dropdown>
+            
+              <div class="amount-price-wrapper">
+                <div class="amount">
+                  <label for="amount">Amount:</label>
+                  <input id="amount" type="number"  (blur)="validateAmount()" [(ngModel)]="selectedAmount" min="1"  [max]="selectedProduct?.stock || 1" [title]="'Maximum stock: ' + (selectedProduct?.stock || 0)"/>
+                </div>
+                <div class="price">
+                  <label for="price">Price:</label>
+                  <input id="price" type="text" [value]="selectedProduct?.price" disabled />
+                </div>
+              </div>
+            </div>
+  
           <div class="add-product-button">
-            <button  [disabled]="validateForm()" (click)="addOrderItem()">Add Product</button>
+            <button [disabled]="validateForm()" (click)="addOrderItem()">Add Product</button>
           </div>
         </div>
       </div>
 
-        <div *ngIf="!wantToAddNewProduct" class="add-product-button">
-          <button (click)="addNewProducts()">Add Products</button>
-        </div>
-  
+      <div *ngIf="!wantToAddNewProduct && !loadingOrder" class="add-product-button">
+        <button (click)="addNewProducts()">Add Products</button>
       </div>
-  
-      <!-- Total -->
-      <div class="total">
-        <p>Total: {{ calculateTotal() | currency }}</p>
-      </div>
-  
-      <!-- Botones de acción -->
-      <div class="action-buttons">
+    </div>
 
-        <span [pTooltip]="!allItemsServed ? 'Faltan platos por servir' : ''" tooltipPosition="top">
-      <button pButton label="Close Table" 
-              class="create-order-button" 
-              (click)="showCloseTableDialog()"
-              [disabled]="!allItemsServed"> </button>
-          </span>
-        <button pButton label="Save" class="close-button" (click)="showConfirmDialog()"></button>
-      </div>
+    <!-- Total -->
+    <div class="total">
+      <p>Total: {{ calculateTotal() | currency }}</p>
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="action-buttons">
+      <span [pTooltip]="!allItemsServed ? 'Faltan platos por servir' : ''" tooltipPosition="top">
+        <button pButton label="Close Table" 
+                class="create-order-button" 
+                (click)="showCloseTableDialog()"
+                [disabled]="!allItemsServed || closingTable || loadingOrder">
+        </button>
+      </span>
+      <button pButton label="Save" class="close-button" (click)="showConfirmDialog()" [disabled]="savingOrder || loadingOrder"></button>
     </div>
   </div>
   
-  <p-dialog class="white-background-modal" [(visible)]="displayConfirmDialog" [modal]="true" header="Save Changes" [closable]="true">
-    <app-confirmation-pop-up
-      [subtitle]="'Do you want to save your changes?'"
-      (onClose)="closeDialog()"
-      (onSend)="updateOrder()"
-      [cancelLabel]="'No'"
-      [sendLabel]="'Yes'">
-    </app-confirmation-pop-up>
-  </p-dialog>
-  
-  <p-dialog class="white-background-modal" [(visible)]="displayCloseTableDialog" [modal]="true" header="Close Table" [closable]="true">
-    <app-confirmation-pop-up
-      [subtitle]="'Are you sure you want to close this table?'"
-      (onClose)="closeCloseTableDialog()"
-      (onSend)="closeAndUpdateOrder()"
-      [cancelLabel]="'No'"
-      [sendLabel]="'Yes'">
-    </app-confirmation-pop-up>
-  </p-dialog>
-  
+  <!-- Overlay cuando está GUARDANDO -->
+  <div *ngIf="savingOrder" class="loading-overlay">
+    <p-progressSpinner 
+        strokeWidth="4" 
+        animationDuration=".5s">
+    </p-progressSpinner>
+  </div>
 
+  <!-- Overlay cuando está CERRANDO mesa -->
+  <div *ngIf="closingTable" class="loading-overlay">
+    <p-progressSpinner 
+        strokeWidth="4" 
+        animationDuration=".5s">
+    </p-progressSpinner>
+  </div>
+</div>
+  
+<p-dialog class="white-background-modal" [(visible)]="displayConfirmDialog" [modal]="true" header="Save Changes" [closable]="true">
+  <app-confirmation-pop-up
+    [subtitle]="'Do you want to save your changes?'"
+    (onClose)="closeDialog()"
+    (onSend)="updateOrder()"
+    [cancelLabel]="'No'"
+    [sendLabel]="'Yes'">
+  </app-confirmation-pop-up>
+</p-dialog>
+  
+<p-dialog class="white-background-modal" [(visible)]="displayCloseTableDialog" [modal]="true" header="Close Table" [closable]="true">
+  <app-confirmation-pop-up
+    [subtitle]="'Are you sure you want to close this table?'"
+    (onClose)="closeCloseTableDialog()"
+    (onSend)="closeAndUpdateOrder()"
+    [cancelLabel]="'No'"
+    [sendLabel]="'Yes'">
+  </app-confirmation-pop-up>
+</p-dialog>

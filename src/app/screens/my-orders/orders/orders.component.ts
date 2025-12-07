@@ -22,6 +22,10 @@ export class OrdersComponent implements OnInit {
   infoDialogVisible = false;
   selectedOrder!: Order;
 
+  // --- LOADING STATES ---
+  loading: boolean = true;
+  loadingOrders: boolean = true;
+  loadingProducts: boolean = true;
 
   public tableScrollHeight: string='';
 
@@ -33,10 +37,13 @@ export class OrdersComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loading = true;
+    this.loadingOrders = true;
+    this.loadingProducts = true;
+
     this.loadOrders();
     this.loadProducts();
     this.setScrollHeight();
-    this.filterOrdersByDate();
     
     window.addEventListener('resize', () => {
       this.setScrollHeight();
@@ -52,6 +59,7 @@ export class OrdersComponent implements OnInit {
   }
 
   loadProducts(): void {
+    this.loadingProducts = true;
     this.productService.getProducts().subscribe({
       next: (data) => {
         console.log('Products fetched:', data);
@@ -60,14 +68,19 @@ export class OrdersComponent implements OnInit {
         } else {
           console.error('Unexpected data format:', data);
         }
+        this.loadingProducts = false;
+        this.checkIfLoadingComplete();
       },
       error: (err) => {
         console.error('Error fetching products:', err);
+        this.loadingProducts = false;
+        this.checkIfLoadingComplete();
       }
     });
   }
 
   loadOrders(): void {
+    this.loadingOrders = true;
     this.orderService.getOrders().subscribe({
       next: (data) => {
         console.log('Orders fetched:', data);
@@ -79,11 +92,21 @@ export class OrdersComponent implements OnInit {
         } else {
           console.error('Unexpected data format:', data);
         }
+        this.loadingOrders = false;
+        this.checkIfLoadingComplete();
       },
       error: (err) => {
         console.error('Error fetching orders:', err);
+        this.loadingOrders = false;
+        this.checkIfLoadingComplete();
       }
     });
+  }
+
+  checkIfLoadingComplete(): void {
+    if (!this.loadingOrders && !this.loadingProducts) {
+      this.loading = false;
+    }
   }
   
 

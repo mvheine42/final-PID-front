@@ -20,8 +20,23 @@
     outline: none !important;
 }
 
+/* --- SPINNER STYLES (ADDED) --- */
+.loading-container {
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
+    width: 100%;
+    min-height: 200px;
+    padding: 20px;
+}
+
 @media (max-width: 768px) {
     .container{
         width: 250px;
+    }
+
+    /* Spinner adjustments for mobile */
+    .loading-container {
+        min-height: 150px;
     }
 }

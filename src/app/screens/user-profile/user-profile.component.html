@@ -83,7 +83,6 @@
                     [value]="rewards"
                     [numVisible]="isMobile ? 1 : 3"
                     [numScroll]="1"
-                    [responsiveOptions]="responsiveOptions"
                     [showIndicators]="false">
                     <ng-template let-reward pTemplate="item">
                       <div class="reward-box" (click)="showDiscountCode(reward)">
@@ -100,7 +99,7 @@
             </div>
             
       
-            <p-dialog [(visible)]="displayDiscountDialog" [modal]="true" header="{{selectedReward?.name}}" [closable]="true" [responsive]="true" class="discount-dialog">
+            <p-dialog [(visible)]="displayDiscountDialog" [modal]="true" header="{{selectedReward?.name}}" [closable]="true" class="discount-dialog">
               <div class="discount-dialog-content">
                 <p *ngIf="selectedReward?.description" class="discount-description">{{ selectedReward?.description }}</p>
                 <p class="discount-code">Use code <strong>{{ selectedReward?.code }}</strong> for a discount!</p>
