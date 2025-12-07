@@ -13,7 +13,18 @@
         />
       </div>
 
+      <!-- Spinner mientras carga reservas -->
+      <div *ngIf="loadingReservations" style="min-height: 200px; display: flex; justify-content: center; align-items: center;">
+        <p-progressSpinner 
+            strokeWidth="4" 
+            animationDuration=".5s"
+            [style]="{width: '40px', height: '40px'}">
+        </p-progressSpinner>
+      </div>
+
+      <!-- Tabla solo cuando terminó de cargar -->
       <p-table
+        *ngIf="!loadingReservations"
         [value]="filteredReservations"
         selectionMode="single"
         [(selection)]="selectedReservation"
@@ -22,32 +33,32 @@
         scrollHeight="200px"
       >
         <ng-template pTemplate="body" let-r>
-    <tr (click)="selectReservation(r)" 
-        [class.selected]="r === selectedReservation"
-        [ngClass]="getRowClass(r)">
-        
-        <td>
-          <i *ngIf="getRowClass(r) === 'row-late'" 
-             class="pi pi-exclamation-circle" 
-             style="color: #d32f2f; margin-right: 4px;"></i>
+          <tr (click)="selectReservation(r)" 
+              [class.selected]="r === selectedReservation"
+              [ngClass]="getRowClass(r)">
+              
+            <td>
+              <i *ngIf="getRowClass(r) === 'row-late'" 
+                 class="pi pi-exclamation-circle" 
+                 style="color: #d32f2f; margin-right: 4px;"></i>
 
-          <i *ngIf="getRowClass(r) === 'row-warning'" 
-             class="pi pi-clock" 
-             style="color: #d97706; margin-right: 4px;"
-             pTooltip="Se acerca la hora" tooltipPosition="top"></i>
+              <i *ngIf="getRowClass(r) === 'row-warning'" 
+                 class="pi pi-clock" 
+                 style="color: #d97706; margin-right: 4px;"
+                 pTooltip="Se acerca la hora" tooltipPosition="top"></i>
 
-          {{ r.reservationTime }}
-        </td>
-        <td>{{ r.customerName }}</td>
-        <td class="people-column">
-           {{ r.amountOfPeople }} <i class="pi pi-users"></i>
-        </td>
-        <td>
-           <span *ngIf="r.table_id">#{{ r.table_id }} <i class="pi pi-check"></i></span>
-           <span *ngIf="!r.table_id">-</span>
-        </td>
-    </tr>
-</ng-template>
+              {{ r.reservationTime }}
+            </td>
+            <td>{{ r.customerName }}</td>
+            <td class="people-column">
+               {{ r.amountOfPeople }} <i class="pi pi-users"></i>
+            </td>
+            <td>
+               <span *ngIf="r.table_id">#{{ r.table_id }} <i class="pi pi-check"></i></span>
+               <span *ngIf="!r.table_id">-</span>
+            </td>
+          </tr>
+        </ng-template>
       </p-table>
     </div>
 
@@ -63,59 +74,73 @@
         {{ selectedReservation.amountOfPeople }} people
       </p>
 
- <p-dropdown
-      [options]="availableTables"
-      [(ngModel)]="selectedTable"
-      appendTo="body"
-      optionLabel="label"
-      optionValue="id"
-      placeholder="Select Table"
-      [style]="{'width': '100%'}"
-      [filter]="true"
-      [filterPlaceholder]="'Asign table...'"
-      [showClear]="true"
-    >
-    </p-dropdown>
+      <!-- Spinner mientras carga mesas disponibles -->
+      <div *ngIf="loadingTables" class="inline-spinner-dropdown">
+        <p-progressSpinner 
+            strokeWidth="6" 
+            animationDuration=".5s"
+            [style]="{width: '30px', height: '30px'}">
+        </p-progressSpinner>
+      </div>
 
-   <div class="button-container">
-      
-      <button pButton 
-              icon="pi pi-trash" 
-              class="p-button-danger p-button-outlined" 
-              pTooltip="Eliminar Reserva"
-              tooltipPosition="top"
-              (click)="showConfirmPopUp('CANCEL')">
-      </button>
+      <!-- Dropdown solo cuando terminó de cargar -->
+      <p-dropdown
+        *ngIf="!loadingTables"
+        [options]="availableTables"
+        [(ngModel)]="selectedTable"
+        appendTo="body"
+        optionLabel="label"
+        optionValue="id"
+        placeholder="Select Table"
+        [style]="{'width': '100%'}"
+        [filter]="true"
+        [filterPlaceholder]="'Asign table...'"
+        [showClear]="true"
+      >
+      </p-dropdown>
 
-      <button pButton 
-              label="Close" 
-              (click)="onCloseClick()" 
-              class="p-button-secondary">
-      </button>
-      
-     <span [pTooltip]="isTooEarlyToAssign(selectedReservation.reservationTime) ? 'Solo disponible 2hs antes' : ''" tooltipPosition="top">
+      <div class="button-container">
+        
         <button pButton 
-                label="Asign table" 
-                (click)="showConfirmPopUp('ASSIGN')" 
-                class="p-button-success"
-                [disabled]="!selectedReservation || !selectedTable || isTooEarlyToAssign(selectedReservation.reservationTime)">
+                icon="pi pi-trash" 
+                class="p-button-danger p-button-outlined" 
+                pTooltip="Eliminar Reserva"
+                tooltipPosition="top"
+                (click)="showConfirmPopUp('CANCEL')"
+                [disabled]="deletingReservation || assigningTable">
         </button>
-      </span>
+
+        <button pButton 
+                label="Close" 
+                (click)="onCloseClick()" 
+                class="p-button-secondary"
+                [disabled]="deletingReservation || assigningTable">
+        </button>
+        
+        <span [pTooltip]="isTooEarlyToAssign(selectedReservation.reservationTime) ? 'Solo disponible 2hs antes' : ''" tooltipPosition="top">
+          <button pButton 
+                  label="Asign table" 
+                  (click)="showConfirmPopUp('ASSIGN')" 
+                  class="p-button-success"
+                  [disabled]="!selectedReservation || !selectedTable || isTooEarlyToAssign(selectedReservation.reservationTime) || assigningTable || deletingReservation">
+          </button>
+        </span>
+
+      </div>
+      
+      <div *ngIf="selectedReservation && isTooEarlyToAssign(selectedReservation.reservationTime)" 
+           style="margin-top: 10px; color: #f59e0b; font-size: 0.9rem; text-align: right;">
+        <i class="pi pi-clock"></i> Disponible a partir de 2 horas antes de la reserva.
+      </div>
 
     </div>
-    
-    <div *ngIf="selectedReservation && isTooEarlyToAssign(selectedReservation.reservationTime)" 
-         style="margin-top: 10px; color: #f59e0b; font-size: 0.9rem; text-align: right;">
-      <i class="pi pi-clock"></i> Disponible a partir de 2 horas antes de la reserva.
-    </div>
-
   </div>
 </div>
+
 <p-confirmDialog key="assign-reservation-confirm"></p-confirmDialog>
 
-
-<!-- Loading overlay -->
-<div *ngIf="isLoading" class="overlay">
+<!-- Loading overlay para operaciones que bloquean todo -->
+<div *ngIf="assigningTable || deletingReservation" class="overlay">
   <p-progressSpinner styleClass="custom-spinner" [animationDuration]="'0.5'"></p-progressSpinner>
 </div>
 
@@ -128,7 +153,6 @@
     (onClose)="closeErrorModal()">
   </app-notice>
 </p-dialog>
-
 
 <p-dialog [(visible)]="displaySuccessModal"
           [modal]="true"

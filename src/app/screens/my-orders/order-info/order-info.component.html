@@ -1,28 +1,36 @@
+<!-- Spinner mientras carga -->
+<div *ngIf="loading" class="loading-container">
+    <p-progressSpinner 
+        strokeWidth="4" 
+        animationDuration=".5s"
+        [style]="{width: '50px', height: '50px'}">
+    </p-progressSpinner>
+</div>
+
 <!-- Información de la orden -->
- <div class="container" *ngIf="order">
+<div class="container" *ngIf="order && !loading">
     <div class="order-info">
         <p><strong>Order ID:</strong> {{ order.id }}</p>
         <p><strong>Status:</strong> {{ order.status }}</p>
         <p><strong>Table Number:</strong> {{ order.tableNumber }}</p>
         <p><strong>Date:</strong> {{ order.date }}</p>
         <p><strong>Time:</strong> {{ order.time }}</p>
-      </div>
-      
-      <!-- Lista de productos de la orden -->
-     <h4>Products</h4>
-      <ul>
+    </div>
+    
+    <!-- Lista de productos de la orden -->
+    <h4>Products</h4>
+    <ul>
         <li *ngFor="let item of order.orderItems">
-          <p>
-            <strong>Product:</strong> {{ item.product_name || getProductById(item.product_id)?.name || 'Producto Eliminado' }} - 
-            <strong>Amount:</strong> {{ item.amount }} - 
-            <strong>Price:</strong> {{ (item.product_price || getProductById(item.product_id)?.price) | currency }}
-          </p>
+            <p>
+                <strong>Product:</strong> {{ item.product_name || getProductById(item.product_id)?.name || 'Producto Eliminado' }} - 
+                <strong>Amount:</strong> {{ item.amount }} - 
+                <strong>Price:</strong> {{ (item.product_price || getProductById(item.product_id)?.price) | currency }}
+            </p>
         </li>
-      </ul>
+    </ul>
 
-      <p><strong>Total:</strong> ${{ order.total }}</p>
-      
- </div>
+    <p><strong>Total:</strong> ${{ order.total }}</p>
+</div>
 
 <p-toast></p-toast>
-<p-button class="custom" (click)="closeDialog()">Close</p-button>
+<p-button class="custom" (click)="closeDialog()" *ngIf="!loading">Close</p-button>

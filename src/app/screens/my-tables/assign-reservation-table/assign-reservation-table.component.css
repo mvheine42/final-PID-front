@@ -29,6 +29,16 @@
   z-index: 1000;
 }
 
+/* INLINE SPINNER para dropdown de mesas */
+.inline-spinner-dropdown {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
 /* Estilo para la fila de una reserva ya asignada */
 .assigned-row {
   background-color: #f1f1f1 !important;

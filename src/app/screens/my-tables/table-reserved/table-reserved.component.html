@@ -4,7 +4,8 @@
     <span class="status">{{ table.status }}</span>
   </div>
 
-  <ng-container *ngIf="isLoading; else reservationDetails">
+  <!-- Spinner mientras carga la reservación -->
+  <ng-container *ngIf="loadingReservation; else reservationDetails">
     <div class="body">
       <p-progressSpinner styleClass="custom-spinner" [animationDuration]="'0.5'"></p-progressSpinner>
       <div class="title">Loading reservation...</div>
@@ -25,7 +26,7 @@
             <button pButton label="Cancel" 
                     (click)="confirmCancellation('CANCEL')" 
                     class="p-button-danger"
-                    [disabled]="isReservationLate()">
+                    [disabled]="isReservationLate() || cancelingReservation">
             </button>
         </span>
         
@@ -33,20 +34,20 @@
             <button pButton label="No Show" 
                     (click)="confirmCancellation('NO_SHOW')" 
                     class="p-button-warning"
-                    [disabled]="!isReservationLate()">
+                    [disabled]="!isReservationLate() || cancelingReservation">
             </button>
         </span>
         
         <div class="spacer"></div>
         
-        <button pButton label="Close" class="close-button" (click)="closeDialog()"></button>
+        <button pButton label="Close" class="close-button" (click)="closeDialog()" [disabled]="cancelingReservation"></button>
         
         <span [pTooltip]="isTooEarlyToCheckIn() ? 'Habilitado a las ' + reservation.reservationTime : ''" tooltipPosition="top">
             <button pButton 
                     label="Check-in" 
                     class="checkin-button" 
                     (click)="onCheckIn()"
-                    [disabled]="isTooEarlyToCheckIn()">
+                    [disabled]="isTooEarlyToCheckIn() || cancelingReservation">
             </button>
         </span>
         
@@ -64,8 +65,12 @@
        </div>
     </ng-template>
   </ng-template>
-</div>
 
+  <!-- Overlay cuando está cancelando -->
+  <div *ngIf="cancelingReservation" class="overlay">
+    <p-progressSpinner styleClass="custom-spinner" [animationDuration]="'0.5'"></p-progressSpinner>
+  </div>
+</div>
 
 <p-dialog [(visible)]="displaySuccessModal"
           [modal]="true"

@@ -23,7 +23,12 @@ export class TableFreeComponent implements OnInit {
   filteredProducts: Product[] = []; 
   categories: Category[] = [];
   orderItems: OrderItem[] = [];
-  loading: boolean = false;
+  
+  // --- LOADING STATES ---
+  loadingProducts: boolean = false;  // CHANGED - empieza en false
+  loadingCategories: boolean = true; // CHANGED - empieza en true porque carga al inicio
+  creatingOrder: boolean = false;
+  
   selectedProduct: Product | null = null;
   selectedAmount: number = 1;
   selectedAmountOfPeople: number = 1;
@@ -49,6 +54,7 @@ export class TableFreeComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
+    this.loadingCategories = true; // Empieza cargando categorías
 
     this.currentDate = this.getBuenosAiresISODate();
     this.currentTime = this.getBuenosAiresTime();
@@ -57,9 +63,10 @@ export class TableFreeComponent implements OnInit {
     this.updateCurrentTime();
     this.loadProducts();
     this.loadCategories();
+    
     const user = this.userService.currentUser;
     if (user) {
-      const userData =  (await this.userService.getUserDataFromFirestore(user.uid)).toPromise();
+      const userData = (await this.userService.getUserDataFromFirestore(user.uid)).toPromise();
       if (userData) {
         this.user = userData;
         this.uid = user.uid;
@@ -67,15 +74,16 @@ export class TableFreeComponent implements OnInit {
       } else {
         console.error('Error fetching user points data.');
       }
-  }
-  if (this.reservation) {
-      // Si venimos de un check-in, pre-cargamos el nro de personas
+    }
+    
+    if (this.reservation) {
       console.log("Viniendo de check-in, precargando:", this.reservation.amountOfPeople);
       this.selectedAmountOfPeople = this.reservation.amountOfPeople;
     }
   }
 
   loadProducts(): void {
+    this.loadingProducts = true;
     this.productService.getProducts().subscribe({
       next: (data) => {
         if (data && Array.isArray(data.products)) {
@@ -83,17 +91,18 @@ export class TableFreeComponent implements OnInit {
         } else {
           console.error('Unexpected data format:', data);
         }
+        this.loadingProducts = false;
       },
       error: (err) => {
         console.error('Error fetching products:', err);
+        this.loadingProducts = false;
       }
     });
   }
 
   updateCurrentTime() {
-  this.currentTime = this.getBuenosAiresTime();
-}
-
+    this.currentTime = this.getBuenosAiresTime();
+  }
 
   addOrderItem() {
     if (this.selectedProduct && this.selectedAmount > 0) {
@@ -129,7 +138,7 @@ export class TableFreeComponent implements OnInit {
   }
 
   async createOrder() {
-    this.loading = true;
+    this.creatingOrder = true;
     const total = this.calculateTotal();
     this.order = {
       status: 'IN PROGRESS',
@@ -146,7 +155,6 @@ export class TableFreeComponent implements OnInit {
       const response = await this.orderService.onRegister(this.order!);
   
       if (response && response.order && response.order_id) {
-      
         await this.updateProductsStock();
         await this.tableService.updateTableAndOrder(response.order, response.order_id);
         this.updateTable();
@@ -157,12 +165,10 @@ export class TableFreeComponent implements OnInit {
     } catch (error: any) {
       console.error('Error durante el registro:', error);
     } finally {
-      this.loading = false;
+      this.creatingOrder = false;
     }
   }
-  
 
-  
   formatDate(date: Date): string {
     const year = date.getFullYear();
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -170,17 +176,14 @@ export class TableFreeComponent implements OnInit {
     return `${year}-${month}-${day}`; 
   }
 
-
   getProductById(productId: number): Product | undefined {
     return this.products.find(product => product.id === productId);
   }
-
 
   updateTable() {
     this.table.status = 'BUSY';
     this.table.order_id = this.order?.id ?? 0;
   }
-
 
   closeDialog() {
     this.orderItems = [];
@@ -190,6 +193,7 @@ export class TableFreeComponent implements OnInit {
   }
 
   loadCategories(): void {
+    this.loadingCategories = true;
     this.categoryService.getCategories().subscribe({
       next: (data) => {
         if (data && Array.isArray(data.categories)) {
@@ -199,54 +203,55 @@ export class TableFreeComponent implements OnInit {
             type: item.type
           }));
         }
+        this.loadingCategories = false;
       },
       error: (err) => {
         console.error('Error fetching categories:', err);
+        this.loadingCategories = false;
       }
     });
   }
 
-  
   filterProductsByCategory() {
     if (this.selectedCategories.length === 0) {
       this.filteredProducts = [];
+      this.loadingProducts = false;
     } else {
+      this.loadingProducts = true; // ACTIVAR LOADER
       const categoryIds = this.selectedCategories.map((category: { id: any; }) => category.id).join(', ');
       this.getProductsByCategory(categoryIds);
     }
   }
 
   getProductsByCategory(categoryIds: string) {
+    this.loadingProducts = true; // ACTIVAR LOADER
     this.categoryService.getProductsByCategory(categoryIds)
       .then((data) => {
         if (data && Array.isArray(data)) {
           this.filteredProducts = data.map(product => ({
             ...product,
-            disabled: product.stock === '0'  // Si stock es '0', deshabilitar
+            disabled: product.stock === '0'
           }));
         } else {
           console.error('Unexpected data format:', data);
           this.filteredProducts = [];
         }
+        this.loadingProducts = false; // DESACTIVAR LOADER
       })
       .catch((err) => {
         console.error('Error fetching products by category:', err);
-        this.filteredProducts = []; 
+        this.filteredProducts = [];
+        this.loadingProducts = false; // DESACTIVAR LOADER
       });
   }
   
   onProductChange(event: any) {
     const selectedProduct = event.value;
     
-    // Verifica si el producto seleccionado está deshabilitado
     if (selectedProduct?.disabled) {
-      // Si está deshabilitado, cancela la selección
       this.selectedProduct = null;
     }
   }
-  
-  
-  
 
   async updateProductsStock() {
     try {
@@ -277,40 +282,38 @@ export class TableFreeComponent implements OnInit {
   }
 
   getBuenosAiresISODate(): string {
-  const now = new Date();
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone: "America/Argentina/Buenos_Aires",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit"
-  }).format(now);
-}
+    const now = new Date();
+    return new Intl.DateTimeFormat("en-CA", {
+      timeZone: "America/Argentina/Buenos_Aires",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }).format(now);
+  }
 
-getBuenosAiresTime(): string {
-  const now = new Date();
-  return new Intl.DateTimeFormat("en-GB", {
-    timeZone: "America/Argentina/Buenos_Aires",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false
-  }).format(now);
-}
+  getBuenosAiresTime(): string {
+    const now = new Date();
+    return new Intl.DateTimeFormat("en-GB", {
+      timeZone: "America/Argentina/Buenos_Aires",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false
+    }).format(now);
+  }
 
-getBuenosAiresDateFormatted(): string {
-  const now = new Date();
-  const formatted = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/Argentina/Buenos_Aires",
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false
-  }).format(now);
+  getBuenosAiresDateFormatted(): string {
+    const now = new Date();
+    const formatted = new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/Argentina/Buenos_Aires",
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false
+    }).format(now);
 
-  return formatted.replace(",", "") + "hs";
-}
-
-
+    return formatted.replace(",", "") + "hs";
+  }
 }

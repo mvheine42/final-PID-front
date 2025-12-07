@@ -46,8 +46,15 @@
 
     </div>
   </div>
+
+  <div *ngIf="loading" class="loading-container">
+    <p-progressSpinner 
+        strokeWidth="4" 
+        animationDuration=".5s">
+    </p-progressSpinner>
+  </div>
   
-  <div class="section table-section">
+  <div class="section table-section" *ngIf="!loading">
     <div class="card table-wrapper">
       <p-table [value]="tables" dataKey="id" scrollable="true" [scrollHeight]="tableScrollHeight">
         <ng-template pTemplate="header">
