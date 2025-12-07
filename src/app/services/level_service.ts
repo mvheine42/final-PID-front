@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { auth } from '../services/firebaseconfig';  // Import Firebase auth
+import { auth } from '../services/firebaseconfig'; 
 import { signInWithEmailAndPassword, sendPasswordResetEmail, deleteUser, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, UserCredential, User, onAuthStateChanged, setPersistence, browserSessionPersistence, signOut, confirmPasswordReset } from 'firebase/auth';
 import { Observable } from 'rxjs';
 
@@ -15,7 +15,7 @@ export class LevelService {
   constructor(private http: HttpClient) { }
 
   getLevel(levelId: string):Observable<string>{
-    const endpoint = `${this.baseUrl}/level/${levelId}`;  // Construct the URL
+    const endpoint = `${this.baseUrl}/level/${levelId}`; 
     return this.http.get<string>(endpoint);
   }
 }

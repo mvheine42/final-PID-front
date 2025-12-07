@@ -26,7 +26,6 @@ export class AuthInterceptor implements HttpInterceptor {
       switchMap((authedReq) => next.handle(authedReq)),
       catchError((error: HttpErrorResponse) => {
         if (error.status === 401 && !this.isRefreshing) {
-          // Primer intento: refrescar token
           this.isRefreshing = true;
           
           return from(this.attachToken(req, true)).pipe(
@@ -37,7 +36,6 @@ export class AuthInterceptor implements HttpInterceptor {
             catchError((retryError: HttpErrorResponse) => {
               this.isRefreshing = false;
               
-              // Si el retry también falla con 401, la sesión está realmente expirada
               if (retryError.status === 401) {
                 console.error('Token refresh failed, logging out');
                 this.authService.logout();
@@ -64,7 +62,6 @@ export class AuthInterceptor implements HttpInterceptor {
       });
     } catch (error) {
       console.error('Error getting token:', error);
-      // Si no se puede obtener token, logout
       this.authService.logout();
       return req;
     }

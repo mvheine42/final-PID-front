@@ -26,12 +26,10 @@ export class TablesComponent implements OnInit, OnDestroy {
   todayReservationsCount = 0;
   todayISO = this.getTodayISOString();
 
-  // --- LOADING STATES ---
   loading: boolean = true;
   loadingTables: boolean = true;
   loadingOrders: boolean = true;
 
-  // Notificaciones
   displayUpcomingAlert = false;
   upcomingAlertMessage = '';
   private notificationInterval: any;
@@ -39,10 +37,8 @@ export class TablesComponent implements OnInit, OnDestroy {
   lateReservationsCount = 0;
   upcomingReservationsCount = 0;
 
-  // Check-in
   reservationForCheckIn: Reservation | null = null;
 
-  // --- 3. VARIABLES PARA LA CONFIRMACIÓN GLOBAL ---
   displayGlobalConfirmation = false;
   globalConfirmationMessage = '';
   pendingConfirmationAction: { mode: 'CANCEL' | 'NO_SHOW', reservation: Reservation } | null = null;
@@ -106,7 +102,7 @@ export class TablesComponent implements OnInit, OnDestroy {
       this.selectedComponent = 'RESERVED';
       this.displayModal = true;
     }
-     else {
+    else {
       console.log('Table is not available.');
     }
   }
@@ -116,7 +112,6 @@ export class TablesComponent implements OnInit, OnDestroy {
     this.selectedComponent = 'FREE'; 
   }
 
-  // --- 4. MANEJO DE CONFIRMACIÓN (RECIBE DEL HIJO) ---
   openGlobalConfirmation(event: { message: string, mode: 'CANCEL' | 'NO_SHOW', reservation: Reservation }) {
     this.globalConfirmationMessage = event.message;
     this.pendingConfirmationAction = { mode: event.mode, reservation: event.reservation };
@@ -130,10 +125,8 @@ export class TablesComponent implements OnInit, OnDestroy {
     const { reservation } = this.pendingConfirmationAction;
 
     try {
-      // ¡AQUÍ SE LLAMA AL SERVICIO!
       await this.reservationService.cancelReservation(reservation.id!);
       
-      // Éxito: Cerramos el modal de la mesa y refrescamos
       this.displayModal = false; 
       this.loadTables(); 
       alert("Reserva gestionada con éxito.");
@@ -143,7 +136,6 @@ export class TablesComponent implements OnInit, OnDestroy {
     }
     this.pendingConfirmationAction = null;
   }
-  // --- FIN MANEJO CONFIRMACIÓN ---
 
   onNotificationClick(): void { this.displayModalInactive = true; }
 
@@ -217,20 +209,17 @@ export class TablesComponent implements OnInit, OnDestroy {
   async checkUpcomingReservations(): Promise<void> {
     const allReservations = await this.reservationService.getReservationsByDay(this.todayISO);
     
-    // Filtramos SOLO las que NO tienen mesa asignada
     const unassignedReservations = allReservations.filter(r => !r.table_id || r.table_id === '');
 
-    // Reseteamos contadores
     this.lateReservationsCount = 0;
     this.upcomingReservationsCount = 0;
-    this.todayReservationsCount = unassignedReservations.length; // Mantenemos el total por las dudas
+    this.todayReservationsCount = unassignedReservations.length;
 
     if (unassignedReservations.length === 0) {
       this.displayUpcomingAlert = false;
       return;
     }
 
-    // Calculamos cuántas son Late y cuántas Soon
     unassignedReservations.forEach(r => {
       if (this.isLate(r.reservationTime)) {
         this.lateReservationsCount++;
@@ -239,21 +228,18 @@ export class TablesComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Lógica del popup de alerta (la mantenemos igual, pero usando la cuenta nueva)
     if (this.upcomingReservationsCount > 0 && this.displayUpcomingAlert === false) {
-        this.upcomingAlertMessage = `¡Atención! Tienes ${this.upcomingReservationsCount} reserva(s) próximas sin asignar.`;
+        this.upcomingAlertMessage = `Attention! You have ${this.upcomingReservationsCount} upcoming reservations unassigned.`;
         this.displayUpcomingAlert = true;
     }
   }
 
-  // --- HELPERS DE TIEMPO (Añadir al final de la clase) ---
   isLate(timeStr: string): boolean {
     if (!timeStr) return false;
     const now = new Date();
     const [h, m] = timeStr.split(':').map(Number);
     const resDate = new Date(); 
     resDate.setHours(h, m, 0, 0);
-    // Si "ahora" es mayor que la fecha de reserva -> Tarde
     return now > resDate;
   }
 
@@ -267,7 +253,6 @@ export class TablesComponent implements OnInit, OnDestroy {
     const diffMs = resDate.getTime() - now.getTime();
     const diffMinutes = diffMs / (1000 * 60);
 
-    // Si falta entre 0 y 60 minutos -> Próxima
     return diffMinutes > 0 && diffMinutes <= 60;
   }
 

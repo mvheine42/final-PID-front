@@ -1,4 +1,4 @@
-<!-- Spinner mientras carga -->
+
 <div *ngIf="loading" class="loading-container">
     <p-progressSpinner 
         strokeWidth="4" 
@@ -7,7 +7,6 @@
     </p-progressSpinner>
 </div>
 
-<!-- Información de la orden -->
 <div class="container" *ngIf="order && !loading">
     <div class="order-info">
         <p><strong>Order ID:</strong> {{ order.id }}</p>
@@ -17,7 +16,6 @@
         <p><strong>Time:</strong> {{ order.time }}</p>
     </div>
     
-    <!-- Lista de productos de la orden -->
     <h4>Products</h4>
     <ul>
         <li *ngFor="let item of order.orderItems">

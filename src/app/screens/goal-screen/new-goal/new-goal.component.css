@@ -42,13 +42,13 @@
 }
 
 .goal-type-button:disabled {
-    background-color: #cccccc; /* fondo gris para botones deshabilitados */
-    color: #666666; /* texto gris claro para botones deshabilitados */
-    cursor: not-allowed; /* cambia el cursor para indicar que está deshabilitado */
+    background-color: #cccccc;
+    color: #666666;
+    cursor: not-allowed;
 }
 
 .goal-type-button:not(:disabled):hover {
-    background-color: #0056b3; /* color de fondo al hacer hover en botones habilitados */
+    background-color: #0056b3;
     color: white;
 }
 

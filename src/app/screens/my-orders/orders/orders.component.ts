@@ -22,7 +22,6 @@ export class OrdersComponent implements OnInit {
   infoDialogVisible = false;
   selectedOrder!: Order;
 
-  // --- LOADING STATES ---
   loading: boolean = true;
   loadingOrders: boolean = true;
   loadingProducts: boolean = true;
@@ -62,7 +61,6 @@ export class OrdersComponent implements OnInit {
     this.loadingProducts = true;
     this.productService.getProducts().subscribe({
       next: (data) => {
-        console.log('Products fetched:', data);
         if (data && data.message && Array.isArray(data.products)) {
           this.products = data.products;
         } else {
@@ -83,14 +81,12 @@ export class OrdersComponent implements OnInit {
     this.loadingOrders = true;
     this.orderService.getOrders().subscribe({
       next: (data) => {
-        console.log('Orders fetched:', data);
         if (data && Array.isArray(data)) {
           this.orders = data;
           this.filterOrdersByDate();
           this.nroTableOptions = [...new Set(this.orders.map(order => order.tableNumber))];
           this.statusOptions = [...new Set(this.orders.map(order => order.status))];
         } else {
-          console.error('Unexpected data format:', data);
         }
         this.loadingOrders = false;
         this.checkIfLoadingComplete();
@@ -119,15 +115,15 @@ export class OrdersComponent implements OnInit {
 
   filterOrdersByDate(): void {
     const year = this.selectedDate.getFullYear();
-    const month = (this.selectedDate.getMonth() + 1).toString().padStart(2, '0'); // Los meses empiezan desde 0
+    const month = (this.selectedDate.getMonth() + 1).toString().padStart(2, '0');
     const day = this.selectedDate.getDate().toString().padStart(2, '0');
     const formattedSelectedDate = `${year}-${month}-${day}`;
     this.filteredOrders = this.orders.filter(order => order.date === formattedSelectedDate);
   }
 
   displayInfoDialog(order: Order): void {
-    this.selectedOrder = order; // Asigna la orden seleccionada
-    this.infoDialogVisible = true; // Muestra el diálogo
+    this.selectedOrder = order;
+    this.infoDialogVisible = true;
   }
   
 

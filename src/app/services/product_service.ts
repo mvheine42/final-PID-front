@@ -14,7 +14,6 @@ export class ProductService {
 
   async onRegister(product: Product): Promise<boolean> {
     try {
-      // Simplemente pasa el objeto `product` directamente en el post request
       await this.http.post(`${this.baseUrl}/register-product`, product).toPromise();
       return true;
     } catch (error: any) {
@@ -36,7 +35,6 @@ export class ProductService {
     }
   }
 
-  // Actualizar descripción de un producto
   async updateProductDescription(productId: string, newDescription: string): Promise<boolean> {
     try {
       await this.http.put(`${this.baseUrl}/products/description/${productId}/${newDescription}`, { new_description: newDescription }).toPromise();
@@ -47,7 +45,6 @@ export class ProductService {
     }
   }
 
-  // Inside ProductService
   async updateProductCategories(productId: string, newCategories: string): Promise<boolean> {
     try {
       await this.http.put(`${this.baseUrl}/products/categories/${productId}/${newCategories}`, { categories: newCategories }).toPromise();
@@ -60,7 +57,6 @@ export class ProductService {
 
   async deleteProduct(productId: string): Promise<boolean> {
     try {
-      // Send DELETE request to backend to remove the product by productId
       await this.http.delete(`${this.baseUrl}/products/${productId}`).toPromise();
       return true;
     } catch (error: any) {

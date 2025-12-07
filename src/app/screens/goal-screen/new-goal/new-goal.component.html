@@ -38,7 +38,6 @@
             <button (click)="selectGoalType('finalGain')" [disabled]="!isFormComplete" [class.selected]="selectedGoalType === 'finalGain'" class="goal-type-button">Final Gain</button>
         </div>
     
-        <!-- Campos para "Category" -->
         <div *ngIf="selectedGoalType === 'category' && isFormComplete" class="goal-form">
             <div class="goal-form-row">
                 <label for="categoryDropdown" class="category-label">Category:</label>
@@ -55,7 +54,6 @@
             </div>
         </div>
     
-        <!-- Campos para "Final Gain" -->
         <div *ngIf="selectedGoalType === 'finalGain' && isFormComplete" class="goal-form">
             <div class="goal-form-row">
                 <label for="finalGainAmount" class="category-label-final-gain">Target Amount:</label>
@@ -83,7 +81,6 @@
 
     </div>
 
-    <!-- Botón de confirmación -->
     <div *ngIf="selectedGoalType" class="confirm-button">
         <button pButton type="button" label="Add Goal" (click)="addGoal()" [disabled]="!isFormValid()"></button>
     </div>

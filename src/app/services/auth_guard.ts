@@ -25,12 +25,10 @@ export class AuthGuard implements CanActivate {
 
     const path = route.routeConfig?.path ?? '';
 
-    // Si es pública → permitir
     if (publicRoutes.has(path)) {
       return Promise.resolve(true);
     }
 
-    // Si NO es pública → verificar usuario Firebase
     return new Promise(resolve => {
       const unsub = onAuthStateChanged(auth, user => {
         unsub();

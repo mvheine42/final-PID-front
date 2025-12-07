@@ -42,7 +42,7 @@
 .panel-body {
   font-size: 14px;
   line-height: 1.6; 
-  max-height: 400px; /* Ajusta el valor según tus necesidades */
+  max-height: 400px;
   overflow-y: auto;
 }
 
@@ -110,37 +110,36 @@
   color: #ffffff;
   border-color: #b58958; 
 }
-/* Estilos específicos para la tabla con prefijos de PrimeNG */
-ng::p-datatable {
-  width: 100px /* La tabla ocupa todo el ancho del contenedor */
+
+
+.ng::p-datatable {
+  width: 100px
 }
 
-ng::p-datatable-header {
-  background-color: #cbccbc; /* Color de fondo del header de la tabla */
+.ng::p-datatable-header {
+  background-color: #cbccbc;
 }
 
-ng::p-button-rounded.p-button-text.pi.pi-pencil {
-  color: #7f522e; /* Color del icono del lápiz */
+.ng::p-button-rounded.p-button-text.pi.pi-pencil {
+  color: #7f522e; 
 }
 
-/* Ajustes de la celda del editor */
-ng::p-cellEditor input {
-  width: 140px; /* Ancho del input */
+
+.ng::p-cellEditor input {
+  width: 140px;
 }
 
 .custom-delete-button {
-  color: red; /* Color del ícono */
-  background-color: transparent !important; /* Sin fondo */
-  border: none; /* Sin borde */
-  box-shadow: none; /* Sin sombra */
+  color: red;
+  background-color: transparent !important;
+  border: none;
+  box-shadow: none;
 }
 
 .custom-delete-button:hover {
-  color: darkred; /* Color más oscuro al pasar el mouse */
+  color: darkred;
 }
 
-
-/* Estilos para el panel de categorías en la versión móvil */
 @media (max-width: 770px) {
 
   .image-container {
@@ -160,16 +159,15 @@ ng::p-cellEditor input {
 
 }
 
-/* --- NUEVOS ESTILOS PARA CENTRADO DEL SPINNER EN DIÁLOGOS (Responsive) --- */
 .dialog-spinner-content {
     display: flex;
-    justify-content: center; /* Centrar horizontalmente */
-    align-items: center; /* Centrar verticalmente */
+    justify-content: center;
+    align-items: center;
     padding: 20px;
-    min-height: 100px; /* Dar espacio al spinner en el diálogo */
+    min-height: 100px;
 }
 
-/* Estilo para spinner dentro del botón (ajustar si es necesario) */
+
 .p-button .p-progress-spinner {
     display: block;
     margin: 0 auto;

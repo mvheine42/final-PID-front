@@ -223,7 +223,6 @@ p-table {
       }
 }
 
-/* --- SPINNER STYLES FOR TABLE LOADING (from previous step) --- */
 .loading-container {
     display: flex;
     justify-content: center; 
@@ -233,20 +232,18 @@ p-table {
     min-height: 200px; 
 }
 
-/* Optional: Adjust spinner size for smaller screens if needed */
 @media (max-width: 768px) {
-    /* ::ng-deep is used to style the component's internal structure */
     ::ng-deep .p-progress-spinner {
         width: 50px;
         height: 50px;
     }
 }
 
-/* --- NEW SPINNER STYLES FOR DIALOG CENTERING --- */
+
 .dialog-spinner-content {
     display: flex;
-    justify-content: center; /* Center horizontally */
-    align-items: center; /* Center vertically */
+    justify-content: center;
+    align-items: center;
     padding: 20px;
-    min-height: 100px; /* Give the spinner space in the dialog */
+    min-height: 100px;
 }

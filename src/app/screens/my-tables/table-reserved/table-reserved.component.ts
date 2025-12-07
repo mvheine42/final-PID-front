@@ -23,7 +23,6 @@ export class TableReservedComponent implements OnInit, OnChanges{
   displayErrorModal = false;
   errorMessage = '';
 
-  // --- LOADING STATES ---
   loadingReservation: boolean = true;
   cancelingReservation: boolean = false;
 
@@ -35,7 +34,7 @@ export class TableReservedComponent implements OnInit, OnChanges{
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['table'] && !changes['table'].isFirstChange()) {
-      console.log('Cambió la mesa, recargando reserva...', this.table);
+      console.log('Table changed, loading reservation details', this.table);
       this.reservation = null;
       this.loadReservationDetails();
     }
@@ -49,7 +48,7 @@ export class TableReservedComponent implements OnInit, OnChanges{
         const reservations = await this.reservationService.getReservationsByDay(todayISO);
         this.reservation = reservations.find(r => r.id === this.table.current_reservation_id) || null;
       } catch (e) {
-        console.error("Error cargando detalles:", e);
+
       } finally {
         this.loadingReservation = false;
       }
@@ -97,10 +96,10 @@ export class TableReservedComponent implements OnInit, OnChanges{
     this.confirmationService.confirm({
       key: 'table-reserved-confirm',
       message,
-      header: 'Confirmar Gestión',
+      header: 'Confirm Action',
       icon: 'pi pi-exclamation-triangle',
-      acceptLabel: mode === 'NO_SHOW' ? 'Marcar No Show' : 'Cancelar reserva',
-      rejectLabel: 'Volver',
+      acceptLabel: mode === 'NO_SHOW' ? 'No Show' : 'Cancel reservation',
+      rejectLabel: 'Back',
       acceptButtonStyleClass: 'p-button-danger',
       rejectButtonStyleClass: 'p-button-secondary',
       accept: () => this.doCancel(mode)
@@ -118,14 +117,14 @@ export class TableReservedComponent implements OnInit, OnChanges{
 
         this.successMessage =
           mode === 'NO_SHOW'
-            ? `Reserva de ${this.reservation?.customerName} marcada como No Show.`
-            : `Reserva de ${this.reservation?.customerName} cancelada correctamente.`;
+            ? `Reservation of ${this.reservation?.customerName} passed the 15min tolerance.`
+            : `Reservation of ${this.reservation?.customerName} cancelled successfully.`;
 
         this.displaySuccessModal = true;
       })
       .catch(() => {
         this.cancelingReservation = false;
-        this.errorMessage = 'No se pudo procesar la reserva. Intentalo de nuevo.';
+        this.errorMessage = 'Error cancelling reservation.';
         this.displayErrorModal = true;
       });
   }
@@ -158,8 +157,6 @@ export class TableReservedComponent implements OnInit, OnChanges{
   closeErrorModal(): void {
     this.displayErrorModal = false;
   }
-
-  // Helper para saber si está cargando algo
   get isLoading(): boolean {
     return this.loadingReservation || this.cancelingReservation;
   }

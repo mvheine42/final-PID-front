@@ -10,13 +10,16 @@ import { DatePipe } from '@angular/common';
 @Component({
   selector: 'app-user-register',
   templateUrl: './user-register.component.html',
-  styleUrls: ['./user-register.component.css'] // Cambié a styleUrls para que funcione correctamente
+  styleUrls: ['./user-register.component.css']
 })
 export class UserRegisterComponent implements OnInit {
   name: string = '';
   email: string = '';
   password: string = '';
   birthDate!: Date;
+  minDate: Date = new Date(1925, 0, 1);
+  maxDate: Date = new Date(2009, 11, 31);
+  defaultDate: Date = new Date(2000, 0, 1);
   user: UserData | undefined;
   fileName: string = '';
   imageUrl: string = '';
@@ -32,7 +35,6 @@ export class UserRegisterComponent implements OnInit {
   formattedBirthDate: string = '';
   displayConfirmDialog: boolean = false;
   displayErrorDialog: boolean = false;
-  maxDate: Date = new Date();
 
   ngOnInit(): void {
     localStorage.removeItem("token");
@@ -96,6 +98,12 @@ export class UserRegisterComponent implements OnInit {
     this.router.navigate(['/']);
   }
 
+  isEmailValid(): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(this.email.trim());
+}
+
+
   validatePassword() {
     const password = this.password || '';
 
@@ -114,13 +122,13 @@ export class UserRegisterComponent implements OnInit {
   }
 
   areAllFieldsFilled(): boolean {
-    return this.name.trim() !== '' && 
-           this.email.trim() !== '' && 
-           this.password.trim() !== '' && 
-           this.birthDate !== undefined && 
-           this.isPasswordValid();
+    return this.name.trim() !== '' &&
+          this.isEmailValid() &&
+          this.password.trim() !== '' &&
+          this.birthDate !== undefined &&
+          this.isPasswordValid();
   }
-  
+
   showConfirmDialog() {
     this.displayConfirmDialog = true;
   }

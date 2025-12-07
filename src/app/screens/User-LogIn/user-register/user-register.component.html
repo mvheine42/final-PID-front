@@ -1,15 +1,9 @@
 <div class="login-container">
-    <!-- Imagen de fondo borrosa -->
     <div class="background-blurred"></div>
-
-    <!-- Mostrar el spinner si loading es true -->
     <div *ngIf="loading" class="spinner-container">
         <p-progressSpinner ariaLabel="loading" />
     </div>
-
-    <!-- Ocultar el contenido del formulario mientras loading es true -->
     <div *ngIf="!loading" class="center-container">
-        <!-- Imagen partida a la mitad -->
         <div class="image-half">
             <img src="assets/images/login.jpg" alt="Imagen centrada">
             <div class="centered-text">
@@ -17,19 +11,13 @@
                 <div class="subtitle">BAR</div>
             </div>
         </div>
-
-        <!-- Formulario en fondo marrón -->
         <div class="form-half">
             <div class="form-container">
-                <!-- Botones de navegación en la parte superior -->
                 <div class="nav-buttons">
                     <button class="nav-btn" [routerLink]="'/'">LOG IN</button>
                     <button class="nav-btn active">SIGN UP</button>
                 </div>
-            
-                <!-- Formulario de registro -->
                 <div class="login-form">
-                    <!-- Campo de Nombre -->
                     <div class="form-input">
                         <div class="card flex justify-content-center">
                             <p-floatLabel>
@@ -39,7 +27,6 @@
                         </div>
                     </div>
 
-                    <!-- Campo de Email -->
                     <div class="form-input">
                         <div class="card flex justify-content-center">
                             <p-floatLabel>
@@ -48,13 +35,11 @@
                             </p-floatLabel>
                         </div>
                     </div>
-            
-                    <!-- Campo de Contraseña -->
+
                     <div class="form-input">
                         <div class="card flex justify-content-center">
                             <p-floatLabel>
-                                <p-password [toggleMask]="true" [(ngModel)]="password" (ngModelChange)="validatePassword()" class="custom-password">         
-                                    <!-- Footer Template -->
+                                <p-password [toggleMask]="true" [(ngModel)]="password" (ngModelChange)="validatePassword()" class="custom-password">  
                                     <ng-template pTemplate="footer">
                                         <p-divider></p-divider>
                                         <p class="mt-2">Requirements</p>
@@ -71,11 +56,10 @@
                         </div>
                     </div>
 
-                    <!-- Campo de Fecha de Nacimiento -->
                     <div class="form-input">
                         <div class="card flex justify-content-center">
                             <p-floatLabel>
-                                <p-calendar [(ngModel)]="birthDate" [maxDate]="maxDate" id="birthday" name="birthday" dateFormat="dd/mm/yy"></p-calendar>
+                                <p-calendar [(ngModel)]="birthDate" [defaultDate]="defaultDate" [minDate]="minDate" [maxDate]="maxDate" id="birthday" name="birthday" dateFormat="dd/mm/yy"> </p-calendar>
                                 <label for="birthday">Birthday</label>
                             </p-floatLabel>
                         </div>
@@ -106,7 +90,6 @@
                         
                     </div>
             
-                    <!-- Botón de Enviar -->
                     <div class="form-button">
                         <div class="card flex justify-content-center">
                             <p-button label="Register" [disabled]="!areAllFieldsFilled()" (click)="showConfirmDialog()"></p-button>

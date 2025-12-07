@@ -24,9 +24,9 @@ export class TableFreeComponent implements OnInit {
   categories: Category[] = [];
   orderItems: OrderItem[] = [];
   
-  // --- LOADING STATES ---
-  loadingProducts: boolean = false;  // CHANGED - empieza en false
-  loadingCategories: boolean = true; // CHANGED - empieza en true porque carga al inicio
+
+  loadingProducts: boolean = false; 
+  loadingCategories: boolean = true;
   creatingOrder: boolean = false;
   
   selectedProduct: Product | null = null;
@@ -54,7 +54,7 @@ export class TableFreeComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    this.loadingCategories = true; // Empieza cargando categorías
+    this.loadingCategories = true; 
 
     this.currentDate = this.getBuenosAiresISODate();
     this.currentTime = this.getBuenosAiresTime();
@@ -77,7 +77,6 @@ export class TableFreeComponent implements OnInit {
     }
     
     if (this.reservation) {
-      console.log("Viniendo de check-in, precargando:", this.reservation.amountOfPeople);
       this.selectedAmountOfPeople = this.reservation.amountOfPeople;
     }
   }
@@ -217,14 +216,14 @@ export class TableFreeComponent implements OnInit {
       this.filteredProducts = [];
       this.loadingProducts = false;
     } else {
-      this.loadingProducts = true; // ACTIVAR LOADER
+      this.loadingProducts = true;
       const categoryIds = this.selectedCategories.map((category: { id: any; }) => category.id).join(', ');
       this.getProductsByCategory(categoryIds);
     }
   }
 
   getProductsByCategory(categoryIds: string) {
-    this.loadingProducts = true; // ACTIVAR LOADER
+    this.loadingProducts = true;
     this.categoryService.getProductsByCategory(categoryIds)
       .then((data) => {
         if (data && Array.isArray(data)) {
@@ -236,12 +235,12 @@ export class TableFreeComponent implements OnInit {
           console.error('Unexpected data format:', data);
           this.filteredProducts = [];
         }
-        this.loadingProducts = false; // DESACTIVAR LOADER
+        this.loadingProducts = false;
       })
       .catch((err) => {
         console.error('Error fetching products by category:', err);
         this.filteredProducts = [];
-        this.loadingProducts = false; // DESACTIVAR LOADER
+        this.loadingProducts = false;
       });
   }
   

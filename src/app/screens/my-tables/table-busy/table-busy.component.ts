@@ -43,7 +43,6 @@ export class TableBusyComponent implements OnInit, OnDestroy{
   private timeInterval: Subscription | undefined;
   now: Date = new Date();
 
-  // --- LOADING STATES ---
   loadingProducts: boolean = false;
   loadingCategories: boolean = false;
   loadingOrder: boolean = true;
@@ -158,7 +157,6 @@ export class TableBusyComponent implements OnInit, OnDestroy{
     this.loadingProducts = true;
     this.productService.getProducts().subscribe({
       next: (data) => {
-        console.log('Products fetched:', data);
         if (data && Array.isArray(data.products)) {
           this.products = data.products;
         } else {
@@ -405,7 +403,7 @@ export class TableBusyComponent implements OnInit, OnDestroy{
 
   onServeItem(item: OrderItem) {
     if (!this.table.order_id || !item.item_id) {
-        console.error('Falta ID de orden o de ítem', { orderId: this.table.order_id, itemId: item.item_id });
+        console.error('Order ID or item ID is undefined.', { orderId: this.table.order_id, itemId: item.item_id });
         return;
     }
 
@@ -413,7 +411,7 @@ export class TableBusyComponent implements OnInit, OnDestroy{
       next: () => {
         item.served_at = new Date().toISOString();
       },
-      error: (err) => console.error('Error al servir:', err)
+      error: (err) => console.error('Error serving order item:', err)
     });
   }
 

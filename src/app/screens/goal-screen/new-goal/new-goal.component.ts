@@ -101,15 +101,14 @@ async addCategoryGoal() {
 
       if (response) {
         this.goalAdded.emit(newGoal);
-        this.onSuccess.emit('Goal successfully created!');  // 👈 Emitir éxito
+        this.onSuccess.emit('Goal successfully created!'); 
       } else {
-        this.onError.emit('Something went wrong.');  // 👈 Emitir error
+        this.onError.emit('Something went wrong.');
       }
     } catch (error: any) {
       this.loading = false;
-      // Aquí podés capturar el mensaje del backend si viene en error.message o error.error.message
       const errorMessage = error?.error?.message || error?.message || 'Something went wrong.';
-      this.onError.emit(errorMessage);  // 👈 Emitir el error del backend
+      this.onError.emit(errorMessage);
   }
 }
 
@@ -152,7 +151,6 @@ async addCategoryGoal() {
     this.goalService.getGoals(month, year).subscribe((goals: Goal[]) => {
       this.goals = goals;
       
-      // Check if there is already a final gain goal (categoryId = null)
       this.hasFinalGainGoal = goals.some(goal => goal.categoryId === null);
       console.log('Is there a final gain goal for this period?', this.hasFinalGainGoal);
   

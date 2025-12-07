@@ -10,10 +10,10 @@ import { Router } from '@angular/router';
 })
 export class ResetPasswordComponent {
   email: string = '';
-  newPassword: string = '';  // This is bound to the input field for the new password
-  oobCode: string = '';      // Stores the code from the URL (required for resetting password)
-  errorMessage: string = '';  // Displays error messages
-  successMessage: string = ''; // Displays success message
+  newPassword: string = '';  
+  oobCode: string = '';      
+  errorMessage: string = '';  
+  successMessage: string = '';
   passwordValid = {
     lowercase: false,
     uppercase: false,
@@ -23,22 +23,20 @@ export class ResetPasswordComponent {
   displayConfirmDialog: boolean = false;
   displayErrorDialog: boolean = false;
   constructor(private router: Router) {
-    // Get the oobCode from the URL when the component is initialized
     const urlParams = new URLSearchParams(window.location.search);
-    this.oobCode = urlParams.get('oobCode') || ''; // Fallback to empty string if no code
+    this.oobCode = urlParams.get('oobCode') || '';
   }
 
   async confirmPasswordReset() {
     try {
       const auth = getAuth();
-      // Call Firebase's confirmPasswordReset method
       await confirmPasswordReset(auth, this.oobCode, this.newPassword);
       this.successMessage = 'Password reset successful!';
-      this.errorMessage = ''; // Clear any previous error messages
+      this.errorMessage = '';
       this.router.navigate(['/login']);
     } catch (error: any) {
       this.errorMessage = 'Error resetting password: ' + error.message;
-      this.successMessage = ''; // Clear any previous success messages
+      this.successMessage = '';
     }
   }
   validatePassword() {

@@ -4,8 +4,6 @@ import { OrderItem } from 'src/app/models/orderItem';
 import { OrderService } from 'src/app/services/order_service';
 import emailjs, { EmailJSResponseStatus } from 'emailjs-com';
 
-
-
 @Component({
   selector: 'app-create-order',
   templateUrl: './create-order.component.html',
@@ -17,18 +15,22 @@ export class CreateOrderComponent {
   @Output() closeModal = new EventEmitter(); 
   @Input() orderItems: OrderItem[] = [];
   @Input() total: number = 1;
+  
   amountOfPeople: number = 1; 
   userEmail: string = '';
   emailValid: boolean = false;
 
-  // Nuevas propiedades
-  isLoading: boolean = false; // Estado de carga
-  isNoticeVisible: boolean = false; // Estado del diálogo de notificación
-  noticeMessage: string = ''; // Mensaje para el diálogo de notificación
+
+  creatingOrder: boolean = false;
+  sendingEmail: boolean = false;
+  
+
+  isNoticeVisible: boolean = false;
+  noticeMessage: string = '';
 
   constructor(private orderService: OrderService) {
     emailjs.init("LdaNOsGUxAfLITT4i"); 
-   } 
+  } 
 
   validateEmail() {
     const emailRegex = /\S+@\S+\.\S+/;
@@ -37,7 +39,7 @@ export class CreateOrderComponent {
 
   async createOrder() {
     this.isVisible = false;
-    this.isLoading = true; // Iniciar carga
+    this.creatingOrder = true;
   
     const newOrder: Order = {
       status: 'INACTIVE',
@@ -53,22 +55,24 @@ export class CreateOrderComponent {
     try {
       const response = await this.orderService.onRegisterExternal(newOrder); 
       if (response && response.order_id) {
-        const orderId = response.order_id; 
-
+        const orderId = response.order_id;
+        this.creatingOrder = false;
+        
         await this.sendOrderEmail(orderId, this.userEmail);
       }
       this.noticeMessage = 'Order Successfully created. An email was sent to you with your id order.';
       this.isNoticeVisible = true; 
     } catch (error) {
-      console.error('Error al crear la orden:', error);
       this.noticeMessage = 'An error has occurred. Please try again later.';
       this.isNoticeVisible = true;
-    } finally {
-      this.isLoading = false; 
+      this.creatingOrder = false;
+      this.sendingEmail = false;
     }
   }
   
   async sendOrderEmail(orderId: number, userEmail: string) {
+    this.sendingEmail = true;
+    
     const templateParams = {
       order_id: orderId,
       user_email: userEmail
@@ -76,15 +80,18 @@ export class CreateOrderComponent {
   
     try {
       const response = await emailjs.send("service_w1k54me", "template_kt0eloo", templateParams);
+      console.log('Email enviado exitosamente:', response);
     } catch (error) {
       console.error('Error al enviar el correo:', error);
+    } finally {
+      this.sendingEmail = false;
     }
   }
-  
-  
-
 
   closeDialog() {
     this.closeModal.emit();
+  }
+  get isLoading(): boolean {
+    return this.creatingOrder || this.sendingEmail;
   }
 }

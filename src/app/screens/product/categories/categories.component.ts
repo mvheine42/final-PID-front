@@ -22,22 +22,19 @@ export class CategoriesComponent implements OnInit {
   defaultCategoryNames: string[] = [];
   displayDeleteDialog: boolean = false;
   categoryToDelete: any;
-
-  // --- VARIABLES DE ESTADO PARA SPINNERS ---
   loadingInitial: boolean = false; 
   savingNew: boolean = false;
   deletingCategory: boolean = false;
   savingEdit: boolean = false;
-  // ----------------------------------------
 
   constructor(private categoryService: CategoryService) {}
 
   ngOnInit() {
-    this.loadCategories(); // Cargar categorías por defecto
+    this.loadCategories();
   }
 
   loadCategories():void{
-    this.loadingInitial = true; // <--- INICIA CARGA INICIAL
+    this.loadingInitial = true;
     this.categoryService.getCategories().subscribe({
       next: (data) => {
         console.log('Categories fetched:', data);
@@ -46,11 +43,11 @@ export class CategoriesComponent implements OnInit {
         } else {
           console.error('Unexpected data format:', data);
         }
-        this.loadingInitial = false; // <--- FINALIZA
+        this.loadingInitial = false;
       },
       error: (err) => {
         console.error('Error fetching products:', err);
-        this.loadingInitial = false; // <--- FINALIZA EN ERROR
+        this.loadingInitial = false;
       }
     });
   }
@@ -69,24 +66,23 @@ export class CategoriesComponent implements OnInit {
   onRowEditSave() {
     const category = this.editingCategory;
     if (category.name.trim()) {
-        // Check for duplicates before updating
         if (this.categories.some(cat => cat.id !== category.id && cat.name.toLowerCase() === category.name.trim().toLowerCase())) {
             this.message = 'Category cannot be repeated.';
             this.showNoticeDialog();
             return;
         }
 
-        this.savingEdit = true; // <--- INICIA EDICIÓN
+        this.savingEdit = true;
         this.categoryService.updateCategoryName(category.id, category.name).subscribe({
             next: () => {
                 delete this.clonedCategories[category.id];
                 this.editingCategory = null;
                 this.loadCategories();
-                this.savingEdit = false; // <--- FINALIZA
+                this.savingEdit = false;
             },
             error: (error: any) => {
                 console.error('Error updating category', error);
-                this.savingEdit = false; // <--- FINALIZA EN ERROR
+                this.savingEdit = false;
             }
         });
     }
@@ -101,14 +97,13 @@ export class CategoriesComponent implements OnInit {
   async onNewCategory() {
     const categoryName = this.newCategoryName.trim().toLowerCase();
 
-    // Check for duplicates in all categories
     if (this.categories.some(cat => cat.name.toLowerCase() === categoryName)) {
         this.message = `The category name "${this.newCategoryName}" already exists.`;
         this.showNoticeDialog();
         return;
     }
 
-    this.savingNew = true; // <--- INICIA CREACIÓN
+    this.savingNew = true;
     const category = new Category(this.newCategoryName, 'Custom');
     try {
         await this.categoryService.createCategory(category).toPromise();
@@ -120,32 +115,29 @@ export class CategoriesComponent implements OnInit {
         this.message = 'Something went wrong';
         this.showNoticeDialog();
     } finally {
-        this.savingNew = false; // <--- FINALIZA
+        this.savingNew = false;
     }
 }
 
   onDeleteCategory() {
-    // FIX: El diálogo de confirmación NO se cierra aquí. Se cierra al final.
     if (this.categoryToDelete.id !== undefined) {
-      this.deletingCategory = true; // <--- INICIA ELIMINACIÓN
+      this.deletingCategory = true;
       this.categoryService.deleteCategory(this.categoryToDelete.id.toString()).subscribe({
         next: () => {
-          this.message = 'Category deleted successfully.'; // Mensaje de éxito
-          this.loadCategories(); // Recargar categorías después de eliminar
+          this.message = 'Category deleted successfully.';
+          this.loadCategories();
           
-          // TAREAS DE LIMPIEZA EN ÉXITO
           this.deletingCategory = false; 
-          this.displayDeleteDialog = false; // Cierra el diálogo de confirmación
-          this.showNoticeDialog(); // Muestra el mensaje de éxito
+          this.displayDeleteDialog = false;
+          this.showNoticeDialog();
         },
         error: (error) => {
-          this.message = 'Error deleting category.'; // Mensaje de error
+          this.message = 'Error deleting category.';
           console.error('Error deleting category:', error);
           
-          // TAREAS DE LIMPIEZA EN ERROR
           this.deletingCategory = false; 
-          this.displayDeleteDialog = false; // Cierra el diálogo de confirmación
-          this.showNoticeDialog(); // Muestra el mensaje de error
+          this.displayDeleteDialog = false;
+          this.showNoticeDialog();
         }
       });
     } else {
@@ -176,7 +168,7 @@ export class CategoriesComponent implements OnInit {
   }
 
   closeNewCategoryDialog() {
-    this.newCategoryName = ''; // Limpiar el nombre de la nueva categoría
+    this.newCategoryName = '';
     this.displayNewCategoryDialog = false;
   }
 

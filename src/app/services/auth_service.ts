@@ -11,85 +11,64 @@ export class AuthService {
   currentUser: User | null = null;
   private inactivityTimeout: any;
   
-  // Tiempo de inactividad antes de logout automático
-  private readonly INACTIVITY_TIME = 120 * 60 * 1000; // 10 minutos
-  
-  // 🔧 FIX: Store bound function reference for proper cleanup
+  private readonly INACTIVITY_TIME = 120 * 60 * 1000;
   private boundResetTimer: any;
   
   constructor(private router: Router) {
-    // Bind once and store reference
     this.boundResetTimer = this.resetInactivityTimer.bind(this);
     
     onAuthStateChanged(auth, (user) => {
       this.currentUser = user;
       
       if (user) {
-        // Usuario logueado → iniciar detector de inactividad
         console.log('User logged in, starting inactivity detection');
         this.startInactivityDetection();
       } else {
-        // Usuario deslogueado → limpiar detector
         console.log('User logged out, stopping inactivity detection');
         this.stopInactivityDetection();
       }
     });
   }
 
-  /**
-   * Inicia la detección de inactividad
-   */
   private startInactivityDetection(): void {
-    // Limpiar cualquier detector previo
     this.stopInactivityDetection();
-    
-    // Eventos que indican actividad del usuario
+  
     const events = [
-      'mousedown',    // Click del mouse
-      'mousemove',    // Movimiento del mouse
-      'keypress',     // Teclas presionadas
-      'scroll',       // Scroll
-      'touchstart',   // Touch en móviles
-      'click'         // Clicks
+      'mousedown', 
+      'mousemove',
+      'keypress',
+      'scroll',
+      'touchstart',
+      'click'
     ];
     
-    // 🔧 FIX: Use stored bound function reference
+  
     events.forEach(event => {
       document.addEventListener(event, this.boundResetTimer, true);
     });
     
-    // Iniciar el timer
     this.resetInactivityTimer();
     
     console.log('Inactivity detection started - timeout in', this.INACTIVITY_TIME / 60000, 'minutes');
   }
 
-  /**
-   * Resetea el timer de inactividad (usuario hizo algo)
-   */
+
   private resetInactivityTimer(): void {
-    // Solo resetear si hay un usuario logueado
     if (!this.currentUser) {
       return;
     }
     
-    // Limpiar timeout anterior
     if (this.inactivityTimeout) {
       clearTimeout(this.inactivityTimeout);
     }
     
-    // Crear nuevo timeout
     this.inactivityTimeout = setTimeout(() => {
       console.log('User inactive for', this.INACTIVITY_TIME / 60000, 'minutes');
       this.handleInactivityLogout();
     }, this.INACTIVITY_TIME);
   }
 
-  /**
-   * Maneja el logout por inactividad
-   */
   private handleInactivityLogout(): void {
-    // Double check que todavía hay usuario logueado
     if (!this.currentUser) {
       return;
     }
@@ -98,17 +77,12 @@ export class AuthService {
     this.logout();
   }
 
-  /**
-   * Detiene la detección de inactividad
-   */
   private stopInactivityDetection(): void {
-    // Limpiar timeout
     if (this.inactivityTimeout) {
       clearTimeout(this.inactivityTimeout);
       this.inactivityTimeout = null;
     }
     
-    // 🔧 FIX: Use same bound function reference to remove listeners
     const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
     events.forEach(event => {
       document.removeEventListener(event, this.boundResetTimer, true);
@@ -129,7 +103,7 @@ export class AuthService {
       if (extend) {
         auth.currentUser?.getIdToken(true)
           .then(() => { 
-            this.resetInactivityTimer(); // Reiniciar timer de inactividad
+            this.resetInactivityTimer();
             observer.next(true); 
             observer.complete(); 
           })
@@ -154,9 +128,6 @@ export class AuthService {
     }
   }
   
-  /**
-   * Obtiene el tiempo restante antes del logout por inactividad (en segundos)
-   */
   getRemainingInactivityTime(): number {
     return Math.floor(this.INACTIVITY_TIME / 1000);
   }

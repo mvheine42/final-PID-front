@@ -78,8 +78,6 @@ export class RegisterProductComponent implements OnInit {
     this.loading = true;
     try {
       this.product = new Product(this.name, this.description, this.price, this.selectedCategoryIds, this.totalCaloriesValue ?? 0, this.cost, this.stock, this.imageUrl);
-
-      console.log('PRODUCT: ', this.product);
       const response = await this.productService.onRegister(this.product);
 
       if (response) {
@@ -113,7 +111,6 @@ export class RegisterProductComponent implements OnInit {
   }
   
 
-  //POP UPS
   
   showConfirmDialog() {
     this.displayConfirmDialog = true;
@@ -225,7 +222,7 @@ export class RegisterProductComponent implements OnInit {
   } 
 
   handleTotalCalories(calories: number) {
-    this.totalCaloriesValue = calories; // Asignar el valor de las calorías recibidas
+    this.totalCaloriesValue = calories;
     console.log('Total Calories:', this.totalCaloriesValue);
   }
 
@@ -235,7 +232,7 @@ export class RegisterProductComponent implements OnInit {
   
       this.categoryOptions = this.categories.map((category: Category) => ({
         label: category.name,
-        value: category.id !== undefined ? category.id.toString() : '' // Manejo de undefined
+        value: category.id !== undefined ? category.id.toString() : ''
       }));
     });
   }

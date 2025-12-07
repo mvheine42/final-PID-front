@@ -27,7 +27,6 @@
                 </div>
             </div>
             
-            <!-- Grupo de botones -->
             <div class="button-group">
                 <button (click)="showChangePasswordDialog()" class="btn">Change Password</button>
                 <button (click)="showConfirmDeleteDialog()" class="btn">Delete Account</button>
@@ -39,7 +38,6 @@
     <div class="column-right">
       <p-splitter [style]="{ height: '100vh' }" [panelSizes]="[70, 30]" layout="vertical">
         <ng-template pTemplate>
-          <!-- Sección superior -->
           <div class="right-top-section">
             <div *ngIf="loadingProfile" class="loading-container">
                 <p-progressSpinner 
@@ -109,7 +107,6 @@
         </ng-template>
       
         <ng-template pTemplate>
-          <!-- Sección inferior -->
           <div class="right-bottom-section">
             <h2 class="ranking-title">Employee Monthly Ranking</h2>
             <div class="table-container">

@@ -31,7 +31,6 @@ export class LogInComponent implements OnInit {
   ngOnInit(): void {
     onAuthStateChanged(auth, user => {
       if (user) {
-        // Ya está autenticado → impedir ver login
         this.router.navigate(['/home'], { replaceUrl: true });
       }
     });
@@ -46,8 +45,6 @@ export class LogInComponent implements OnInit {
     }, 1000);
 
     if (loginSuccess) {
-      // ✅ Session automatically stored in sessionStorage
-      // ✅ Inactivity detection automatically started by AuthService
       this.router.navigate(['/home']);
       this.loading = false;
     } else {

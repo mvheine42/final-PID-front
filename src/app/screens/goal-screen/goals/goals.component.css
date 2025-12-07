@@ -160,7 +160,7 @@ html, body {
 }
 
 .each-goal-card {
-    background-color: rgba(255, 255, 255, 0.8); /* Fondo blanco con transparencia */
+    background-color: rgba(255, 255, 255, 0.8);
     padding: 1.5rem;
     border-radius: 15px;
     text-align: center;
@@ -285,7 +285,6 @@ html, body {
     }
 }
 
-/* Spinner overlay */
 .spinner-container {
     position: fixed;
     top: 0;
