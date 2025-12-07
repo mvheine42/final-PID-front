@@ -15,8 +15,8 @@ export class ChartsComponent implements OnInit {
         '07', '08', '09', '10', '11', '12'
     ];
 
-    loading: boolean = false; // Spinner global (carga inicial)
-    loadingCharts: boolean = false; // Spinner parcial (cambio de fecha)
+    loading: boolean = false; 
+    loadingCharts: boolean = false; 
     categoryData: any;
     categoryOptions: any;
     monthlyData: any;
@@ -33,12 +33,11 @@ export class ChartsComponent implements OnInit {
     yearActual = this.fechaActual.getFullYear();
     monthActual = this.fechaActual.getMonth() + 1;
     
-    // Cache properties
     private categoryRevenueCache: any = null;
     private categoryRevenueCacheTime: number = 0;
     private monthlyRevenueCache: any = null;
     private monthlyRevenueCacheTime: number = 0;
-    private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+    private readonly CACHE_DURATION = 5 * 60 * 1000;
 
     constructor(private chartService: ChartService) {
         this.selectedYear = this.yearActual.toString();
@@ -46,7 +45,7 @@ export class ChartsComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.loading = true; // <--- INICIA SPINNER GLOBAL
+        this.loading = true; 
 
         Promise.all([
             this.loadCategoryRevenuePromise(),
@@ -55,9 +54,9 @@ export class ChartsComponent implements OnInit {
             this.loadAveragePerTicketDataPromise()
         ])
         .then(() => {
-            this.loading = false; // <--- FINALIZA SPINNER GLOBAL
+            this.loading = false; 
         }).catch(() => {
-            this.loading = false; // <--- FINALIZA SPINNER GLOBAL EN ERROR
+            this.loading = false; 
         });
 
         this.setScrollHeight();
@@ -119,14 +118,14 @@ export class ChartsComponent implements OnInit {
     }
 
     onDateChange(): void {
-    this.loadingCharts = true;  // 👈 INICIA SPINNER PARCIAL
+    this.loadingCharts = true;
     Promise.all([
         this.loadAveragePerPersonDataPromise(),
         this.loadAveragePerTicketDataPromise()
     ]).then(() => {
-        this.loadingCharts = false; // 👈 FINALIZA SPINNER PARCIAL
+        this.loadingCharts = false;
     }).catch(() => {
-        this.loadingCharts = false; // 👈 FINALIZA SPINNER PARCIAL EN ERROR
+        this.loadingCharts = false;
     });
     }
     
@@ -281,7 +280,6 @@ export class ChartsComponent implements OnInit {
                 } else {
                     this.noDataMessage = '';
                     
-                    // Extract just the day number for labels
                     const labels = Object.keys(data).map(dateStr => {
                         const day = dateStr.split('-')[2];
                         return parseInt(day).toString();

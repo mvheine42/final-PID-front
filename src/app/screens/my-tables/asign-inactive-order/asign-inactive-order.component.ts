@@ -26,7 +26,6 @@ export class AsignInactiveOrderComponent implements OnInit {
   user: any | null
   uid: string = '';
 
-  // --- LOADING STATES ---
   loadingUser: boolean = true;
   loadingStocks: boolean = false;
   assigningTable: boolean = false;
@@ -196,7 +195,6 @@ export class AsignInactiveOrderComponent implements OnInit {
     this.confirmationDialog = false;
   }
 
-  // Helper para saber si está cargando algo
   get isLoading(): boolean {
     return this.loadingUser || this.loadingStocks || this.assigningTable;
   }

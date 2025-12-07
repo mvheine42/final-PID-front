@@ -11,13 +11,13 @@ export class ChartService {
   constructor(private http: HttpClient) { }
 
   getCategoryRevenue(): Observable<any> {
-    const endpoint = `${this.baseUrl}/category-revenue`;  // Construct the URL
-    console.log(`Fetching category revenue from: ${endpoint}`);  // Log the URL
+    const endpoint = `${this.baseUrl}/category-revenue`;
+    console.log(`Fetching category revenue from: ${endpoint}`);
     return this.http.get<any>(endpoint);
   }
   getMonthlyRevenue(): Observable<any>{
-    const endpoint = `${this.baseUrl}/monthly-revenue`;  // Construct the URL
-    console.log(`Fetching category revenue from: ${endpoint}`);  // Log the URL
+    const endpoint = `${this.baseUrl}/monthly-revenue`;
+    console.log(`Fetching category revenue from: ${endpoint}`);
     return this.http.get<any>(endpoint);
   }
   getAveragePerPerson(year: string, month: string): Observable<any> {

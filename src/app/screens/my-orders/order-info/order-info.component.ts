@@ -16,7 +16,6 @@ export class OrderInfoComponent implements OnInit  {
   @Output() onClose = new EventEmitter<void>();
   @Output() onSend = new EventEmitter<void>();
 
-  // --- LOADING STATE ---
   loading: boolean = true;
 
   constructor(private productService: ProductService) {}

@@ -35,7 +35,7 @@ export class AssignReservationTableComponent implements OnInit {
   popupSendLabel: string = '';
   private baseUrl = 'http://127.0.0.1:8000';
 
-  // --- LOADING STATES ---
+
   loadingReservations: boolean = true;
   loadingTables: boolean = false;
   assigningTable: boolean = false;
@@ -115,7 +115,7 @@ export class AssignReservationTableComponent implements OnInit {
         next: (tables) => {
           this.availableTables = (tables ?? []).map(t => ({
             ...t,
-            label: `Mesa #${t.id} – cap: ${t.capacity}`
+            label: `Table #${t.id} – cap: ${t.capacity}`
           }));
           
           if (this.selectedReservation && this.selectedReservation.table_id) {
@@ -144,7 +144,7 @@ export class AssignReservationTableComponent implements OnInit {
           this.assigned.emit();
           this.loadReservations();
 
-          this.successMessage = 'Mesa exitosamente reservada.';
+          this.successMessage = 'Table successfully assigned.';
           this.displaySuccessModal = true;
         },
         error: (err) => {
@@ -198,16 +198,16 @@ export class AssignReservationTableComponent implements OnInit {
 
     const message =
       mode === 'ASSIGN'
-        ? `¿Confirmás que querés asignar la mesa #${this.selectedTable} a la reserva de ${this.selectedReservation.customerName}?`
-        : `¿Confirmás que deseas cancelar la reserva de ${this.selectedReservation.customerName}?`;
+        ? `¿Do you want to assign the table #${this.selectedTable} to the reservation of ${this.selectedReservation.customerName}?`
+        : `¿Do you want to cancel the reservation of ${this.selectedReservation.customerName}?`;
 
     this.confirmationService.confirm({
       key: 'assign-reservation-confirm',
       message,
-      header: 'Confirmar Gestión',
+      header: 'Confirm Action',
       icon: 'pi pi-exclamation-triangle',
-      acceptLabel: mode === 'CANCEL' ? 'Cancelar reserva' : 'Asignar',
-      rejectLabel: 'Volver',
+      acceptLabel: mode === 'CANCEL' ? 'Cancel reservation' : 'Assign table',
+      rejectLabel: 'Back',
       acceptButtonStyleClass:
         mode === 'CANCEL' ? 'p-button-danger' : 'p-button-success',
       rejectButtonStyleClass: 'p-button-secondary',
@@ -235,7 +235,7 @@ export class AssignReservationTableComponent implements OnInit {
     this.reservationService.cancelReservation(this.selectedReservation.id!)
       .then(() => {
         this.deletingReservation = false;
-        this.successMessage = 'Reserva eliminada correctamente.';
+        this.successMessage = 'Reservation successfully deleted.';
         this.displaySuccessModal = true;
         
         this.loadReservations();
@@ -244,7 +244,7 @@ export class AssignReservationTableComponent implements OnInit {
       .catch((error) => {
         this.deletingReservation = false;
         console.error("Error:", error);
-        this.errorMessage = 'Error eliminando la reserva.';
+        this.errorMessage = 'Error deleting reservation.';
         this.displayErrorModal = true;
       });
   }
@@ -258,22 +258,22 @@ export class AssignReservationTableComponent implements OnInit {
     
     if (errorType === 'Reservation already has a table assigned') {
       const tableId = err.error.current_table_id;
-      return `Esta reserva ya está asignada a otra mesa (Mesa #${tableId}).`;
+      return `Reservation already has a table assigned (Table #${tableId}).`;
     }
 
     if (errorType === 'Table is busy') {
-      return 'La mesa seleccionada está ocupada en este momento.';
+      return 'Table is busy.';
     }
     
     if (errorType === 'La mesa no tiene capacidad suficiente para la reserva') {
-       return 'La mesa no tiene capacidad suficiente para la reserva.';
+       return 'The table does not have enough capacity for the reservation.';
     }
     
     if (errorType === 'Table is already booked for another reservation') {
-       return 'Esa mesa ya está reservada para otra reserva.';
+       return 'That table is already booked for another reservation.';
     }
 
-    return err?.error?.detail || 'No se pudo completar la asignación. Intente de nuevo.';
+    return err?.error?.detail || 'An error occurred. Please try again.';
   }
 
   closeErrorModal(): void {
@@ -298,7 +298,6 @@ export class AssignReservationTableComponent implements OnInit {
     this.close.emit();
   }
 
-  // Helper para saber si está cargando algo
   get isLoading(): boolean {
     return this.loadingReservations || this.loadingTables || this.assigningTable || this.deletingReservation;
   }

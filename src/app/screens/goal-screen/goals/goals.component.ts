@@ -122,7 +122,7 @@ export class GoalsComponent implements OnInit {
         this.loading = false;
       },
       (error) => {
-        console.error('Error fetching goals:', error);  // Error handling
+        console.error('Error fetching goals:', error);
       }
     );
 
@@ -144,7 +144,6 @@ export class GoalsComponent implements OnInit {
   }
 
   progressWidth(progress: number) {
-    // Cap the progress at 100 before dividing
     return progress / this.goals.length;
   }
 
@@ -202,9 +201,8 @@ export class GoalsComponent implements OnInit {
 
   
     if (dayOfMonth >= 1 && dayOfMonth <= 10) {
-      return 'green'; // Siempre verde entre el día 1 y 10
+      return 'green';
     } else if (dayOfMonth >= 11 && dayOfMonth <= 20) {
-      // Lógica entre el día 11 y 20
       if (progress > 40) {
         return 'green';
       } else if (progress > 20) {
@@ -213,7 +211,6 @@ export class GoalsComponent implements OnInit {
         return 'red';
       }
     } else {
-      // Lógica entre el día 21 y el último día del mes
       if (progress > 80) {
         return 'green';
       } else if (progress > 50) {

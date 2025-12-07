@@ -18,7 +18,7 @@ export class TableService {
     return this.http.get<{ message: { tables: Table[]; message: string } }>(`${this.baseUrl}/tables`);
   }
 
-  async updateTableAndOrder(order: any, orderId: number): Promise<boolean> { // Acepta el objeto de orden y el order_id
+  async updateTableAndOrder(order: any, orderId: number): Promise<boolean> {
     try {
         console.log(order); // Verificas que tienes la orden completa
         await this.http.put(`${this.baseUrl}/tables/order/${order.tableNumber}?order_id=${orderId}`, {}).toPromise();

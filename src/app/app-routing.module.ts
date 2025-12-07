@@ -41,7 +41,7 @@ const routes: Routes = [
   { path: 'menu-order', component: MenuComponent},
   { path: 'user-reserve-order', component: UserReserveOrderComponent},
   { path: 'user-reserve', component: UserReserveComponent},
-  { path: 'assign-reservation-table', component: AssignReservationTableComponent},
+  { path: 'assign-reservation-table', component: AssignReservationTableComponent, canActivate:[AuthGuard]},
   { path: 'time', component: TimeComponent},
   { path: '**', redirectTo: '', pathMatch: 'full' }
 ];

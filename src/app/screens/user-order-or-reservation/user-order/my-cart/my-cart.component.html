@@ -2,18 +2,28 @@
   <div class="cart-container">
       <div class="close-icon" (click)="closeCart()">✖</div>
       <h2>Your Cart</h2>
-      <div class="all-products">
+
+      <div *ngIf="orderItems.length === 0" class="empty-cart-message">
+        <i class="pi pi-shopping-cart" style="font-size: 4rem; color: #ccc; margin-bottom: 15px;"></i>
+        <p>Your cart is empty</p>
+      </div>
+
+      <div *ngIf="orderItems.length > 0" class="all-products">
         <div *ngFor="let item of orderItems">
           <div class="cart-item">
               <div class="item-details">
                   <span class="product-name">{{ item.product_name }}</span>
                   <span class="amount-price">{{ item.amount }} x ${{ item.product_price }}</span>
                   <div class="quantity-controls">
-                      <button (click)="decrementProduct(item.product_id)" class="decrement-button">
+                      <button (click)="decrementProduct(item.product_id)" 
+                              class="decrement-button"
+                              [disabled]="creatingOrder">
                         <i class="pi pi-minus" style="font-size: 0.6rem; font-weight: bold;"></i> 
                       </button>
                       <span>{{ item.amount }}</span>
-                      <button (click)="incrementProduct(item.product_id)" class="increment-button">
+                      <button (click)="incrementProduct(item.product_id)" 
+                              class="increment-button"
+                              [disabled]="creatingOrder">
                         <i class="pi pi-plus" style="font-size: 0.6rem; font-weight: bold;"></i> 
                       </button>
                   </div>
@@ -23,11 +33,17 @@
         </div>
       </div>
       
-      <div class="total-price">
-          <strong>Total: ${{ getTotalPrice() }}</strong>
-      </div>
+      <div *ngIf="orderItems.length > 0">
+        <div class="total-price">
+            <strong>Total: ${{ getTotalPrice() }}</strong>
+        </div>
 
-      <button (click)="showCreateOrderDialog()" class="create-order-button">Create Order</button>
+        <button (click)="showCreateOrderDialog()" 
+                class="create-order-button"
+                [disabled]="creatingOrder">
+          Create Order
+        </button>
+      </div>
   </div>
 </div>
 

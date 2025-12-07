@@ -91,17 +91,16 @@ input {
     font-size: 1.2rem;
     cursor: pointer;
     transition: background-color 0.3s, color 0.3s;
-    /* --- NEW STYLES FOR INLINE SPINNER CENTERING --- */
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 8px; /* Optional: adds a little space between spinner and text */
+    gap: 8px;
 }
 .btn-save:disabled {
-    background-color: #ccc; /* Cambia el fondo a un color gris claro */
-    color: #666; /* Cambia el color del texto a un gris más oscuro */
-    cursor: not-allowed; /* Cambia el cursor a una señal de prohibido */
-    opacity: 0.6; /* Añade un efecto de opacidad */
+    background-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+    opacity: 0.6;
   }
   
 .btn-save:hover {
@@ -119,8 +118,8 @@ input {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: rgba(0, 0, 0, 0.5); /* Fondo semi-transparente */
-    z-index: 9999; /* Asegurarse de que esté por encima de todo */
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
   }
   
 .loading-overlay p-progressSpinner {
@@ -252,8 +251,8 @@ input {
     left: 0;
     width: 47.8%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Fondo semitransparente */
-    z-index: 999; /* Asegúrate de que esté por encima de otros elementos */
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
   }
   
 
@@ -295,7 +294,7 @@ input {
     display: block;
     margin-bottom: 5px;
   }
-  /*ESTILOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO*/
+
 
     .file-details {
         display: flex;
@@ -303,13 +302,12 @@ input {
         margin-top: 10px;
     }
   
-  /* Estilo para el nombre del archivo */
+
   .file-name {
     font-size: 14px;
     margin-right: 10px;
   }
-  
-  /* Estilo para el botón de clear (X) */
+
   .clear-btn {
     background-color: transparent;
     border: none;
@@ -325,8 +323,7 @@ input {
     color: white;
     background-color: #d32f2f;
   }
-  
-  /* Estilo para el botón de 'Choose' */
+
   ::ng-deep .p-fileupload-choose {
     width: 100%; 
     font-size: 16px;
@@ -340,7 +337,7 @@ input {
   }
   
   ::ng-deep .p-fileupload-choose:hover {
-    background-color: #bbac93; /* Color de fondo al pasar el mouse */
+    background-color: #bbac93; 
   }
 
   .custom-file-upload[disabled] {
@@ -438,7 +435,7 @@ input {
     }
 
     ::ng-deep .category-container .p-multiselect {
-        min-width: 290px; /* Ajusta el ancho según tus necesidades */
+        min-width: 290px;
     }
 
 }

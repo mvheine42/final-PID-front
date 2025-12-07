@@ -11,7 +11,6 @@
         />
       </div>
 
-      <!-- Mensaje cuando NO hay órdenes -->
       <div *ngIf="filteredOrders.length === 0" class="no-orders-message">
         <i class="pi pi-inbox" style="font-size: 3rem; color: #ccc; margin-bottom: 10px;"></i>
         <p>No inactive orders</p>
@@ -41,11 +40,10 @@
       </p-table>
     </div>
 
-    <!-- Columna de detalles de la orden seleccionada -->
+
     <div class="order-details" *ngIf="selectedOrder">
       <h4 class="selected-order-title">Selected Order: {{ selectedOrder.id }}</h4>
       
-      <!-- Spinner mientras carga stocks -->
       <div *ngIf="loadingStocks" style="min-height: 200px; display: flex; justify-content: center; align-items: center;">
         <p-progressSpinner 
             strokeWidth="4" 
@@ -54,7 +52,6 @@
         </p-progressSpinner>
       </div>
 
-      <!-- Tabla de productos solo cuando terminó de cargar -->
       <p-table 
         *ngIf="!loadingStocks"
         [value]="selectedOrder.orderItems" 
@@ -107,7 +104,6 @@
   <app-confirmation-pop-up (onSend)="assignTable()" (onClose)="closeConfirmationPopUp()" [subtitle]="'Any product out of stock will not be assigned to the order'"></app-confirmation-pop-up>
 </p-dialog>
 
-<!-- Overlay cuando está asignando la mesa -->
 <div *ngIf="assigningTable" class="overlay">
   <p-progressSpinner styleClass="custom-spinner" [animationDuration]="'0.5'"></p-progressSpinner>
 </div>

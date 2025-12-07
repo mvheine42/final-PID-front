@@ -19,36 +19,33 @@ export class CaloriesComponent implements OnInit {
   availableIngredients: any[] = [];
   canAddCustomIngredient: boolean = false;
   
-  // --- NUEVA VARIABLE DE ESTADO ---
-  loadingInitial: boolean = false; // Indica si se está cargando la lista de ingredientes disponibles
-  // ------------------------------
+  loadingInitial: boolean = false; 
 
-  constructor(private calorieService: CalorieService) {}  // Inyecta el servicio
+  constructor(private calorieService: CalorieService) {} 
 
   ngOnInit() {
-    this.loadCalories();  // Cargar las calorías al iniciar el componente
+    this.loadCalories();
   }
 
-  // Función para cargar las comidas desde el servicio
   loadCalories() {
-    this.loadingInitial = true; // <--- INICIA LA CARGA
+    this.loadingInitial = true; 
     this.calorieService.getCalories().subscribe({
       next: (response) => {
         if (response && response.message && response.message.food) {
           this.availableIngredients = response.message.food.map((item: any) => ({
             name: item.name,
-            id: item.id ? item.id.toString() : '',  // Manejo de undefined
+            id: item.id ? item.id.toString() : '', 
             calories: item.calories_portion
           }));
-          console.log(this.availableIngredients);  // Verifica los datos
+          console.log(this.availableIngredients); 
         } else {
           console.error("No se encontraron alimentos en la respuesta.");
         }
-        this.loadingInitial = false; // <--- FINALIZA EN ÉXITO
+        this.loadingInitial = false;
       },
       error: (error) => {
         console.error("Error al cargar las calorías: ", error);
-        this.loadingInitial = false; // <--- FINALIZA EN ERROR
+        this.loadingInitial = false; 
       }
     });
   }
@@ -103,19 +100,17 @@ export class CaloriesComponent implements OnInit {
 
   handleSave() {
     this.showPanel = false;
-    this.totalCalories.emit(this.getTotalCalories()); // Emitir el total de calorías
+    this.totalCalories.emit(this.getTotalCalories());
     setTimeout(() => {
       this.onSave.emit();
     }, 1000);
   }
 
   getTotalCalories() {
-    // Verifica si algún ingrediente tiene calorías 0
     if (this.ingredients.some(ingredient => ingredient.calories === 0)) {
-      return 0; // Retorna 0 si alguna caloría es 0
+      return 0;
     }
     
-    // Si no hay ingredientes con 0 calorías, suma las calorías de todos
     return this.ingredients.reduce((total, ingredient) => total + ingredient.calories, 0);
   }
 }

@@ -11,7 +11,9 @@ export class MyCartComponent {
   @Input() orderItems: OrderItem[] = [];
   @Input() isVisible: boolean = false;
   @Output() cartClosed: EventEmitter<OrderItem[]> = new EventEmitter();
+  
   showCreateOrderDialogFlag: boolean = false;
+  creatingOrder: boolean = false;
 
   closeCart(): void {
     this.isVisible = false;

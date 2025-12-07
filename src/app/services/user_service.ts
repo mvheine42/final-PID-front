@@ -73,7 +73,6 @@ export class UserService {
         this.currentData.next(userData);
       }
       
-      // ✅ Inactivity detection now handled by AuthService automatically
       return true;  
     } catch (error) {
       console.error('Error al iniciar sesión', error);

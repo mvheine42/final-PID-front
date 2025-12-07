@@ -57,7 +57,6 @@ export class UserProfileComponent implements OnInit {
       this.loadingProfile = true;
       this.loadingRewards = true;
     
-      // Fetch user data
       (await this.userService.getUserDataFromFirestore(user.uid)).subscribe(
         (userData) => {
           this.name = userData.name;
@@ -66,16 +65,12 @@ export class UserProfileComponent implements OnInit {
           this.levelId = userData.level.id;
           this.currentGlobalPoints = parseInt(userData.globalPoints, 10) || 0;
           this.currentMonthlyPoints = parseInt(userData.monthlyPoints, 10) || 0;
-  
-          // First check if the user is at the top level
           this.userService.getTopLevelStatus(this.levelId ?? '').subscribe(
             (statusData) => {
               this.isTopLevel = statusData.isTopLevel;
               if (!this.isTopLevel) {
-                // Only fetch next level data if not at top level
                 this.fetchNextLevelData();
               } else {
-                // If at top level, fetch points needed to maintain this level
                 this.fetchTopLevelStatus();
               }
               this.loadingProfile = false;
@@ -130,14 +125,12 @@ export class UserProfileComponent implements OnInit {
   }
   
   private fetchTopLevelStatus(): void {
-    // Calculate how many points are needed to maintain the top level
     this.pointsNeededToMaintain = 150 - this.currentMonthlyPoints;
 
-    // Check if the user has already achieved the required monthly points
     if (this.pointsNeededToMaintain <= 0) {
       this.achievedMonthlyPointsMessage = "You already achieved the monthly's points! Total monthly points: " + this.currentMonthlyPoints;
     } else {
-      this.achievedMonthlyPointsMessage = null; // Reset message if not achieved
+      this.achievedMonthlyPointsMessage = null;
     }
   }
 
@@ -182,7 +175,6 @@ async onDeleteAccount() {
     await this.userService.deleteCurrentUser();
     console.log('Account deleted successfully');
     
-    // Navegar inmediatamente, sin setTimeout
     this.router.navigate(['/'], { replaceUrl: true });
     
   } catch (error) {

@@ -2,7 +2,7 @@
   header="Create Order" 
   [(visible)]="isVisible" 
   [modal]="true" 
-  [closable]="true"
+  [closable]="!isLoading"
   [draggable]="false" 
   [resizable]="false" 
   [baseZIndex]="9999">
@@ -10,7 +10,14 @@
   <div class="p-fluid">
     <div class="p-field">
       <label for="amountOfPeople">Amount of People</label>
-      <input id="amountOfPeople" type="number" pInputText [(ngModel)]="amountOfPeople" min="1" max="4">
+      <input 
+        id="amountOfPeople" 
+        type="number" 
+        pInputText 
+        [(ngModel)]="amountOfPeople" 
+        min="1" 
+        max="4"
+        [disabled]="isLoading">
     </div>
     <div class="p-field">
       <label for="userEmail">Your email:</label>
@@ -18,27 +25,42 @@
         id="userEmail" 
         pInputText 
         [(ngModel)]="userEmail"
-        (ngModelChange)="validateEmail()">
-      <small *ngIf="!emailValid && userEmail">Please enter a valid email</small>
+        (ngModelChange)="validateEmail()"
+        [disabled]="isLoading">
+      <small *ngIf="!emailValid && userEmail" class="error-message">Please enter a valid email</small>
     </div>
     
     <div class="p-field">
-      <button pButton label="Create" (click)="createOrder()" [disabled]="amountOfPeople < 1 || amountOfPeople > 4 || !emailValid"></button>
+      <button 
+        pButton 
+        label="Create" 
+        (click)="createOrder()" 
+        [disabled]="amountOfPeople < 1 || amountOfPeople > 4 || !emailValid || isLoading">
+      </button>
     </div>
   </div>
 </p-dialog>
 
-<!-- Contenedor para el Spinner -->
+
 <div *ngIf="isLoading" class="overlay">
-  <p-progressSpinner styleClass="custom-spinner" [animationDuration]="'0.5'"></p-progressSpinner>
+  <div class="spinner-container">
+    <p-progressSpinner styleClass="custom-spinner" [animationDuration]="'0.5'"></p-progressSpinner>
+    <p class="loading-message" *ngIf="creatingOrder && !sendingEmail">Creating your order...</p>
+    <p class="loading-message" *ngIf="sendingEmail">Sending confirmation email...</p>
+  </div>
 </div>
 
-<!-- Contenedor para el diálogo de notificación -->
+
 <div *ngIf="isNoticeVisible" class="overlay">
-  <p-dialog header="Notification" [(visible)]="isNoticeVisible" [modal]="true" [closable]="true" [baseZIndex]="20000">
+  <p-dialog 
+    header="Notification" 
+    [(visible)]="isNoticeVisible" 
+    [modal]="true" 
+    [closable]="true" 
+    [baseZIndex]="20000">
     <app-notice
-    [subtitle]="noticeMessage"
-    (onClose)="closeDialog()">
-  </app-notice>
+      [subtitle]="noticeMessage"
+      (onClose)="closeDialog()">
+    </app-notice>
   </p-dialog>
 </div>

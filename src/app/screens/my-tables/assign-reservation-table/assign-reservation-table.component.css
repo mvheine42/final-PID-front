@@ -18,7 +18,7 @@
   margin-top: 15px; 
 }
 
-/* overlay loader */
+
 .overlay {
   position: fixed; 
   inset: 0; 
@@ -29,7 +29,7 @@
   z-index: 1000;
 }
 
-/* INLINE SPINNER para dropdown de mesas */
+
 .inline-spinner-dropdown {
   display: flex;
   align-items: center;
@@ -39,7 +39,7 @@
   margin-bottom: 10px;
 }
 
-/* Estilo para la fila de una reserva ya asignada */
+
 .assigned-row {
   background-color: #f1f1f1 !important;
   color: #a0a0a0;
@@ -50,7 +50,7 @@
   pointer-events: none;
 }
 
-/* Estilos para el modal de confirmación - FORZAR colores correctos */
+
 :host ::ng-deep .custom-modal .custom-send-button .p-button {
   background-color: #ab602f !important;
   border-color: #ab602f !important;
@@ -71,7 +71,7 @@
   border-color: #533521da !important;
 }
 
-/* Modal transparente */
+
 :host ::ng-deep .custom-modal .p-dialog {
   background-color: white !important;
   box-shadow: none !important;
@@ -87,39 +87,37 @@
   padding: 0 !important;
 }
 
-/* --- ESTILOS DE ESTADO DE FILA --- */
 
-/* 1. ASIGNADA (VERDE) */
 .row-assigned {
-  background-color: #e8f5e9 !important; /* Verde muy clarito */
-  color: #2e7d32; /* Verde oscuro para texto */
+  background-color: #e8f5e9 !important; 
+  color: #2e7d32; 
   font-weight: 500;
-  pointer-events: none;   /* ⛔ Bloquea el click (no dispara selectReservation) */
-  cursor: default;        /* El mouse se ve normal, no como manito */
+  pointer-events: none;   
+  cursor: default;        
   opacity: 0.9;
 }
 
-/* 2. TARDE / SIN ASIGNAR (ROJO) */
+
 .row-late {
-  background-color: #ffebee !important; /* Rojo muy clarito */
-  color: #c62828; /* Rojo oscuro para texto */
+  background-color: #ffebee !important; 
+  color: #c62828;
   font-weight: 500;
 }
 
 .row-warning {
-  background-color: #fff3cd !important; /* Amarillo/Naranja suave */
-  color: #856404; /* Texto marrón oscuro para contraste */
+  background-color: #fff3cd !important;
+  color: #856404;
   font-weight: 500;
 }
 
-/* Mantenemos el hover y seleccionado por encima de los colores */
+
 :host ::ng-deep .p-selectable-row:not(.selected):hover {
-  background-color: #f5f5f5 !important; /* Gris suave al pasar mouse */
+  background-color: #f5f5f5 !important;
   cursor: pointer;
 }
 
 .selected {
-  background: #f6efe8 !important; /* Tu color de selección actual (naranja suave) */
+  background: #f6efe8 !important;
   color: #000 !important;
-  border-left: 4px solid #c8731e; /* Un borde naranja para destacar más la selección */
+  border-left: 4px solid #c8731e;
 }

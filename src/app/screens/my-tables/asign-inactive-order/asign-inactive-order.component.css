@@ -120,22 +120,22 @@ button.p-button-success:hover {
 }
 
 .overlay {
-  position: fixed; /* Fija la posición en la ventana */
+  position: fixed; 
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.6); /* Capa oscura con un poco de transparencia */
-  display: flex; /* Centrar el contenido */
-  align-items: center; /* Centrar verticalmente */
-  justify-content: center; /* Centrar horizontalmente */
-  z-index: 10000; /* Asegúrate de que esté por encima de otros elementos */
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
 }
 
 .custom-spinner {
-  width: 100px; /* Ajusta el tamaño del spinner */
-  height: 100px; /* Ajusta el tamaño del spinner */
-  z-index: 10001; /* Asegúrate de que esté por encima de la capa oscura */
+  width: 100px;
+  height: 100px;
+  z-index: 10001;
 }
 
 .disabled {
@@ -144,7 +144,6 @@ button.p-button-success:hover {
   cursor: not-allowed;
 }
 
-/* --- EMPTY STATE MESSAGE --- */
 .no-orders-message {
   display: flex;
   flex-direction: column;

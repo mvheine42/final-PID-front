@@ -164,7 +164,6 @@ filterByCategory(selectedCategoryIds: string[]): void {
     const originalProduct = this.originalProductState[product.id];
     const tempCategories = this.editingProductCategories[product.id];
     
-    // Update category if modified
     if (tempCategories) {
       const selectedIds = tempCategories.map(category => category.id).join(', ');
       if (selectedIds !== originalProduct.category) {
@@ -172,14 +171,12 @@ filterByCategory(selectedCategoryIds: string[]): void {
       }
     }
 
-    // Validate price
     if (parseFloat(product.price.toString()) < 0) {
       console.error('Price cannot be negative');
       this.savingRowId = null; 
       return;
     }
-    
-    // Update only modified fields
+
     const promises: Promise<any>[] = [];
     
     if (product.price !== originalProduct.price) {
@@ -196,7 +193,6 @@ filterByCategory(selectedCategoryIds: string[]): void {
 
     try {
       await Promise.all(promises);
-      // Clear original product state after saving
       delete this.originalProductState[product.id];
     } catch (error) {
       console.error('Failed to update product', error);
@@ -208,7 +204,7 @@ filterByCategory(selectedCategoryIds: string[]): void {
   onRowEditCancel(product: Product, index: number) {  
     if (product.id !== undefined) {
       delete this.editingProductCategories[product.id];
-      delete this.originalProductState[product.id]; // Clear original state on cancel
+      delete this.originalProductState[product.id];
     } else {
       console.error('Product ID is undefined, cannot cancel edit');
     }
@@ -220,7 +216,6 @@ filterByCategory(selectedCategoryIds: string[]): void {
       return false;
     }
   
-    // Check if the row is currently being saved (disable validation if saving)
     if (this.savingRowId === product.id) {
         return false;
     }
@@ -242,13 +237,8 @@ filterByCategory(selectedCategoryIds: string[]): void {
     this.deleting = true; 
     this.productService.deleteProduct((this.deleteID).toString()).then(success => {
       if (success) {
-        // 1. Update the main source list
         this.products = this.products.filter(product => product.id !== this.deleteID);
-        
-        // 2. Re-apply the current filter to update the table's source list (filteredProducts)
         this.filterByCategory(this.selectedFilterCategories); 
-        
-        // 3. Update low stock counts and dialogs
         this.filterLowStockProducts();
       }
       this.deleting = false; 

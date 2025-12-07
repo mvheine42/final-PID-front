@@ -9,7 +9,6 @@ import emailjs from 'emailjs-com';
   styleUrls: ['./user-reserve.component.css']
 })
 export class UserReserveComponent {
-  // Datos del formulario
   customerName: string = '';
   userEmail: string = '';
   emailValid: boolean = false;
@@ -17,69 +16,82 @@ export class UserReserveComponent {
   reservationDate: Date | null = null;
   reservationTime: string = '';
 
-  // Horarios base → la “fuente de verdad”
-  private baseTimes = ['12:00', '13:00', '21:00', '22:00'];
+  readonly MAX_NAME_LENGTH = 20;
 
-  // Lo que consume el p-dropdown (label, value, disabled)
+  private baseTimes = ['13:00', '21:00', '22:00'];
+
   timesForUI: Array<{ label: string; value: string; disabled?: boolean }> =
     this.baseTimes.map(t => ({ label: t, value: t }));
 
-  // Rango de fechas (desde mañana hasta +30 días)
   tomorrowLocal: Date = new Date(new Date().setDate(new Date().getDate() + 1));
   maxDateLocal: Date = new Date(new Date().setDate(new Date().getDate() + 30));
 
-  // Estados visuales
-  isLoading: boolean = false;
+  loadingAvailability: boolean = false;
+  creatingReservation: boolean = false;
+  sendingEmail: boolean = false;
+
   isNoticeVisible: boolean = false;
   noticeMessage: string = '';
+  isSuccessReservation: boolean = false;
+
+  createdReservationInfo: {
+    name: string;
+    date: string;
+    time: string;
+  } | null = null;
 
   constructor(private reservationService: ReservationService) {
     emailjs.init('LdaNOsGUxAfLITT4i');
   }
 
-  // === Helpers ===
   private toISODateOnly(d: Date): string {
     return new Date(d).toISOString().split('T')[0];
   }
 
-  // Validar email
   validateEmail() {
-    const emailRegex = /\S+@\S+\.\S+/;
-    this.emailValid = emailRegex.test(this.userEmail);
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    this.emailValid = emailRegex.test(this.userEmail.trim());
   }
 
-  // Cargar disponibilidad al elegir fecha
   async onDateChange(date: Date) {
-    this.reservationTime = ''; // limpiar hora seleccionada
+    this.reservationTime = '';
     if (!date) {
       this.timesForUI = this.baseTimes.map(t => ({ label: t, value: t }));
       return;
     }
 
+    this.loadingAvailability = true;
     const iso = this.toISODateOnly(date);
-    const slots = await this.reservationService.getAvailableSlots(iso);
-    // Map de disponibilidad: true = hay lugar, false = completo
-    const availability = new Map<string, boolean>(
-      this.baseTimes.map(t => [t, true])
-    );
-    for (const s of slots) {
-      if (this.baseTimes.includes(s.time)) {
-        availability.set(s.time, (s.remaining ?? 0) > 0);
+    
+    try {
+      const slots = await this.reservationService.getAvailableSlots(iso);
+      const availability = new Map<string, boolean>(
+        this.baseTimes.map(t => [t, true])
+      );
+      
+      for (const s of slots) {
+        if (this.baseTimes.includes(s.time)) {
+          availability.set(s.time, (s.remaining ?? 0) > 0);
+        }
       }
-    }
 
-    // Armar opciones con disabled y etiqueta “(completo)”
-    this.timesForUI = this.baseTimes.map(t => ({
-      label: availability.get(t) ? t : `${t} (completo)`,
-      value: t,
-      disabled: !availability.get(t),
-    }));
+      this.timesForUI = this.baseTimes.map(t => ({
+        label: availability.get(t) ? t : `${t} (completo)`,
+        value: t,
+        disabled: !availability.get(t),
+      }));
+    } catch (error) {
+      console.error('Error cargando disponibilidad:', error);
+      this.timesForUI = this.baseTimes.map(t => ({ label: t, value: t }));
+    } finally {
+      this.loadingAvailability = false;
+    }
   }
 
-  // Validación del form
   isFormValid(): boolean {
     return (
       this.customerName.trim() !== '' &&
+      this.customerName.length <= this.MAX_NAME_LENGTH &&
       this.emailValid &&
       this.amountOfPeople >= 1 &&
       this.amountOfPeople <= 4 &&
@@ -88,63 +100,147 @@ export class UserReserveComponent {
     );
   }
 
-  // Enviar la reserva
   async createReservation() {
+
     if (!this.isFormValid()) {
-      this.noticeMessage = 'Completá todos los campos correctamente.';
+      this.noticeMessage = 'Please fill in all the required fields.';
+      this.isSuccessReservation = false;
       this.isNoticeVisible = true;
       return;
     }
 
     const newReservation = new Reservation(
-      this.customerName,
-      this.userEmail,
+      this.customerName.trim(),
+      this.userEmail.trim(),
       this.amountOfPeople,
       this.reservationDate!,
       this.reservationTime
     );
 
     try {
-      this.isLoading = true;
+      this.creatingReservation = true;
       const response = await this.reservationService.registerReservation(newReservation);
-      if(response && response.id) {
-        await this.sendReservationEmail(this.userEmail, response.id);
+      
+      if (!response || !response.id) {
+        throw new Error('No confirmation from server');
       }
-      console.log('Respuesta backend:', response);
-      this.noticeMessage = 'Reserva registrada con éxito.';
+
+      console.log('Reservation created:', response);
+
+      this.createdReservationInfo = {
+        name: this.customerName.trim(),
+        date: this.formatDateForDisplay(this.reservationDate!),
+        time: this.reservationTime
+      };
+
+      this.creatingReservation = false;
+
+      try {
+        await this.sendReservationEmail(this.userEmail.trim(), response.id);
+        this.noticeMessage = this.buildSuccessMessage();
+        this.isSuccessReservation = true;
+      } catch (emailError: any) {
+        if (emailError.message === 'EMAIL_INVALID') {
+          this.noticeMessage = 'The email is not valid. The reservation was created successfully, but the email could not be sent, please check your email.';
+          this.isSuccessReservation = false;
+        } else {
+          this.noticeMessage = this.buildSuccessMessage() + '\n\n⚠️ Note: The email could not be sent, but the reservation was created successfully.';
+          this.isSuccessReservation = true;
+        }
+      }
+      
     } catch (err: any) {
-      console.error('Error al registrar reserva:', err);
+      console.error('Error creating reservation:', err);
+      
       const detail = err?.error?.detail || err?.message || '';
-      if (typeof detail === 'string' && detail.toLowerCase().includes('horario completo')) {
-        this.noticeMessage = 'Ese horario se completó recién. Elegí otro, por favor.';
+      
+      if (typeof detail === 'string' && detail.toLowerCase().includes('complete')) {
+        this.noticeMessage = 'The time for this date is full. Please choose another date or time.';
         if (this.reservationDate) {
-          await this.onDateChange(this.reservationDate); // refrescar disponibilidad
+          await this.onDateChange(this.reservationDate);
         }
       } else {
-        this.noticeMessage = 'Ocurrió un error al registrar la reserva.';
+        this.noticeMessage = 'There was an error creating your reservation. Please try again.';
       }
+      
+      this.isSuccessReservation = false;
+      this.creatingReservation = false;
+      this.sendingEmail = false;
+      
     } finally {
-      this.isLoading = false;
       this.isNoticeVisible = true;
     }
   }
 
-    async sendReservationEmail(userEmail: string, reservationId: number) {
+  async sendReservationEmail(userEmail: string, reservationId: number) {
+    this.sendingEmail = true;
+    
     const templateParams = {
       reservation_id: reservationId,
       user_email: userEmail
-    };  
+    };
+    
     try {
       const response = await emailjs.send("service_w1k54me", "template_bt1ked7", templateParams);
-      console.log('Correo de reserva enviado:', response);
-    } catch (error) {
-      console.error('Error al enviar el correo:', error);
+      return true;
+    } catch (error: any) {
+      if (error?.status === 422 || error?.text?.includes('corrupted')) {
+        throw new Error('EMAIL_INVALID');
+      }
+      return false;
+    } finally {
+      this.sendingEmail = false;
     }
   }
-  
 
-  // Cerrar diálogo
+  private formatDateForDisplay(date: Date): string {
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+  }
+
+  // Construir mensaje de éxito detallado
+  private buildSuccessMessage(): string {
+    if (!this.createdReservationInfo) return 'Reservation successful.';
+
+    return `¡Reservation successful!
+
+📅 Date: ${this.createdReservationInfo.date}
+🕐 Time: ${this.createdReservationInfo.time}
+👤 Name: ${this.createdReservationInfo.name}
+
+Please, announce yourserlf with you name: "${this.createdReservationInfo.name}" in the bar at the indicated time.
+
+⚠️ IMPORTANT:
+• You have 15 minutes of tolerance.
+• Passed that time, the reservation will be canceled.
+
+To cancel your reservation, contact the bar staff at: cvbar08@gmail.com
+
+¡Can't wait to have a good time! 🍺`;
+  }
+
   closeDialog() {
     this.isNoticeVisible = false;
+    if (this.isSuccessReservation) {
+      this.resetForm();
+    }
+  }
+  private resetForm() {
+    this.customerName = '';
+    this.userEmail = '';
+    this.emailValid = false;
+    this.amountOfPeople = 1;
+    this.reservationDate = null;
+    this.reservationTime = '';
+    this.timesForUI = this.baseTimes.map(t => ({ label: t, value: t }));
+    this.createdReservationInfo = null;
+    this.isSuccessReservation = false;
+  }
+
+  get isLoading(): boolean {
+    return this.loadingAvailability || this.creatingReservation || this.sendingEmail;
   }
 }

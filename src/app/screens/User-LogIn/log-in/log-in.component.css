@@ -1,4 +1,4 @@
-/* Contenedor principal */
+
 .login-container {
     position: relative;
     height: 100vh;
@@ -9,7 +9,6 @@
     overflow: hidden;
 }
 
-/* Imagen de fondo borrosa */
 .background-blurred {
     position: absolute;
     top: 0;
@@ -17,11 +16,11 @@
     height: 100%;
     width: 100%;
     background: url('../../../../assets/images/login.jpg') no-repeat center center/cover;
-    filter: blur(2px); /* Aplicar efecto de desenfoque */
+    filter: blur(2px);
     z-index: -1;
 }
 
-/* Contenedor centrado con la imagen y el formulario */
+
 .center-container {
     display: flex;
     height: 70%;
@@ -29,7 +28,7 @@
     box-shadow: 0 4px 8px rgba(205, 205, 205, 0.3);
 }
 
-/* Imagen partida a la mitad */
+
 .image-half {
     width: 50%;
     background-color: #fff;
@@ -49,23 +48,21 @@
     margin: 0;
 }
 
-/* Fondo marrón con el formulario */
+
 .form-half {
     width: 50%;
-    background-color: #533521de; /* Color marrón */
+    background-color: #533521de;
     display: flex;
     padding: 5%;
     justify-content: center;
 }
 
-/* Contenedor del formulario */
 .form-container {
     width: 100%;
     text-align: center;
     color: white;
 }
 
-/* Estilos para los botones de navegación */
 .nav-buttons {
     display: flex;
     justify-content: center;
@@ -73,7 +70,7 @@
 }
 
 .nav-btn {
-    background-color: #3e1f076d; /* Color marrón */
+    background-color: #3e1f076d;
     border: none;
     color: #fff;
     padding: 10px 30px;
@@ -85,7 +82,7 @@
 }
 
 .nav-btn.active {
-    background-color: #ab602f; /* Color más oscuro para el botón activo */
+    background-color: #ab602f;
     cursor: default;
 }
 
@@ -93,12 +90,11 @@
     background-color: #ab602f;
 }
 
-/* Estilos formulario */
 
 .form-input {
     margin-bottom: 7%;
 }
-/* Estilos para los inputs dentro de .form-input */
+
 ::ng-deep .form-input input {
     width: 300px;
     padding: 18px;
@@ -110,7 +106,7 @@
     box-sizing: border-box;
 }
 
-/* Estilos para p-password dentro de .form-input */
+
 ::ng-deep .form-input p-password .p-password-input {
     width: 300px;
     padding: 18px;
@@ -121,20 +117,20 @@
     font-size: 18px;
 }
 
-/* Estilo específico para p-password en el focus */
+
 ::ng-deep .form-input p-password .p-password-input:focus {
     border-color: #6d4f28;
     outline: none;
 }
 
-/* Estilo para los labels dentro de .form-input */
+
 ::ng-deep .form-input label {
     color: #fff;
     margin-left: 10px;
 }
 
 
-/* Estilos para el enlace de contraseña olvidada */
+
 .reset-password {
     margin-top: -6%;
 }
@@ -154,7 +150,6 @@
 }
 
 
-/* Estilos Boton */
 ::ng-deep .form-button .p-button {
     margin-top: 40%;
     width: 200px;
@@ -168,25 +163,24 @@
 }
 
 ::ng-deep .form-button .p-button:hover {
-    background-color: #894d24 !important; /* Color más oscuro al pasar el cursor */
+    background-color: #894d24 !important;
 }
 
 ::ng-deep .form-button .p-button .p-button-label {
-    font-weight: 500 !important; /* Ajustar el grosor de la fuente */
-    font-family: Arial, sans-serif !important; /* O la fuente que estés usando */
+    font-weight: 500 !important; 
+    font-family: Arial, sans-serif !important;
 }
 
-/* Estilos para el texto centrado en la imagen */
 .image-half .title{
     font-size: 48px;
     color: white;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* Sombra para hacer el texto más legible */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
 }
 
 .image-half .subtitle{
     font-size: 18px;
     color: white;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* Sombra para hacer el texto más legible */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
 }
 
 .image-half .centered-text{
@@ -208,7 +202,6 @@
         width: 100%;
     }
     
-    /* Estilos para p-password dentro de .form-input */
     ::ng-deep .form-input p-password .p-password-input {
         width: 100%;
     }
@@ -227,7 +220,8 @@
     }
 
 }
-/* Estilos para pantallas pequeñas */
+
+
 @media (max-width: 600px) {
     .login-container {
         display: flex;
@@ -260,21 +254,21 @@
     .form-input input,
     .form-input p-password .p-password-input {
         width: 100%;
-        max-width: 400px; /* Opcional: para evitar que el input se estire demasiado */
+        max-width: 400px;
     }
 
     .form-button .p-button {
         width: 100%;
-        max-width: 200px; /* Opcional: para evitar que el botón se estire demasiado */
+        max-width: 200px;
         margin-top: 10%;
     }
 
     .login-form {
-        margin-top: 0; /* Elimina el margen superior para centrar el formulario */
+        margin-top: 0;
         display: flex;
         flex-direction: column;
         justify-content: center;
-        height: auto; /* Ajusta el alto automáticamente para el contenido */
+        height: auto;
     }
 
 }

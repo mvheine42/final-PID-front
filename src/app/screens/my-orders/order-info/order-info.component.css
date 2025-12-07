@@ -20,7 +20,6 @@
     outline: none !important;
 }
 
-/* --- SPINNER STYLES (ADDED) --- */
 .loading-container {
     display: flex;
     justify-content: center; 
@@ -35,7 +34,6 @@
         width: 250px;
     }
 
-    /* Spinner adjustments for mobile */
     .loading-container {
         min-height: 150px;
     }

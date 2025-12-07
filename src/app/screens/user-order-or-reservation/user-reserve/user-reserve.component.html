@@ -1,5 +1,4 @@
 <div class="conteiner">
-  <!-- Header fijo -->
   <div class="menu-header">
     <div class="bar-info">
       <img src="assets/images/taza.png" alt="Logo del Bar" class="bar-logo"/>
@@ -7,15 +6,16 @@
     </div>
   </div>
 
-  <!-- Contenido principal -->
   <main class="hero">
     <div class="reservation-box">
-      <h2 class="title">Reservá tu mesa</h2>
+      <h2 class="title">Make a reservation</h2>
 
       <form class="p-fluid" #reserveForm="ngForm" (ngSubmit)="createReservation()">
-        <!-- NOMBRE -->
         <div class="p-field">
-          <label for="customerName">Nombre</label>
+          <label for="customerName">
+            Name 
+            <span class="char-counter">{{ customerName.length }}/{{ MAX_NAME_LENGTH }}</span>
+          </label>
           <input
             id="customerName"
             type="text"
@@ -23,11 +23,15 @@
             [(ngModel)]="customerName"
             name="customerName"
             placeholder="Ej: Wanda Nara"
+            [maxlength]="MAX_NAME_LENGTH"
+            [disabled]="isLoading"
             required
           />
+          <small *ngIf="customerName.length >= MAX_NAME_LENGTH" class="p-error">
+            Maximum {{ MAX_NAME_LENGTH }} characters.
+          </small>
         </div>
 
-        <!-- EMAIL -->
         <div class="p-field">
           <label for="userEmail">Email</label>
           <input
@@ -37,17 +41,17 @@
             [(ngModel)]="userEmail"
             name="userEmail"
             (ngModelChange)="validateEmail()"
-            placeholder="chinatatiana@gmail.com"
+            placeholder="wandanara@gmail.com"
+            [disabled]="isLoading"
             required
           />
           <small *ngIf="!emailValid && userEmail" class="p-error">
-            Ingresá un email válido.
+            Please enter a valid email.
           </small>
         </div>
 
-        <!-- CANTIDAD -->
         <div class="p-field">
-          <label for="amountOfPeople">Cantidad de personas</label>
+          <label for="amountOfPeople">Party</label>
           <input
             id="amountOfPeople"
             type="number"
@@ -56,16 +60,16 @@
             name="amountOfPeople"
             min="1"
             max="4"
+            [disabled]="isLoading"
             required
           />
           <small *ngIf="amountOfPeople > 4" class="p-error">
-            Máximo 4 personas por reserva.
+            Maximum 4 people.
           </small>
         </div>
 
-        <!-- FECHA -->
         <div class="p-field">
-          <label for="reservationDate">Fecha</label>
+          <label for="reservationDate">Date</label>
           <p-calendar
             id="reservationDate"
             [(ngModel)]="reservationDate"
@@ -75,14 +79,20 @@
             dateFormat="dd/mm/yy"
             [showIcon]="true"
             inputId="reservationDate"
-            (onSelect)="onDateChange($event)"  
+            (onSelect)="onDateChange($event)"
+            [disabled]="isLoading"
             required>
           </p-calendar>
         </div>
 
-        <!-- HORA -->
         <div class="p-field">
-          <label for="reservationTime">Hora</label>
+          <label for="reservationTime">
+            Time
+            <span *ngIf="loadingAvailability" class="loading-text">
+              <i class="pi pi-spin pi-spinner" style="font-size: 0.9rem; margin-left: 5px;"></i>
+              Loading availability
+            </span>
+          </label>
           <p-dropdown
             id="reservationTime"
             [(ngModel)]="reservationTime"
@@ -90,40 +100,50 @@
             [options]="timesForUI"
             [optionDisabled]="'disabled'"
             placeholder="Seleccioná horario"
+            [disabled]="isLoading || !reservationDate"
             required>
           </p-dropdown>
+          <small *ngIf="!reservationDate" class="p-info">
+            Please select a date first.
+          </small>
         </div>
 
-        <!-- BOTÓN -->
         <div class="p-field">
           <button
             pButton
             type="submit"
-            label="Confirmar reserva"
-            [disabled]="!isFormValid()">
+            [label]="isLoading ? 'Processing...' : 'Confirm reservation'"
+            [disabled]="!isFormValid() || isLoading">
+            <i *ngIf="creatingReservation || sendingEmail" class="pi pi-spin pi-spinner button-spinner"></i>
           </button>
         </div>
       </form>
     </div>
   </main>
 
-  <!-- Overlay para spinner -->
-  <div *ngIf="isLoading" class="overlay">
-    <p-progressSpinner styleClass="custom-spinner" [animationDuration]="'0.5'"></p-progressSpinner>
+  <div *ngIf="creatingReservation || sendingEmail" class="overlay">
+    <div class="spinner-container">
+      <p-progressSpinner styleClass="custom-spinner" [animationDuration]="'0.5'"></p-progressSpinner>
+      <p class="loading-message" *ngIf="creatingReservation && !sendingEmail">Creating your reservation...</p>
+      <p class="loading-message" *ngIf="sendingEmail">Sending confirmation email...</p>
+    </div>
   </div>
 
-  <!-- Diálogo de notificación -->
-  <div *ngIf="isNoticeVisible" class="overlay">
-    <p-dialog
-      header="Notificación"
-      [(visible)]="isNoticeVisible"
-      [modal]="true"
-      [closable]="true"
-      [baseZIndex]="20000">
-      <app-notice
-        [subtitle]="noticeMessage"
-        (onClose)="closeDialog()">
-      </app-notice>
-    </p-dialog>
-  </div>
+
+  <p-dialog
+    [(visible)]="isNoticeVisible"
+    [modal]="true"
+    [closable]="true"
+    [baseZIndex]="20000"
+    [style]="{width: '90%', maxWidth: '500px'}"
+    [header]="isSuccessReservation ? '✅ Reservation confirmed' : '⚠️ Attention'">
+    
+    <div class="notice-content">
+      <div style="white-space: pre-line;">{{ noticeMessage }}</div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <button pButton label="Cerrar" (click)="closeDialog()" class="notice-button"></button>
+    </ng-template>
+  </p-dialog>
 </div>

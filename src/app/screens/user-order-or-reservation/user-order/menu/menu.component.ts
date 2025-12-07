@@ -25,6 +25,10 @@ export class MenuComponent implements OnInit {
   cart: { [key: number]: number } = {};
   cartVisible: boolean = false;
 
+  loadingProducts: boolean = true;
+  loadingCategories: boolean = true;
+  loadingFilteredProducts: boolean = false;
+
   constructor(private productService: ProductService, private router: Router, private categoryService: CategoryService) {}
 
   ngOnInit(): void {
@@ -34,9 +38,10 @@ export class MenuComponent implements OnInit {
   }
   
   @HostListener('window:resize', ['$event'])
-  onResize(event: { target: { innerWidth: number; }; }) {
-      this.updateItemsPerPage(event.target.innerWidth);
-      this.updateVisibleCategories(); // Actualiza las categorías visibles al cambiar el tamaño
+  onResize(event: Event): void {
+      const target = event.target as Window;
+      this.updateItemsPerPage(target.innerWidth);
+      this.updateVisibleCategories();
   }
 
   private updateItemsPerPage(width: number) {
@@ -51,8 +56,8 @@ export class MenuComponent implements OnInit {
       }
   }
 
-
   loadProducts(): void {
+    this.loadingProducts = true;
     this.productService.getProducts().subscribe({
       next: (data) => {
         if (data && Array.isArray(data.products)) {
@@ -61,14 +66,17 @@ export class MenuComponent implements OnInit {
         } else {
           console.error('Unexpected data format:', data);
         }
+        this.loadingProducts = false;
       },
       error: (err) => {
         console.error('Error fetching products:', err);
+        this.loadingProducts = false;
       }
     });
   }
 
   loadCategories(): void {
+    this.loadingCategories = true;
     this.categoryService.getCategories().subscribe({
       next: (data) => {
         if (data && Array.isArray(data.categories)) {
@@ -80,9 +88,11 @@ export class MenuComponent implements OnInit {
           }));
           this.updateVisibleCategories();
         }
+        this.loadingCategories = false;
       },
       error: (err) => {
         console.error('Error fetching categories:', err);
+        this.loadingCategories = false;
       },
     });
   }
@@ -96,7 +106,6 @@ export class MenuComponent implements OnInit {
     console.log('Filtered products:', this.filteredProducts);
   }
 
-
   onSearchChange(query: string): void {
     console.log('Search query:', query);
     if (query.trim() === '') {
@@ -106,18 +115,19 @@ export class MenuComponent implements OnInit {
         this.searchProducts({ query });
     }
   }
+
   updateVisibleCategories(): void {
     this.visibleCategories = this.categories.slice(this.currentIndex, this.currentIndex + this.itemsPerPage);
   }
 
-  nextPage(): void {
+  onNextPage(): void {
     if (this.currentIndex + this.itemsPerPage < this.categories.length) {
       this.currentIndex++;
       this.updateVisibleCategories();
     }
   }
 
-  prevPage(): void {
+  onPreviousPage(): void {
     if (this.currentIndex > 0) {
       this.currentIndex--;
       this.updateVisibleCategories();
@@ -137,8 +147,7 @@ export class MenuComponent implements OnInit {
     } else {
         console.error('Product not found');
     }
-}
-
+  }
 
   getTotalItemsInCart(): number {
     return Object.values(this.cart).reduce((acc, count) => acc + count, 0);
@@ -159,7 +168,6 @@ export class MenuComponent implements OnInit {
     }
   }
 
-
   getProductCount(productId: number): number {
     return this.cart[productId] || 0;
   }
@@ -174,16 +182,18 @@ export class MenuComponent implements OnInit {
     this.filterProductsByCategory();
   }
 
-    filterProductsByCategory(): void {
-      if (this.selectedCategories.length === 0) {
-        this.filteredProducts = this.products; 
-      } else {
-        const categoryIds = this.selectedCategories.map(category => category.id).join(', ');
-        this.getProductsByCategory(categoryIds);
-      }
+  filterProductsByCategory(): void {
+    if (this.selectedCategories.length === 0) {
+      this.filteredProducts = this.products; 
+      this.loadingFilteredProducts = false;
+    } else {
+      const categoryIds = this.selectedCategories.map(category => category.id).join(', ');
+      this.getProductsByCategory(categoryIds);
     }
+  }
 
   getProductsByCategory(categoryIds: string): void {
+    this.loadingFilteredProducts = true;
     this.categoryService.getProductsByCategory(categoryIds)
       .then((data) => {
         if (data && Array.isArray(data)) {
@@ -191,10 +201,12 @@ export class MenuComponent implements OnInit {
         } else {
           this.filteredProducts = [];
         }
+        this.loadingFilteredProducts = false;
       })
       .catch((err) => {
         console.error('Error fetching products by category:', err);
-        this.filteredProducts = []; 
+        this.filteredProducts = [];
+        this.loadingFilteredProducts = false;
       });
   }
 
@@ -210,5 +222,4 @@ export class MenuComponent implements OnInit {
     }
     this.cartVisible = false;
   }
-  
 }

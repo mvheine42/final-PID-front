@@ -1,5 +1,4 @@
 <div class="container">
-  <!-- ... (Header e Imagen) ... -->
   <div class="section image-section">
     <img src="../../../../assets/images/tables2.jpg" alt="Imagen descriptiva" class="image">
   </div>
@@ -70,9 +69,9 @@
             <td>{{ table.id }}</td>
             <td>{{ table.capacity}} </td>
             <td [ngClass]="{'status-free': table.status === 'FREE', 
-                           'status-busy': table.status === 'BUSY', 
-                           'status-finished': table.status === 'FINISHED', 
-                           'status-reserved': table.status === 'RESERVED'}">
+                      'status-busy': table.status === 'BUSY', 
+                      'status-finished': table.status === 'FINISHED', 
+                      'status-reserved': table.status === 'RESERVED'}">
               {{ table.status }}
             </td>
           </tr>
@@ -100,7 +99,6 @@
   </div>
 </div>
 
-<!-- MODAL PRINCIPAL DE MESAS -->
 <p-dialog class="custom-modal" [(visible)]="displayModal" modal="true" [closable]="false" [responsive]="true">
   
   <ng-container *ngIf="selectedComponent === 'FREE'">
@@ -115,7 +113,6 @@
     <app-table-finished [table]="selectedTable" (close)="displayModal = false"></app-table-finished>
   </ng-container>
 
-  <!-- 5. AQUÍ CONECTAMOS EL EVENTO -->
 <ng-container *ngIf="selectedComponent === 'RESERVED'">
     <app-table-reserved 
       [table]="selectedTable" 
@@ -127,8 +124,7 @@
 
 </p-dialog>
 
-<!-- OTROS MODALES -->
-<p-dialog class="inactive-orders-modal" [(visible)]="displayModalInactive" modal="true" header="Asign Table" [closable]="true" [responsive]="true">
+<p-dialog class="inactive-orders-modal" [(visible)]="displayModalInactive" modal="true" header="Assign Table" [closable]="true" [responsive]="true">
   <app-asign-inactive-order [orders]="inactiveOrders" [freeTables]="freeTables" (close)="closeModalInactive()"></app-asign-inactive-order>
 </p-dialog>
 
@@ -136,7 +132,6 @@
     <app-assign-reservation-table [dateISO]="todayISO" (close)="displayReservationsModal=false" (assigned)="onReservationAssigned()"></app-assign-reservation-table>
 </p-dialog>
 
-<!-- 6. MODAL GLOBAL DE CONFIRMACIÓN (Ahora vive aquí, encima de todo) -->
 <p-dialog [(visible)]="displayGlobalConfirmation"
           [modal]="true"
           header="Confirmación" 

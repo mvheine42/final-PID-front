@@ -240,7 +240,6 @@ html, body {
         transform: translateX(-50%);
     }
 
-    /* --- SPINNER STYLES (ADDED) --- */
     .loading-container {
         display: flex;
         justify-content: center; 
@@ -358,7 +357,6 @@ html, body {
             height: auto;
         }
 
-        /* Spinner adjustments for mobile (ADDED) */
         ::ng-deep .p-progress-spinner {
             width: 50px;
             height: 50px;

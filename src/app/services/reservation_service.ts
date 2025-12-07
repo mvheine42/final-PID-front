@@ -34,7 +34,6 @@ export class ReservationService {
     }
   }
 
-  // Obtiene disponibilidad de un día
   async getAvailableSlots(dateISO: string): Promise<Array<{ time: string; remaining: number }>> {
     try {
       const resp = await this.http
@@ -60,11 +59,8 @@ export class ReservationService {
       });
   }
 
-  // --- ¡ESTA ES LA QUE FALTABA! ---
   cancelReservation(reservationId: number | string): Promise<any> {
-    // Llama a tu endpoint POST /cancel-reservation/{id}
     const url = `${this.baseUrl}/cancel-reservation/${reservationId}`;
-    // Enviamos un body vacío {} porque es un POST
     return this.http.post(url, {}).toPromise();
   }
 

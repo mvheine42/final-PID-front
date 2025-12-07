@@ -15,11 +15,8 @@
                 placeholder="Search products..." 
                 [forceSelection]="false">
             </p-autoComplete>
-
-
-
         </div>
-        <div class="cart-container"(click)="toggleCart()">
+        <div class="cart-container" (click)="toggleCart()">
             <i class="pi pi-shopping-cart cart-logo"></i>
             <span class="cart-count">{{ getTotalItemsInCart() }}</span>
         </div>              
@@ -29,8 +26,17 @@
         <div class="greeting">
             <h2>Hello! What will you order today?</h2>
         </div>
-        <div class="category-container">
-            <button (click)="prevPage()" [disabled]="currentIndex === 0" class="nav-button">
+
+        <div *ngIf="loadingCategories" class="category-loading">
+            <p-progressSpinner 
+                strokeWidth="4" 
+                animationDuration=".5s"
+                [style]="{width: '40px', height: '40px'}">
+            </p-progressSpinner>
+        </div>
+
+        <div *ngIf="!loadingCategories" class="category-container">
+            <button (click)="onPreviousPage()" [disabled]="currentIndex === 0" class="nav-button">
                 <i class="pi pi-chevron-left"></i>
             </button>
         
@@ -40,13 +46,35 @@
                 [ngStyle]="{'background-color': category.color}">
                 <span class="category-name">{{ category.name }}</span>
             </div>        
-            <button (click)="nextPage()" [disabled]="currentIndex + itemsPerPage >= categories.length" class="nav-button">
+            <button (click)="onNextPage()" [disabled]="currentIndex + itemsPerPage >= categories.length" class="nav-button">
                 <i class="pi pi-chevron-right"></i>
             </button>
         </div>
     </div>
 
-    <div class="product-container">
+    <div *ngIf="loadingProducts" class="product-loading">
+        <p-progressSpinner 
+            strokeWidth="4" 
+            animationDuration=".5s"
+            [style]="{width: '50px', height: '50px'}">
+        </p-progressSpinner>
+        <p>Loading products...</p>
+    </div>
+
+    <div *ngIf="!loadingProducts && loadingFilteredProducts" class="product-loading">
+        <p-progressSpinner 
+            strokeWidth="4" 
+            animationDuration=".5s"
+            [style]="{width: '50px', height: '50px'}">
+        </p-progressSpinner>
+    </div>
+
+    <div *ngIf="!loadingProducts && !loadingFilteredProducts" class="product-container">
+        <div *ngIf="filteredProducts.length === 0" class="no-products-message">
+            <i class="pi pi-inbox" style="font-size: 4rem; color: #ccc; margin-bottom: 15px;"></i>
+            <p>No products found</p>
+        </div>
+
         <div class="product-card" *ngFor="let product of filteredProducts">        
             <div class="product-details">            
                 <div class="text-details">
@@ -75,15 +103,14 @@
         </div>
     </div>
 
-    <button class="floating-button" (click)="toggleCart()">
+    <button class="floating-button" (click)="toggleCart()" [disabled]="loadingProducts">
         <i class="pi pi-file-check"></i> Create Order
     </button>    
 
 </div>
+
 <app-my-cart *ngIf="orderItems && orderItems.length > 0" 
     [orderItems]="orderItems" 
     [isVisible]="cartVisible" 
     (cartClosed)="handleCartClosed($event)">
 </app-my-cart>
-
-

@@ -1,6 +1,5 @@
 <div class="asign-inactive-order-container p-card">
   <div class="content-container">
-    <!-- Columna izquierda: lista de reservas del día -->
     <div class="orders-list">
       <div class="search-box">
         <i class="pi pi-search search-icon"></i>
@@ -13,7 +12,6 @@
         />
       </div>
 
-      <!-- Spinner mientras carga reservas -->
       <div *ngIf="loadingReservations" style="min-height: 200px; display: flex; justify-content: center; align-items: center;">
         <p-progressSpinner 
             strokeWidth="4" 
@@ -22,7 +20,6 @@
         </p-progressSpinner>
       </div>
 
-      <!-- Tabla solo cuando terminó de cargar -->
       <p-table
         *ngIf="!loadingReservations"
         [value]="filteredReservations"
@@ -62,7 +59,7 @@
       </p-table>
     </div>
 
-    <!-- Columna derecha: detalle + asignación -->
+
     <div class="order-details" *ngIf="selectedReservation">
       <h4 class="selected-order-title">
         Selected Reservation: {{ selectedReservation.customerName }}
@@ -74,7 +71,7 @@
         {{ selectedReservation.amountOfPeople }} people
       </p>
 
-      <!-- Spinner mientras carga mesas disponibles -->
+
       <div *ngIf="loadingTables" class="inline-spinner-dropdown">
         <p-progressSpinner 
             strokeWidth="6" 
@@ -83,7 +80,7 @@
         </p-progressSpinner>
       </div>
 
-      <!-- Dropdown solo cuando terminó de cargar -->
+
       <p-dropdown
         *ngIf="!loadingTables"
         [options]="availableTables"
@@ -117,7 +114,7 @@
                 [disabled]="deletingReservation || assigningTable">
         </button>
         
-        <span [pTooltip]="isTooEarlyToAssign(selectedReservation.reservationTime) ? 'Solo disponible 2hs antes' : ''" tooltipPosition="top">
+        <span [pTooltip]="isTooEarlyToAssign(selectedReservation.reservationTime) ? 'Available 2 hours before the reservation' : ''" tooltipPosition="top">
           <button pButton 
                   label="Asign table" 
                   (click)="showConfirmPopUp('ASSIGN')" 
@@ -139,7 +136,6 @@
 
 <p-confirmDialog key="assign-reservation-confirm"></p-confirmDialog>
 
-<!-- Loading overlay para operaciones que bloquean todo -->
 <div *ngIf="assigningTable || deletingReservation" class="overlay">
   <p-progressSpinner styleClass="custom-spinner" [animationDuration]="'0.5'"></p-progressSpinner>
 </div>
