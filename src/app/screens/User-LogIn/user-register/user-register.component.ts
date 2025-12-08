@@ -1,9 +1,7 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { UserData } from 'src/app/models/user';
-import { ConfirmationService } from 'primeng/api';
 import { Router } from '@angular/router';
 import { UserService } from '../../../services/user_service';
-import { MessageService } from 'primeng/api';
 import { DatePipe } from '@angular/common';
 
 @Component({
@@ -15,6 +13,7 @@ export class UserRegisterComponent implements OnInit {
   name: string = '';
   email: string = '';
   password: string = '';
+  confirmPassword: string = '';
   birthDate!: Date;
   minDate: Date = new Date(1925, 0, 1);
   maxDate: Date = new Date(2009, 11, 31);
@@ -34,8 +33,8 @@ export class UserRegisterComponent implements OnInit {
   formattedBirthDate: string = '';
   displayConfirmDialog: boolean = false;
   displayErrorDialog: boolean = false;
+  errorMessage: string = '';
 
-  // --- LOADING STATES ---
   compressingImage: boolean = false;
   registering: boolean = false;
 
@@ -54,29 +53,37 @@ export class UserRegisterComponent implements OnInit {
       this.closeConfirmDialog();
       this.registering = true;
       this.formattedBirthDate = this.datePipe.transform(this.birthDate, 'dd/MM/yyyy') || '';
-
-      console.log(this.formattedBirthDate);
                 
       const response = await this.userService.onRegister(this.email, this.password, this.name, this.formattedBirthDate, this.imageUrl);
-      console.log(response);
+      
       if(response){
         await this.userService.login(this.email, this.password);
         this.router.navigate(['/home']);
       }
     
     } catch (error: any) {
-      console.error('Register failed', error);
-      if(error.code === 'auth/email-already-in-use'){
-        this.showErrorDialog(); 
+      console.error('Register failed:', error);
+      
+      if (error.code === 'auth/email-already-in-use') {
+        this.errorMessage = 'This email is already registered. Please use a different email or log in.';
+      } else if (error.code === 'auth/invalid-email') {
+        this.errorMessage = 'Invalid email format. Please check your email address.';
+      } else if (error.code === 'auth/weak-password') {
+        this.errorMessage = 'Password is too weak. Please use a stronger password.';
+      } else if (error.code === 'auth/operation-not-allowed') {
+        this.errorMessage = 'Email/password accounts are not enabled. Please contact support.';
+      } else if (error.message) {
+        this.errorMessage = `Registration error: ${error.message}`;
       } else {
-        this.showErrorDialog();
-      } 
+        this.errorMessage = 'An unexpected error occurred during registration. Please try again.';
+      }
+      
+      this.showErrorDialog(); 
     } finally {
       this.registering = false;
     }
   }
 
-  // 🔥 NUEVA FUNCIÓN: Comprimir imagen
   async onImageSelect(event: any) {
     const file = event.files[0];
     this.fileName = file.name;
@@ -84,14 +91,9 @@ export class UserRegisterComponent implements OnInit {
     this.compressingImage = true;
 
     try {
-      // Comprimir la imagen antes de convertirla a base64
       const compressedBase64 = await this.compressImage(file, 800, 800, 0.7);
       this.imageUrl = compressedBase64;
-      
-      console.log('Imagen comprimida. Tamaño:', Math.round(compressedBase64.length / 1024), 'KB');
     } catch (error) {
-      console.error('Error comprimiendo imagen:', error);
-      // Fallback: usar imagen original (puede fallar en backend)
       const reader = new FileReader();
       reader.onload = (e: any) => {
         this.imageUrl = e.target.result;
@@ -102,7 +104,6 @@ export class UserRegisterComponent implements OnInit {
     }
   }
 
-  // 🔥 FUNCIÓN DE COMPRESIÓN
   private compressImage(file: File, maxWidth: number, maxHeight: number, quality: number): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -115,7 +116,6 @@ export class UserRegisterComponent implements OnInit {
           let width = img.width;
           let height = img.height;
 
-          // Calcular nuevas dimensiones manteniendo aspect ratio
           if (width > height) {
             if (width > maxWidth) {
               height = (height * maxWidth) / width;
@@ -137,17 +137,12 @@ export class UserRegisterComponent implements OnInit {
             return;
           }
 
-          // Dibujar imagen redimensionada
           ctx.drawImage(img, 0, 0, width, height);
 
-          // Convertir a base64 con compresión
           const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
           
-          // Validar tamaño (máximo ~500KB en base64)
           const sizeInKB = Math.round(compressedBase64.length / 1024);
           if (sizeInKB > 800) {
-            console.warn(`Imagen todavía grande (${sizeInKB}KB). Recomprimiendo...`);
-            // Recomprimir con menor calidad
             const recompressed = canvas.toDataURL('image/jpeg', 0.5);
             resolve(recompressed);
           } else {
@@ -200,10 +195,16 @@ export class UserRegisterComponent implements OnInit {
            this.passwordValid.minLength;
   }
 
+  doPasswordsMatch(): boolean {
+    return this.password === this.confirmPassword && this.confirmPassword.trim() !== '';
+  }
+
   areAllFieldsFilled(): boolean {
     return this.name.trim() !== '' &&
           this.isEmailValid() &&
           this.password.trim() !== '' &&
+          this.confirmPassword.trim() !== '' &&
+          this.doPasswordsMatch() &&
           this.birthDate !== undefined &&
           this.isPasswordValid();
   }

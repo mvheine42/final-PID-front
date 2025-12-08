@@ -4,7 +4,6 @@
     <span class="status">{{ table.status }}</span>
   </div>
 
-  <!-- Spinner mientras carga la reservación -->
   <ng-container *ngIf="loadingReservation; else reservationDetails">
     <div class="body">
       <p-progressSpinner styleClass="custom-spinner" [animationDuration]="'0.5'"></p-progressSpinner>
@@ -66,17 +65,30 @@
     </ng-template>
   </ng-template>
 
-  <!-- Overlay cuando está cancelando -->
   <div *ngIf="cancelingReservation" class="overlay">
     <p-progressSpinner styleClass="custom-spinner" [animationDuration]="'0.5'"></p-progressSpinner>
   </div>
 </div>
 
+<p-dialog [(visible)]="displayConfirmDialog" 
+          [modal]="true" 
+          [closable]="false"
+          [appendTo]="'body'"
+          [header]="confirmationMode === 'NO_SHOW' ? 'Confirm No Show' : 'Confirm Cancellation'">
+  <app-confirmation-pop-up
+    [subtitle]="confirmationSubtitle"
+    [cancelLabel]="'Back'"
+    [sendLabel]="confirmationMode === 'NO_SHOW' ? 'Confirm No Show' : 'Cancel Reservation'"
+    (onClose)="closeConfirmationPopUp()"
+    (onSend)="handleConfirmationAction()">
+  </app-confirmation-pop-up>
+</p-dialog>
+
 <p-dialog [(visible)]="displaySuccessModal"
           [modal]="true"
           [closable]="false"
           [appendTo]="'body'" 
-          header="Éxito">
+          header="Success">
   <app-notice
     [subtitle]="successMessage"
     (onClose)="closeSuccessModal()">
@@ -93,9 +105,3 @@
     (onClose)="closeErrorModal()">
   </app-notice>
 </p-dialog>
-
-<p-confirmDialog 
-    key="table-reserved-confirm" 
-    [appendTo]="'body'" 
-    [style]="{width: 'auto', 'min-width': '300px'}">
-</p-confirmDialog>

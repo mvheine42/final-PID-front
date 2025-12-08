@@ -34,6 +34,7 @@ export class UserProfileComponent implements OnInit {
   loadingProfile: boolean = true;
   loadingRewards: boolean = true;
   deleting: boolean = false;
+  redirecting: boolean = false;
   ranking: any[] = [];
   rewards: any;
   achievedMonthlyPointsMessage: string | null = null;
@@ -45,10 +46,6 @@ export class UserProfileComponent implements OnInit {
     private userService: UserService,
     private levelService: LevelService
   ) {}
-
-  // ------------------------------------------------------------
-  // INIT
-  // ------------------------------------------------------------
 
   async ngOnInit(): Promise<void> {
     this.checkScreenSize();
@@ -190,13 +187,14 @@ export class UserProfileComponent implements OnInit {
       await this.userService.deleteCurrentUser();
       
       this.deleting = false;
+      this.redirecting = true;
       
-      this.router.navigate(['/login'], { replaceUrl: true });
+      setTimeout(() => {
+        this.router.navigate(['/login'], { replaceUrl: true });
+      }, 1500);
       
     } catch (err: any) {
       this.deleting = false;
-
-      console.error('Delete account error:', err);
 
       if (err?.error?.detail) {
         this.errorMessage = err.error.detail;
@@ -213,11 +211,24 @@ export class UserProfileComponent implements OnInit {
   }
 
   async changePassword() {
-    await this.userService.resetPassword(this.email ?? '');
-    this.userService.logOut().then(() => {
+    this.closeChangePasswordDialog();
+    this.redirecting = true;
+
+    try {
+      await this.userService.resetPassword(this.email ?? '');
+      
+      await this.userService.logOut();
       localStorage.removeItem('token');
-      this.router.navigate(['/']);
-    });
+      
+      setTimeout(() => {
+        this.router.navigate(['/login'], { replaceUrl: true });
+      }, 1500);
+      
+    } catch (error) {
+      this.redirecting = false;
+      this.errorMessage = 'Error sending password reset email. Please try again.';
+      this.showErrorDialog();
+    }
   }
 
   showChangePasswordDialog() { 
@@ -253,5 +264,15 @@ export class UserProfileComponent implements OnInit {
   showDiscountCode(reward: any) {
     this.selectedReward = reward;
     this.displayDiscountDialog = true;
+  }
+
+  get isLoading(): boolean {
+    return this.deleting || this.redirecting;
+  }
+
+  get loadingMessage(): string {
+    if (this.deleting) return 'Deleting account...';
+    if (this.redirecting) return 'Redirecting to login...';
+    return '';
   }
 }

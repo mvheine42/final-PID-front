@@ -1,5 +1,9 @@
-<div *ngIf="loading" class="spinner-container">
-    <p-progressSpinner ariaLabel="loading" />
+<div *ngIf="loading" class="loading-container">
+    <p-progressSpinner 
+        strokeWidth="4" 
+        animationDuration=".5s">
+    </p-progressSpinner>
+    <p class="loading-text">Loading charts...</p>
 </div>
 <div *ngIf="!loading" class="charts-container">
     <div class="charts-section title-section">

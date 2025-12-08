@@ -106,7 +106,11 @@
   </ng-container>
 
   <ng-container *ngIf="selectedComponent === 'BUSY'">
-    <app-table-busy [table]="selectedTable" (close)="displayModal = false"></app-table-busy>
+    <app-table-busy 
+      [table]="selectedTable" 
+      (close)="displayModal = false"
+      (tableUpdated)="refreshData()">
+    </app-table-busy>
   </ng-container>
 
   <ng-container *ngIf="selectedComponent === 'FINISHED'">
@@ -117,8 +121,7 @@
     <app-table-reserved 
       [table]="selectedTable" 
       (close)="onReservedTableClosed()" 
-      (checkIn)="onReservationCheckIn($event)"
-      (showConfirmation)="openGlobalConfirmation($event)">
+      (checkIn)="onReservationCheckIn($event)">
     </app-table-reserved>
   </ng-container>
 
@@ -130,22 +133,6 @@
 
 <p-dialog class="reservations-modal-container" [(visible)]="displayReservationsModal" modal="true" header="Reservations Today" [closable]="true" [responsive]="true">
     <app-assign-reservation-table [dateISO]="todayISO" (close)="displayReservationsModal=false" (assigned)="onReservationAssigned()"></app-assign-reservation-table>
-</p-dialog>
-
-<p-dialog [(visible)]="displayGlobalConfirmation"
-          [modal]="true"
-          header="Confirmación" 
-          [closable]="true"
-          class="confirmation-overlay-modal"> 
-  <ng-template pTemplate="header">
-    <i class="pi pi-exclamation-triangle" style="color: orange; font-size: 1.5rem;"></i>
-    <h2>Confirmar Gestión</h2>
-  </ng-template>
-  <app-confirmation-pop-up
-    (onSend)="handleGlobalConfirmationSend()"
-    (onClose)="displayGlobalConfirmation = false"
-    [subtitle]="globalConfirmationMessage">
-  </app-confirmation-pop-up>
 </p-dialog>
 
 <p-dialog [(visible)]="displayUpcomingAlert" [appendTo]="'body'" class="custom-modal" [modal]="true" [closable]="false" header="Alerta de Reservas">

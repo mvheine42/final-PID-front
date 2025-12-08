@@ -4,7 +4,6 @@ import { ReservationService } from 'src/app/services/reservation_service';
 import { TableService } from 'src/app/services/table_service';
 import { Reservation } from 'src/app/models/reservation';
 import { Table } from 'src/app/models/table';
-import { ConfirmationService } from 'primeng/api';
 
 @Component({
   selector: 'app-assign-reservation-table',
@@ -15,7 +14,6 @@ export class AssignReservationTableComponent implements OnInit {
   @Input() dateISO!: string;
   @Output() close = new EventEmitter<void>();
   @Output() assigned = new EventEmitter<void>();
-  @Output() showConfirmation = new EventEmitter<{ message: string; mode: 'ASSIGN' | 'CANCEL';}>();
 
   reservations: Reservation[] = [];
   filteredReservations: Reservation[] = [];
@@ -25,23 +23,24 @@ export class AssignReservationTableComponent implements OnInit {
   selectedTable: number|string|null = null;
 
   searchText = '';
-  confirmationDialog = false;
+  displayConfirmDialog = false;
   displayErrorModal = false;
   errorMessage = '';
   displaySuccessModal = false;
   successMessage = '';
   confirmationMode: 'ASSIGN' | 'CANCEL' = 'ASSIGN'; 
-  popupSubtitle: string = '';
-  popupSendLabel: string = '';
+  confirmationSubtitle: string = '';
   private baseUrl = 'http://127.0.0.1:8000';
-
 
   loadingReservations: boolean = true;
   loadingTables: boolean = false;
   assigningTable: boolean = false;
   deletingReservation: boolean = false;
 
-  constructor(private reservationService: ReservationService, private tableService: TableService, private confirmationService: ConfirmationService) {}
+  constructor(
+    private reservationService: ReservationService, 
+    private tableService: TableService
+  ) {}
 
   ngOnInit(): void {
     this.loadReservations();
@@ -96,9 +95,10 @@ export class AssignReservationTableComponent implements OnInit {
       this.reservations = res ?? [];
       this.applyFilter();
     } catch (error) {
-      console.error("Error cargando reservas:", error);
       this.reservations = [];
       this.applyFilter();
+      this.errorMessage = 'Error loading reservations. Please try again.';
+      this.displayErrorModal = true;
     } finally {
       this.loadingReservations = false;
     }
@@ -126,6 +126,8 @@ export class AssignReservationTableComponent implements OnInit {
         error: () => {
           this.availableTables = [];
           this.loadingTables = false;
+          this.errorMessage = 'Error loading available tables.';
+          this.displayErrorModal = true;
         }
       });
   }
@@ -134,7 +136,7 @@ export class AssignReservationTableComponent implements OnInit {
     if (!this.selectedReservation || !this.selectedTable) return;
 
     this.assigningTable = true;
-    this.confirmationDialog = false;
+    this.displayConfirmDialog = false;
 
     this.tableService
       .assignReservationToTable(this.selectedTable, this.selectedReservation.id!)
@@ -196,26 +198,14 @@ export class AssignReservationTableComponent implements OnInit {
   showConfirmPopUp(mode: 'ASSIGN' | 'CANCEL') {
     if (!this.selectedReservation) return;
 
-    const message =
-      mode === 'ASSIGN'
-        ? `¿Do you want to assign the table #${this.selectedTable} to the reservation of ${this.selectedReservation.customerName}?`
-        : `¿Do you want to cancel the reservation of ${this.selectedReservation.customerName}?`;
+    this.confirmationMode = mode;
 
-    this.confirmationService.confirm({
-      key: 'assign-reservation-confirm',
-      message,
-      header: 'Confirm Action',
-      icon: 'pi pi-exclamation-triangle',
-      acceptLabel: mode === 'CANCEL' ? 'Cancel reservation' : 'Assign table',
-      rejectLabel: 'Back',
-      acceptButtonStyleClass:
-        mode === 'CANCEL' ? 'p-button-danger' : 'p-button-success',
-      rejectButtonStyleClass: 'p-button-secondary',
-      accept: () => {
-        if (mode === 'ASSIGN') this.assignTable();
-        else this.deleteReservation();
-      }
-    });
+    this.confirmationSubtitle =
+      mode === 'ASSIGN'
+        ? `Do you want to assign table #${this.selectedTable} to the reservation of ${this.selectedReservation.customerName}?`
+        : `Do you want to cancel the reservation of ${this.selectedReservation.customerName}?`;
+
+    this.displayConfirmDialog = true;
   }
 
   handleConfirmationAction(): void {
@@ -230,7 +220,7 @@ export class AssignReservationTableComponent implements OnInit {
     if (!this.selectedReservation) return;
     
     this.deletingReservation = true;
-    this.confirmationDialog = false;
+    this.displayConfirmDialog = false;
 
     this.reservationService.cancelReservation(this.selectedReservation.id!)
       .then(() => {
@@ -243,14 +233,13 @@ export class AssignReservationTableComponent implements OnInit {
       })
       .catch((error) => {
         this.deletingReservation = false;
-        console.error("Error:", error);
         this.errorMessage = 'Error deleting reservation.';
         this.displayErrorModal = true;
       });
   }
 
   closeConfirmationPopUp(): void {
-    this.confirmationDialog = false;
+    this.displayConfirmDialog = false;
   }
 
   private translateBackendError(err: any): string {

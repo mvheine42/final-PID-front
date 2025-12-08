@@ -1,4 +1,3 @@
-
 .login-container {
     position: relative;
     height: 100vh;
@@ -18,6 +17,28 @@
     background: url('../../../../assets/images/login.jpg') no-repeat center center/cover;
     filter: blur(2px);
     z-index: -1;
+}
+
+/* SPINNER OVERLAY (estilo DIVINO como products-view) */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.95);
+    z-index: 9999;
+}
+
+.loading-text {
+    margin-top: 20px;
+    font-size: 18px;
+    color: #7f522e;
+    font-weight: 500;
 }
 
 .center-container {
@@ -105,6 +126,10 @@
     box-sizing: border-box;
 }
 
+::ng-deep .form-input input.invalid-input {
+    border: 2px solid #f44336 !important;
+}
+
 ::ng-deep .form-input p-password .p-password-input {
     width: 300px;
     padding: 10px;
@@ -175,20 +200,64 @@
     font-family: 'Arial', sans-serif;
 }
 
+/* VALIDATION MESSAGES - ABAJO del input sin desalinear */
+.validation-message {
+    margin-top: 8px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    justify-content: center;
+    width: 100%;
+}
 
+.validation-message.valid {
+    color: #4caf50;
+}
+
+.validation-message.invalid {
+    color: #f44336;
+}
+
+.validation-message i {
+    font-size: 14px;
+}
+
+/* FIX: Label overlap - más padding cuando tiene contenido */
+::ng-deep .form-input .p-float-label input:focus ~ label,
+::ng-deep .form-input .p-float-label input.p-filled ~ label,
+::ng-deep .form-input .p-float-label .p-inputwrapper-focus ~ label,
+::ng-deep .form-input .p-float-label .p-inputwrapper-filled ~ label {
+    top: -0.75rem !important;
+    font-size: 12px !important;
+    background-color: #533521 !important;
+    padding: 2px 4px !important;
+}
+
+::ng-deep .form-input .p-float-label label {
+    left: 0.75rem !important;
+}
+
+/* FILE DETAILS - AHORA ABAJO */
 .file-details {
     display: flex;
     align-items: center;
+    justify-content: center;
     margin-top: 10px;
-  }
+    gap: 10px;
+}
   
-  .file-name {
+.file-name {
     font-size: 14px;
-    margin-right: 10px;
-  }
+    color: #fff;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
   
 
-  .clear-btn {
+.clear-btn {
     background-color: transparent;
     border: none;
     color: #f44336;
@@ -197,12 +266,12 @@
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s;
-  }
+}
   
-  .clear-btn:hover {
+.clear-btn:hover {
     color: white;
     background-color: #d32f2f;
-  }
+}
 
   
 ::ng-deep .form-input .p-fileupload-choose  {
@@ -216,11 +285,11 @@
     box-sizing: border-box;
 }
 
-  ::ng-deep .p-fileupload-choose:hover {
+::ng-deep .p-fileupload-choose:hover {
     background-color: #bbac93;
-  }
+}
 
-  ::ng-deep .custom-file-upload .p-button-label {
+::ng-deep .custom-file-upload .p-button-label {
     color: #fff;
     font-size: 16px;
     font-weight: normal;
@@ -228,22 +297,22 @@
 }
 
   
-  .custom-file-upload[disabled] {
+.custom-file-upload[disabled] {
     background-color: #cccccc;
     cursor: not-allowed;
-  }
+}
   
 
-  .image-preview {
+.image-preview {
     margin-top: 10px;
-  }
+}
   
-  .preview-image {
+.preview-image {
     max-width: 100%; 
     height: auto; 
     border-radius: 4px; 
     border: 1px solid #cbccbc; 
-  }
+}
 
 
 
@@ -320,6 +389,3 @@
         height: auto;
     }
 }
-
-
-

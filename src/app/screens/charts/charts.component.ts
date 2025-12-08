@@ -172,13 +172,13 @@ export class ChartsComponent implements OnInit {
                     this.categoryRevenueCache = this.categoryData;
                     this.categoryRevenueCacheTime = now;
                 } else {
-                    console.warn('No revenue data available');
                     this.categoryData = { labels: [], datasets: [] };
                 }
                 resolve();
             },
             (error) => {
-                console.error('Error fetching category revenue', error);
+                this.categoryData = { labels: [], datasets: [] };
+                reject(error);
             }
         );
         });
@@ -247,13 +247,13 @@ export class ChartsComponent implements OnInit {
                     this.monthlyRevenueCache = this.monthlyData;
                     this.monthlyRevenueCacheTime = now;
                 } else {
-                    console.warn('No monthly revenue data available');
                     this.monthlyData = { labels: [], datasets: [] };
                 }
                 resolve();
             },
             (error) => {
-                console.error('Error fetching monthly revenue', error);
+                this.monthlyData = { labels: [], datasets: [] };
+                reject(error);
             }
         );
         });
@@ -299,8 +299,8 @@ export class ChartsComponent implements OnInit {
                 resolve();
             },
             error => {
-                console.error('Error fetching average per person', error);
                 this.noDataMessage = 'Error loading data';
+                reject(error);
             }
         );
         });
@@ -342,8 +342,8 @@ export class ChartsComponent implements OnInit {
                 resolve();
             },
             error => {
-                console.error('Error fetching average per ticket', error);
                 this.noDataMessage = 'Error loading data';
+                reject(error);
             }
         );
         });

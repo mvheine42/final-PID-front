@@ -20,6 +20,8 @@ import { interval, Subscription } from 'rxjs';
 export class TableBusyComponent implements OnInit, OnDestroy{
   @Input() table: Table = new Table('',1);
   @Output() close = new EventEmitter<void>();
+  @Output() tableUpdated = new EventEmitter<void>();
+  
   actualOrder?: Order; 
   initialOI: OrderItem[] = [];
   orderItems: OrderItem[] = [];
@@ -48,8 +50,15 @@ export class TableBusyComponent implements OnInit, OnDestroy{
   loadingOrder: boolean = true;
   savingOrder: boolean = false;
   closingTable: boolean = false;
+  servingItems: Set<string> = new Set();
 
-  constructor(private productService: ProductService,  private orderService: OrderService, private tableService: TableService, private categoryService: CategoryService, private userService: UserService) {}
+  constructor(
+    private productService: ProductService,  
+    private orderService: OrderService, 
+    private tableService: TableService, 
+    private categoryService: CategoryService, 
+    private userService: UserService
+  ) {}
   
   async ngOnInit() {
     this.loadingOrder = true;
@@ -105,7 +114,6 @@ export class TableBusyComponent implements OnInit, OnDestroy{
         this.loadingCategories = false;
       },
       error: (err) => {
-        console.error('Error fetching categories:', err);
         this.loadingCategories = false;
       }
     });
@@ -122,34 +130,30 @@ export class TableBusyComponent implements OnInit, OnDestroy{
     }
   }
 
-async getOrderInformation() {
-  this.loadingOrder = true;
-  console.log(this.table);
+  async getOrderInformation() {
+    this.loadingOrder = true;
 
-  if (this.table.order_id) {
-    this.orderService.getOrderById(this.table.order_id.toString()).subscribe({
-      next: async (order) => {
-        this.actualOrder = order;
+    if (this.table.order_id) {
+      this.orderService.getOrderById(this.table.order_id.toString()).subscribe({
+        next: async (order) => {
+          this.actualOrder = order;
 
-        this.orderItems = order.orderItems ?? [];
-        this.initialOI = JSON.parse(JSON.stringify(order.orderItems));
-        this.currentDate = order.date ?? '';
-        this.currentTime = order.time ?? '';
-        this.amountOfPeople = order.amountOfPeople ?? 0;
+          this.orderItems = order.orderItems ?? [];
+          this.initialOI = JSON.parse(JSON.stringify(order.orderItems));
+          this.currentDate = order.date ?? '';
+          this.currentTime = order.time ?? '';
+          this.amountOfPeople = order.amountOfPeople ?? 0;
 
-        this.employee = order.employee_name ?? 'Unknown Employee';
-        console.log('Employee Name:', this.employee);
+          this.employee = order.employee_name ?? 'Unknown Employee';
 
-        this.loadingOrder = false;
-      },
-      error: (err) => {
-        console.error('Error fetching order information:', err);
-        this.loadingOrder = false;
-      }
-    });
+          this.loadingOrder = false;
+        },
+        error: (err) => {
+          this.loadingOrder = false;
+        }
+      });
+    }
   }
-}
-
   
   loadProducts(): void {
     this.loadingProducts = true;
@@ -157,13 +161,10 @@ async getOrderInformation() {
       next: (data) => {
         if (data && Array.isArray(data.products)) {
           this.products = data.products;
-        } else {
-          console.error('Unexpected data format:', data);
         }
         this.loadingProducts = false;
       },
       error: (err) => {
-        console.error('Error fetching products:', err);
         this.loadingProducts = false;
       }
     });
@@ -178,8 +179,6 @@ async getOrderInformation() {
   }
 
   addOrderItem() {
-    console.log(this.selectedProduct);
-    console.log(this.selectedAmount);
     if (this.selectedProduct && this.selectedAmount > 0) {
       const newItem: OrderItem = {
         product_id: this.selectedProduct.id ?? 0,
@@ -240,19 +239,14 @@ async getOrderInformation() {
 
         if (success) {
           await this.updateProductsStock();
-          console.log('Order items added and stock updated successfully');
           this.newOrderItems = [];
-        } else {
-          console.error('Error adding order items.');
         }
       } catch (error) {
-        console.error('Error adding order items:', error);
       } finally {
         this.savingOrder = false;
         this.closeDialog();
       }
     } else {
-      console.error('Order ID is undefined.');
       this.savingOrder = false;
     }
   }
@@ -262,7 +256,6 @@ async getOrderInformation() {
     const total = this.calculateTotal().toString();
 
     if (!this.table.order_id) {
-      console.error('Order ID is undefined.');
       this.closingTable = false;
       return;
     }
@@ -276,7 +269,6 @@ async getOrderInformation() {
         );
 
         if (!success) {
-          console.error('Error adding order items.');
           this.closingTable = false;
           return;
         }
@@ -286,24 +278,17 @@ async getOrderInformation() {
       }
 
       await this.orderService.finalizeOrder(this.table.order_id.toString()).toPromise();
-      console.log('Order status updated to FINALIZED');
 
       this.userService.checkUserLevel(this.actualOrder?.employee ?? '').subscribe({
-        next: (response) => {
-          console.log('User level checked successfully:', response);
-        },
-        error: (error) => {
-          console.error('Error checking user level:', error);
-        }
+        next: (response) => {},
+        error: (error) => {}
       });
 
       await this.tableService.closeTable(this.table).toPromise();
-      console.log('Table closed successfully');
 
       this.closeDialog();
 
     } catch (error) {
-      console.error('An error occurred:', error);
     } finally {
       this.closingTable = false;
     }
@@ -312,7 +297,7 @@ async getOrderInformation() {
   closeDialog() {
     this.wantToAddNewProduct = false;
     this.displayConfirmDialog = false;
-    location.reload();
+    this.tableUpdated.emit();
     this.close.emit();  
   }
 
@@ -344,13 +329,11 @@ async getOrderInformation() {
             disabled: product.stock === '0'
           }));
         } else {
-          console.error('Unexpected data format:', data);
           this.filteredProducts = [];
         }
         this.loadingProducts = false;
       })
       .catch((err) => {
-        console.error('Error fetching products by category:', err);
         this.filteredProducts = [];
         this.loadingProducts = false;
       });
@@ -393,24 +376,30 @@ async getOrderInformation() {
         )
       );
       const responses = await Promise.all(updatePromises);
-      console.log('All updates successful', responses);
     } catch (error) {
-      console.error('One or more updates failed', error);
     }
   }
 
   onServeItem(item: OrderItem) {
     if (!this.table.order_id || !item.item_id) {
-        console.error('Order ID or item ID is undefined.', { orderId: this.table.order_id, itemId: item.item_id });
         return;
     }
+
+    this.servingItems.add(item.item_id);
 
     this.orderService.serveOrderItem(this.table.order_id.toString(), item.item_id).subscribe({
       next: () => {
         item.served_at = new Date().toISOString();
+        this.servingItems.delete(item.item_id!);
       },
-      error: (err) => console.error('Error serving order item:', err)
+      error: (err) => {
+        this.servingItems.delete(item.item_id!);
+      }
     });
+  }
+
+  isServingItem(itemId: string | undefined): boolean {
+    return itemId !== undefined ? this.servingItems.has(itemId) : false;
   }
 
   get allItemsServed(): boolean {
