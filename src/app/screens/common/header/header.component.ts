@@ -88,9 +88,14 @@ export class HeaderComponent implements OnInit {
   async logOut() {
     try {
       await this.userService.logOut();
-      // ✅ No need to remove token manually - sessionStorage cleared automatically
-      // ✅ AuthService handles all cleanup
-      this.router.navigate(['/']);
+      
+      // ✅ Navegar con replaceUrl para limpiar historial
+      this.router.navigate(['/'], { replaceUrl: true });
+      
+      // ✅ OPCIONAL: Limpiar historial del navegador
+      // Esto previene que el botón "atrás" muestre páginas autenticadas
+      window.history.pushState(null, '', '/');
+      
     } catch (error) {
       console.error('Error during logout:', error);
     }

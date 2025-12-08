@@ -104,19 +104,31 @@
             </div>
 
             <div class="chart-card full-width mt-4">
-                <div *ngIf="loadingDaily" class="loading-container-chart">
-                    <p-progressSpinner 
-                        strokeWidth="4" 
-                        animationDuration=".5s"
-                        [style]="{width: '50px', height: '50px'}">
-                    </p-progressSpinner>
+
+                <!-- Caso sin filtros -->
+                <div *ngIf="!showDailyTrend" class="no-data-message">
+                    <i class="pi pi-info-circle"></i>
+                    <p>Select Month and Year to view daily trend.</p>
                 </div>
 
-                <div *ngIf="!loadingDaily">
-                    <h3>Daily Trend</h3>
-                    <p-chart type="line" [data]="dataDaily" [options]="optionsDaily" height="250px"></p-chart>
+                <!-- Caso con filtros -->
+                <div *ngIf="showDailyTrend">
+                    
+                    <div *ngIf="loadingDaily" class="loading-container-chart">
+                        <p-progressSpinner strokeWidth="4" animationDuration=".5s"
+                            [style]="{width:'50px',height:'50px'}">
+                        </p-progressSpinner>
+                    </div>
+
+                    <div *ngIf="!loadingDaily">
+                        <h3>Daily Trend</h3>
+                        <p-chart type="line" [data]="dataDaily" [options]="optionsDaily" height="250px"></p-chart>
+                    </div>
+
                 </div>
+
             </div>
+
         </div>
 
     </div>

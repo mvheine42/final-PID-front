@@ -44,7 +44,7 @@ export class AsignInactiveOrderComponent implements OnInit {
     
     const user = this.userService.currentUser;
     if (user) {
-      const userData = (await this.userService.getUserData(user.uid)).toPromise();
+      const userData = (await this.userService.getUserData(user.uid))
       if (userData) {
         this.user = userData;
         this.uid = user.uid;

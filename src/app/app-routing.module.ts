@@ -25,7 +25,7 @@ import { TimeComponent } from './screens/time/time.component';
 const routes: Routes = [
   { path: '', component: LogInComponent},
   { path: 'footer', component: FooterComponent},
-  { path: 'header', component: HeaderComponent},
+  { path: 'header', component: HeaderComponent, canActivate:[AuthGuard]},
   { path: 'user-register', component: UserRegisterComponent},
   { path: 'user-forgot-password', component: UserForgotPasswordComponent},
   { path: 'categories', component: CategoriesComponent, canActivate:[AuthGuard]},

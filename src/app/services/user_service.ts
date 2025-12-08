@@ -2,8 +2,9 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { auth } from '../services/firebaseconfig';
 import { AuthService } from '../services/auth_service';
-import { signInWithEmailAndPassword, sendPasswordResetEmail, deleteUser, createUserWithEmailAndPassword, User, confirmPasswordReset } from 'firebase/auth';
+import { signInWithEmailAndPassword, sendPasswordResetEmail, createUserWithEmailAndPassword, User, confirmPasswordReset, deleteUser } from 'firebase/auth';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
 
 @Injectable({
   providedIn: 'root'
@@ -20,12 +21,10 @@ export class UserService {
 
   async onRegister(email: string, password: string, name: string, birthday: string, imageUrl: string): Promise<boolean> {
     try {
-      // Crear usuario en Firebase Authentication
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const firebaseUser = userCredential.user;
       const token = await firebaseUser.getIdToken();
       
-      // Preparar los datos adicionales para enviar al backend
       const data = {
         uid: firebaseUser.uid,
         name: name,
@@ -93,9 +92,8 @@ export class UserService {
   async resetPassword(email: string): Promise<void> {
     try {
       await sendPasswordResetEmail(auth, email);
-      console.log('Password reset email sent!');
     } catch (error: any) {
-      console.error('Error sending password reset email:', error.message);
+      throw error;
     }
   }
 
@@ -103,38 +101,64 @@ export class UserService {
     return confirmPasswordReset(auth, oobCode, newPassword);
   }
 
-async deleteCurrentUser(): Promise<void> {
-  const user = auth.currentUser;
-  if (user) {
+  async deleteCurrentUser(): Promise<void> {
+    const user = auth.currentUser;
+
+    if (!user) {
+      throw new Error('No user is currently logged in');
+    }
+
+    const email = user.email!;
+    const uid = user.uid;
+
     try {
-      // Delete from backend (sin await - fire and forget)
-      this.http.delete(`${this.baseUrl}/users/${user.uid}`).toPromise();
-      
-      // Delete from Firebase (CON await - esperar esto)
-      await deleteUser(user);
-      
-      console.log('User deleted successfully');
-      
-      // Limpiar datos locales
+
+      const password = prompt("Por seguridad, ingresá tu contraseña para eliminar tu cuenta:");
+
+      if (!password) {
+        throw new Error("Password is required to delete account.");
+      }
+
+      const credential = EmailAuthProvider.credential(email, password);
+      await reauthenticateWithCredential(user, credential);
+
+      await this.http.delete(`${this.baseUrl}/users/${uid}`).toPromise();
+
+      localStorage.clear();
+    
+      sessionStorage.clear();
+    
       this.currentUser = null;
       this.currentUserData = null;
       this.currentData.next(null);
       
-    } catch (error) {
-      console.error('Error deleting user:', error);
+      await auth.signOut();
+      
+      console.log("Session cleared completely");
+
+    } catch (error: any) {
+      console.error("Error deleting user:", error);
+
+      if (error?.code === 'auth/wrong-password' || error?.code === 'auth/invalid-credential') {
+        throw new Error('Incorrect password. Please try again.');
+      }
+
+      if (error?.code === 'auth/requires-recent-login') {
+        throw new Error('Please log in again before deleting your account.');
+      }
+
+      if (error?.error?.detail) {
+        throw error; 
+      }
       throw error;
     }
-  } else {
-    return Promise.reject('No user is currently logged in');
   }
-}
 
   async logOut(): Promise<void> {
     this.currentUser = null;
     this.currentUserData = null;
     this.currentData.next(null);
     
-    // ✅ Delegate logout to AuthService (handles cleanup)
     return this.authService.logout();
   }
 
@@ -148,7 +172,7 @@ async deleteCurrentUser(): Promise<void> {
   }
 
   checkUserLevel(uid: string): Observable<any> {
-    return this.http.get(`${this.baseUrl}/check-level/${uid}`);
+    return this.http.get(`${this.baseUrl}/check-level-user/${uid}`);
   }
 
   getTopLevelStatus(levelId: string): Observable<{ isTopLevel: boolean }> {

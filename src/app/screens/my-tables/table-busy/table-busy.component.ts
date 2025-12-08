@@ -122,36 +122,34 @@ export class TableBusyComponent implements OnInit, OnDestroy{
     }
   }
 
-  async getOrderInformation() {
-    this.loadingOrder = true;
-    console.log(this.table);
-    if (this.table.order_id) {
-      this.orderService.getOrderById(this.table.order_id.toString()).subscribe({
-        next: async (order) => {
-          this.actualOrder = order;
-          this.orderItems = this.actualOrder?.orderItems ?? [];
-          this.initialOI = JSON.parse(JSON.stringify(order.orderItems));
-          this.currentDate = this.actualOrder?.date ?? '';
-          this.currentTime = this.actualOrder?.time ?? '';
-          this.amountOfPeople = this.actualOrder.amountOfPeople ?? 0;
-          if (this.actualOrder.employee) {
-            try {
-              const userData = await firstValueFrom(await this.userService.getUserDataFromFirestore(this.actualOrder.employee));
-              this.employee = userData?.name ?? 'Unknown Employee';
-              console.log('Employee Name:', this.employee);
-            } catch (err) {
-              console.error('Error fetching employee data:', err);
-            }
-          }
-          this.loadingOrder = false;
-        },
-        error: (err) => {
-          console.error('Error fetching order information:', err);
-          this.loadingOrder = false;
-        }
-      });
-    }
+async getOrderInformation() {
+  this.loadingOrder = true;
+  console.log(this.table);
+
+  if (this.table.order_id) {
+    this.orderService.getOrderById(this.table.order_id.toString()).subscribe({
+      next: async (order) => {
+        this.actualOrder = order;
+
+        this.orderItems = order.orderItems ?? [];
+        this.initialOI = JSON.parse(JSON.stringify(order.orderItems));
+        this.currentDate = order.date ?? '';
+        this.currentTime = order.time ?? '';
+        this.amountOfPeople = order.amountOfPeople ?? 0;
+
+        this.employee = order.employee_name ?? 'Unknown Employee';
+        console.log('Employee Name:', this.employee);
+
+        this.loadingOrder = false;
+      },
+      error: (err) => {
+        console.error('Error fetching order information:', err);
+        this.loadingOrder = false;
+      }
+    });
   }
+}
+
   
   loadProducts(): void {
     this.loadingProducts = true;
