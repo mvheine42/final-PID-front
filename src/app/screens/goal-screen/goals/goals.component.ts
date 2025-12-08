@@ -23,6 +23,9 @@ export class GoalsComponent implements OnInit {
   totalIncomeExpected: number = 0;
   loading: boolean = false;
 
+  displayNoticeDialog: boolean = false;
+  noticeMessage: string = '';
+
   constructor(private goalService: GoalService) { 
     this.checkIfMobile();
   }
@@ -33,6 +36,7 @@ export class GoalsComponent implements OnInit {
     const year = String(date.getFullYear()).slice(-2);
     this.getGoals(month, year);    
   }
+
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
     this.checkIfMobile();
@@ -122,11 +126,11 @@ export class GoalsComponent implements OnInit {
         this.loading = false;
       },
       (error) => {
-        console.error('Error fetching goals:', error);
+        this.loading = false;
+        this.noticeMessage = 'Error loading goals. Please try again.';
+        this.displayNoticeDialog = true;
       }
     );
-
-
   }
 
   onDateChange(event: any){
@@ -225,23 +229,23 @@ export class GoalsComponent implements OnInit {
     this.displayDialog = true;
   }
 
-displayNoticeDialog: boolean = false;
-noticeMessage: string = '';
+  showNoticeDialog(message: string) {
+    this.noticeMessage = message;
+    this.displayNoticeDialog = true;
+  }
 
-showNoticeDialog(message: string) {
-  this.noticeMessage = message;
-  this.displayNoticeDialog = true;
-}
+  closeNoticeDialog() {
+    this.displayNoticeDialog = false;
+  }
 
-closeNoticeDialog() {
-  this.displayNoticeDialog = false;
-}
-
-onGoalAdded(newGoal: any) {
-  this.goals.push(newGoal);
-  console.log(newGoal);
-  this.displayDialog = false;
-}
-  
-
+  onGoalAdded(newGoal: any) {
+    this.goals.push(newGoal);
+    this.displayDialog = false;
+    
+    this.calculateProgressValues();
+    this.totalProgress = this.goals.reduce((acc, item) => acc + item.actualIncome, 0);
+    this.totalIncomeExpected = this.goals.reduce((acc, item) => acc + item.expectedIncome, 0);
+    
+    this.updateVisibleGoals();
+  }
 }

@@ -67,7 +67,17 @@
                 </td>
 
                 <td style="text-align: center;">
-                  <div *ngIf="!item.served_at">
+                  <!-- Spinner mientras se marca como servido -->
+                  <div *ngIf="isServingItem(item.item_id)">
+                    <p-progressSpinner 
+                        strokeWidth="6" 
+                        animationDuration=".5s"
+                        [style]="{width: '25px', height: '25px'}">
+                    </p-progressSpinner>
+                  </div>
+
+                  <!-- Botón de servir (solo si NO está sirviendo y NO está servido) -->
+                  <div *ngIf="!item.served_at && !isServingItem(item.item_id)">
                       <button pButton 
                               type="button" 
                               icon="pi pi-check" 
@@ -79,6 +89,7 @@
                       </button>
                   </div>
 
+                  <!-- Check verde cuando ya está servido -->
                   <div *ngIf="item.served_at">
                       <i class="pi pi-check-circle" style="color: green; font-size: 1.5rem; font-weight: bold;"></i>
                   </div>

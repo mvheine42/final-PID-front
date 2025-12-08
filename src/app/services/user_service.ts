@@ -39,21 +39,7 @@ export class UserService {
       
       return true;
     } catch (error: any) {
-      if (error.code === 'auth/email-already-in-use') {
-        const credential = await signInWithEmailAndPassword(auth, email, password);
-        const user = credential.user;
-        const token = await user.getIdToken();
-        const data = {
-          uid: user.uid,
-          name: name,
-          birthday: birthday,
-          imageUrl: imageUrl
-        };
-        await this.http.post(`${this.baseUrl}/register/`, data, { 
-          headers: { Authorization: `Bearer ${token}` } 
-        }).toPromise();
-        return true;
-      }
+      console.error('Registration error:', error);
       throw error;
     }
   }

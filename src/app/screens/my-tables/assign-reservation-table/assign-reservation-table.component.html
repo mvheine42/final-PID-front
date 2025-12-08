@@ -59,7 +59,6 @@
       </p-table>
     </div>
 
-
     <div class="order-details" *ngIf="selectedReservation">
       <h4 class="selected-order-title">
         Selected Reservation: {{ selectedReservation.customerName }}
@@ -71,7 +70,6 @@
         {{ selectedReservation.amountOfPeople }} people
       </p>
 
-
       <div *ngIf="loadingTables" class="inline-spinner-dropdown">
         <p-progressSpinner 
             strokeWidth="6" 
@@ -79,7 +77,6 @@
             [style]="{width: '30px', height: '30px'}">
         </p-progressSpinner>
       </div>
-
 
       <p-dropdown
         *ngIf="!loadingTables"
@@ -134,11 +131,22 @@
   </div>
 </div>
 
-<p-confirmDialog key="assign-reservation-confirm"></p-confirmDialog>
-
 <div *ngIf="assigningTable || deletingReservation" class="overlay">
   <p-progressSpinner styleClass="custom-spinner" [animationDuration]="'0.5'"></p-progressSpinner>
 </div>
+
+<p-dialog [(visible)]="displayConfirmDialog" 
+          [modal]="true" 
+          [closable]="false"
+          [header]="confirmationMode === 'ASSIGN' ? 'Confirm Assignment' : 'Confirm Cancellation'">
+  <app-confirmation-pop-up
+    [subtitle]="confirmationSubtitle"
+    [cancelLabel]="'Cancel'"
+    [sendLabel]="confirmationMode === 'ASSIGN' ? 'Assign Table' : 'Delete Reservation'"
+    (onClose)="closeConfirmationPopUp()"
+    (onSend)="handleConfirmationAction()">
+  </app-confirmation-pop-up>
+</p-dialog>
 
 <p-dialog [(visible)]="displayErrorModal" 
           [modal]="true" 
@@ -153,11 +161,9 @@
 <p-dialog [(visible)]="displaySuccessModal"
           [modal]="true"
           [closable]="false"
-          header="Éxito">
-
+          header="Success">
   <app-notice
     [subtitle]="successMessage"
     (onClose)="closeSuccessModal()">
   </app-notice>
-
 </p-dialog>

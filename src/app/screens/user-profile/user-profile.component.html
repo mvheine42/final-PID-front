@@ -1,4 +1,13 @@
 <div class="container">
+    <!-- OVERLAY SPINNER para deleting y redirecting -->
+    <div *ngIf="isLoading" class="loading-overlay">
+        <p-progressSpinner 
+            strokeWidth="4" 
+            animationDuration=".5s">
+        </p-progressSpinner>
+        <p class="loading-text">{{ loadingMessage }}</p>
+    </div>
+
     <div class="column column-left">
         <div *ngIf="loadingProfile" class="loading-container">
             <p-progressSpinner 
@@ -145,42 +154,35 @@
           </div>
         </ng-template>
       </p-splitter>
-      
-
     </div>
 </div>
 
-<p-dialog [(visible)]="displayConfirmDeleteDialog" [modal]="true" header="Delete Account" [closable]="!deleting">
-    <div *ngIf="deleting" class="dialog-spinner-content">
-        <p-progressSpinner strokeWidth="4" animationDuration=".5s"></p-progressSpinner>
-    </div>
-
+<p-dialog [(visible)]="displayConfirmDeleteDialog" [modal]="true" header="Delete Account" [closable]="true">
     <app-confirmation-pop-up
-      *ngIf="!deleting"
       [subtitle]="'Are you sure you want to proceed?'"
       (onClose)="closeConfirmDeleteDialog()"
       (onSend)="onDeleteAccount()">
     </app-confirmation-pop-up>
-  </p-dialog>
+</p-dialog>
 
-  <p-dialog [(visible)]="displayChangePasswordDialog" [modal]="true" header="Change Password Account" [closable]="true">
+<p-dialog [(visible)]="displayChangePasswordDialog" [modal]="true" header="Change Password Account" [closable]="true">
     <app-confirmation-pop-up
       [subtitle]="'Are you sure you want to proceed?'"
       (onClose)="closeChangePasswordDialog()"
       (onSend)="changePassword()">
     </app-confirmation-pop-up>
-  </p-dialog>
+</p-dialog>
   
   
-  <p-dialog [(visible)]="displayErrorDialog" [modal]="true" header="Error" [closable]="true">
+<p-dialog [(visible)]="displayErrorDialog" [modal]="true" header="Error" [closable]="true">
     <app-notice
       [subtitle]="errorMessage || ''"
       (onClose)="closeErrorDialog()">
     </app-notice>
-  </p-dialog>
+</p-dialog>
   
-  <p-toast></p-toast>
+<p-toast></p-toast>
 
-  <p-dialog class="info-dialog" [(visible)]="displayInfoPointsDialog" [modal]="true" header="C&V Rewards" [closable]="true">
+<p-dialog class="info-dialog" [(visible)]="displayInfoPointsDialog" [modal]="true" header="C&V Rewards" [closable]="true">
     <app-info-points [name]="name" [levelName]="levelName"></app-info-points>
-  </p-dialog>
+</p-dialog>

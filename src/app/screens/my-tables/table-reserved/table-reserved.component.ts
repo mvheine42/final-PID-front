@@ -2,7 +2,6 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange
 import { Reservation } from 'src/app/models/reservation';
 import { Table } from 'src/app/models/table';
 import { ReservationService } from 'src/app/services/reservation_service';
-import { ConfirmationService } from 'primeng/api';
 
 @Component({
   selector: 'app-table-reserved',
@@ -13,8 +12,6 @@ export class TableReservedComponent implements OnInit, OnChanges{
   @Input() table!: Table;
   @Output() close = new EventEmitter<void>();
   @Output() checkIn = new EventEmitter<Reservation>(); 
-  
-  @Output() showConfirmation = new EventEmitter<{ message: string, mode: 'CANCEL' | 'NO_SHOW', reservation: Reservation }>();
 
   reservation: Reservation | null = null;
   displaySuccessModal = false;
@@ -23,10 +20,14 @@ export class TableReservedComponent implements OnInit, OnChanges{
   displayErrorModal = false;
   errorMessage = '';
 
+  displayConfirmDialog = false;
+  confirmationMode: 'CANCEL' | 'NO_SHOW' = 'CANCEL';
+  confirmationSubtitle = '';
+
   loadingReservation: boolean = true;
   cancelingReservation: boolean = false;
 
-  constructor(private reservationService: ReservationService, private confirmationService: ConfirmationService) { }
+  constructor(private reservationService: ReservationService) { }
 
   ngOnInit(): void {
     this.loadReservationDetails();
@@ -34,7 +35,6 @@ export class TableReservedComponent implements OnInit, OnChanges{
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['table'] && !changes['table'].isFirstChange()) {
-      console.log('Table changed, loading reservation details', this.table);
       this.reservation = null;
       this.loadReservationDetails();
     }
@@ -48,7 +48,8 @@ export class TableReservedComponent implements OnInit, OnChanges{
         const reservations = await this.reservationService.getReservationsByDay(todayISO);
         this.reservation = reservations.find(r => r.id === this.table.current_reservation_id) || null;
       } catch (e) {
-
+        this.errorMessage = 'Error loading reservation details.';
+        this.displayErrorModal = true;
       } finally {
         this.loadingReservation = false;
       }
@@ -88,28 +89,25 @@ export class TableReservedComponent implements OnInit, OnChanges{
   confirmCancellation(mode: 'CANCEL' | 'NO_SHOW'): void {
     if (!this.reservation) return;
 
-    const message =
-      mode === 'NO_SHOW'
-        ? `¿Confirmás que ${this.reservation.customerName} hizo 'No Show'?`
-        : `¿Confirmás que deseas cancelar la reserva de ${this.reservation.customerName}?`;
+    this.confirmationMode = mode;
 
-    this.confirmationService.confirm({
-      key: 'table-reserved-confirm',
-      message,
-      header: 'Confirm Action',
-      icon: 'pi pi-exclamation-triangle',
-      acceptLabel: mode === 'NO_SHOW' ? 'No Show' : 'Cancel reservation',
-      rejectLabel: 'Back',
-      acceptButtonStyleClass: 'p-button-danger',
-      rejectButtonStyleClass: 'p-button-secondary',
-      accept: () => this.doCancel(mode)
-    });
+    this.confirmationSubtitle =
+      mode === 'NO_SHOW'
+        ? `Do you confirm that ${this.reservation.customerName} did 'No Show'?`
+        : `Do you confirm you want to cancel the reservation of ${this.reservation.customerName}?`;
+
+    this.displayConfirmDialog = true;
+  }
+
+  handleConfirmationAction(): void {
+    this.doCancel(this.confirmationMode);
   }
 
   private doCancel(mode: 'CANCEL' | 'NO_SHOW'): void {
     if (!this.reservation) return;
 
     this.cancelingReservation = true;
+    this.displayConfirmDialog = false;
 
     this.reservationService.cancelReservation(this.reservation.id!)
       .then(() => {
@@ -149,6 +147,10 @@ export class TableReservedComponent implements OnInit, OnChanges{
     this.close.emit();
   }
 
+  closeConfirmationPopUp(): void {
+    this.displayConfirmDialog = false;
+  }
+
   closeSuccessModal(): void {
     this.displaySuccessModal = false;
     this.close.emit();
@@ -157,6 +159,7 @@ export class TableReservedComponent implements OnInit, OnChanges{
   closeErrorModal(): void {
     this.displayErrorModal = false;
   }
+
   get isLoading(): boolean {
     return this.loadingReservation || this.cancelingReservation;
   }

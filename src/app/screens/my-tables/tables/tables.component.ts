@@ -39,10 +39,6 @@ export class TablesComponent implements OnInit, OnDestroy {
 
   reservationForCheckIn: Reservation | null = null;
 
-  displayGlobalConfirmation = false;
-  globalConfirmationMessage = '';
-  pendingConfirmationAction: { mode: 'CANCEL' | 'NO_SHOW', reservation: Reservation } | null = null;
-
   constructor(
     private tableService: TableService, 
     private orderService: OrderService,
@@ -102,9 +98,6 @@ export class TablesComponent implements OnInit, OnDestroy {
       this.selectedComponent = 'RESERVED';
       this.displayModal = true;
     }
-    else {
-      console.log('Table is not available.');
-    }
   }
 
   onReservationCheckIn(reservation: Reservation) {
@@ -112,36 +105,25 @@ export class TablesComponent implements OnInit, OnDestroy {
     this.selectedComponent = 'FREE'; 
   }
 
-  openGlobalConfirmation(event: { message: string, mode: 'CANCEL' | 'NO_SHOW', reservation: Reservation }) {
-    this.globalConfirmationMessage = event.message;
-    this.pendingConfirmationAction = { mode: event.mode, reservation: event.reservation };
-    this.displayGlobalConfirmation = true;
+  onNotificationClick(): void { 
+    this.displayModalInactive = true; 
   }
 
-  async handleGlobalConfirmationSend() {
-    if (!this.pendingConfirmationAction) return;
-    
-    this.displayGlobalConfirmation = false;
-    const { reservation } = this.pendingConfirmationAction;
-
-    try {
-      await this.reservationService.cancelReservation(reservation.id!);
-      
-      this.displayModal = false; 
-      this.loadTables(); 
-      alert("Reserva gestionada con éxito.");
-    } catch (error) {
-      console.error("Error cancelando reserva:", error);
-      alert("Error al cancelar la reserva.");
-    }
-    this.pendingConfirmationAction = null;
+  closeModal() { 
+    this.displayModal = false; 
+    this.refreshData();
   }
 
-  onNotificationClick(): void { this.displayModalInactive = true; }
+  closeModalInactive(){ 
+    this.displayModalInactive = false; 
+    this.refreshData();
+  }
 
-  closeModal() { this.displayModal = false; location.reload(); }
-
-  closeModalInactive(){ this.displayModalInactive = false; location.reload(); }
+  refreshData(): void {
+    this.loadTables();
+    this.loadOrders();
+    this.checkUpcomingReservations();
+  }
 
   loadTables(): void {
     this.loadingTables = true;
@@ -156,7 +138,6 @@ export class TablesComponent implements OnInit, OnDestroy {
         this.checkIfLoadingComplete();
       },
       error: (err) => {
-        console.error('Error fetching tables:', err);
         this.loadingTables = false;
         this.checkIfLoadingComplete();
       }
@@ -183,21 +164,28 @@ export class TablesComponent implements OnInit, OnDestroy {
         this.checkIfLoadingComplete();
       },
       error: (err) => {
-        console.error('Error fetching orders:', err);
         this.loadingOrders = false;
         this.checkIfLoadingComplete();
       }
     });
   }
 
-  countInactiveOrders() { this.inactiveOrdersCount = this.inactiveOrders.length; }
+  countInactiveOrders() { 
+    this.inactiveOrdersCount = this.inactiveOrders.length; 
+  }
   
-  onReservationNotificationClick() { this.displayReservationsModal = true; }
-  onReservationAssigned(): void { this.loadTables(); this.checkUpcomingReservations(); }
+  onReservationNotificationClick() { 
+    this.displayReservationsModal = true; 
+  }
+
+  onReservationAssigned(): void { 
+    this.refreshData();
+  }
+
   onReservedTableClosed(): void {
-  this.displayModal = false;
-  this.loadTables(); 
-}
+    this.displayModal = false;
+    this.refreshData();
+  }
 
   startNotificationTimer(): void {
     this.checkUpcomingReservations(); 
@@ -256,5 +244,7 @@ export class TablesComponent implements OnInit, OnDestroy {
     return diffMinutes > 0 && diffMinutes <= 60;
   }
 
-  closeUpcomingAlert(): void { this.displayUpcomingAlert = false; }
+  closeUpcomingAlert(): void { 
+    this.displayUpcomingAlert = false; 
+  }
 }

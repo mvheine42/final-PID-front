@@ -1,10 +1,16 @@
 <div class="login-container">
     <div class="background-blurred"></div>
-    <div *ngIf="isLoading" class="spinner-container">
-        <p-progressSpinner ariaLabel="loading" />
+    
+    <!-- SPINNER OVERLAY (estilo DIVINO como products-view) -->
+    <div *ngIf="isLoading" class="loading-overlay">
+        <p-progressSpinner 
+            strokeWidth="4" 
+            animationDuration=".5s">
+        </p-progressSpinner>
         <p *ngIf="compressingImage" class="loading-text">Compressing image...</p>
         <p *ngIf="registering" class="loading-text">Creating account...</p>
     </div>
+
     <div *ngIf="!isLoading" class="center-container">
         <div class="image-half">
             <img src="assets/images/login.jpg" alt="Imagen centrada">
@@ -32,9 +38,20 @@
                     <div class="form-input">
                         <div class="card flex justify-content-center">
                             <p-floatLabel>
-                                <input pInputText id="email" [(ngModel)]="email" name="email" />
+                                <input pInputText 
+                                       id="email" 
+                                       [(ngModel)]="email" 
+                                       name="email"
+                                       [class.invalid-input]="email.trim() !== '' && !isEmailValid()" />
                                 <label for="email">Email</label>
                             </p-floatLabel>
+                        </div>
+                        <!-- Feedback visual de email ABAJO -->
+                        <div *ngIf="email.trim() !== '' && !isEmailValid()" class="validation-message invalid">
+                            <i class="pi pi-times-circle"></i> Invalid email format
+                        </div>
+                        <div *ngIf="email.trim() !== '' && isEmailValid()" class="validation-message valid">
+                            <i class="pi pi-check-circle"></i> Valid email
                         </div>
                     </div>
 
@@ -61,6 +78,26 @@
                     <div class="form-input">
                         <div class="card flex justify-content-center">
                             <p-floatLabel>
+                                <p-password [toggleMask]="true" 
+                                            [(ngModel)]="confirmPassword" 
+                                            [feedback]="false"
+                                            class="custom-password">  
+                                </p-password>
+                                <label for="confirmPassword">Re-enter Password</label>
+                            </p-floatLabel>
+                        </div>
+                        <!-- Feedback visual de passwords ABAJO -->
+                        <div *ngIf="confirmPassword.trim() !== '' && !doPasswordsMatch()" class="validation-message invalid">
+                            <i class="pi pi-times-circle"></i> Passwords do not match
+                        </div>
+                        <div *ngIf="confirmPassword.trim() !== '' && doPasswordsMatch()" class="validation-message valid">
+                            <i class="pi pi-check-circle"></i> Passwords match
+                        </div>
+                    </div>
+
+                    <div class="form-input">
+                        <div class="card flex justify-content-center">
+                            <p-floatLabel>
                                 <p-calendar [(ngModel)]="birthDate" [defaultDate]="defaultDate" [minDate]="minDate" [maxDate]="maxDate" id="birthday" name="birthday" dateFormat="dd/mm/yy"> </p-calendar>
                                 <label for="birthday">Birthday</label>
                             </p-floatLabel>
@@ -68,7 +105,7 @@
                     </div>
 
                     <div class="form-input">
-                        <div class="card flex justify-content-center">
+                        <div class="card flex justify-content-center flex-column align-items-center">
 
                             <p-fileUpload 
                                 #fileUpload 
@@ -83,6 +120,7 @@
                                 class="custom-file-upload">
                             </p-fileUpload>
 
+                            <!-- FILENAME ABAJO del botón -->
                             <div *ngIf="fileName" class="file-details">
                                 <span class="file-name">{{ fileName }}</span>
                                 <i (click)="onImageClear(fileUpload)" class="pi pi-trash clear-btn" [class.disabled]="compressingImage"></i>
@@ -114,7 +152,7 @@
 
 <p-dialog [(visible)]="displayErrorDialog" [modal]="true" header="Error" [closable]="true">
     <app-notice
-        [subtitle]="'This email already exists'" 
+        [subtitle]="errorMessage" 
         (onClose)="closeErrorDialog()">
     </app-notice>
 </p-dialog>
