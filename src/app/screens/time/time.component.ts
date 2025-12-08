@@ -49,6 +49,8 @@ export class TimeComponent implements OnInit{
 
 
   noDataAvailable: boolean = false;
+  showDailyTrend: boolean = false;
+
 
 
   avgWaitTotal: string = '0m';
@@ -108,11 +110,21 @@ export class TimeComponent implements OnInit{
         this.loadingProducts = false;
       },
       error: (err) => {
-        console.error(err);
         this.noDataAvailable = true;
         this.loadingProducts = false;
       }
     });
+
+    // Si NO hay filtros, ocultamos daily trend y no llamamos al backend
+    if (this.selectedMonth === null && this.selectedYear === null) {
+      this.showDailyTrend = false;
+      this.loadingDaily = false;
+      this.loading = false;
+      return;
+    }
+
+    this.showDailyTrend = true;
+
 
     this.orderService.getWaitTimeByDay(month, year).subscribe({
       next: (data) => {
@@ -125,7 +137,6 @@ export class TimeComponent implements OnInit{
         this.loading = false;
       },
       error: (err) => {
-        console.error(err);
         this.loadingDaily = false;
         this.loading = false;
       }

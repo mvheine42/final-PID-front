@@ -10,6 +10,7 @@ export class Order {
   total: string = '';
   orderItems: OrderItem[] = [];
   employee: string = '';
+  employee_name?: string
 
   constructor(
     status: string,

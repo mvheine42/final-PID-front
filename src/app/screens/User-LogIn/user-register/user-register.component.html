@@ -1,9 +1,11 @@
 <div class="login-container">
     <div class="background-blurred"></div>
-    <div *ngIf="loading" class="spinner-container">
+    <div *ngIf="isLoading" class="spinner-container">
         <p-progressSpinner ariaLabel="loading" />
+        <p *ngIf="compressingImage" class="loading-text">Compressing image...</p>
+        <p *ngIf="registering" class="loading-text">Creating account...</p>
     </div>
-    <div *ngIf="!loading" class="center-container">
+    <div *ngIf="!isLoading" class="center-container">
         <div class="image-half">
             <img src="assets/images/login.jpg" alt="Imagen centrada">
             <div class="centered-text">
@@ -73,17 +75,17 @@
                                 mode="basic" 
                                 chooseLabel="Profile Image" 
                                 accept="image/*" 
-                                maxFileSize="1000000"
+                                maxFileSize="5000000"
                                 (onSelect)="onImageSelect($event)" 
                                 (onClear)="onImageClear(fileUpload)" 
-                                [disabled]="fileName !== ''" 
+                                [disabled]="fileName !== '' || compressingImage" 
                                 [auto]="true"
                                 class="custom-file-upload">
                             </p-fileUpload>
 
                             <div *ngIf="fileName" class="file-details">
                                 <span class="file-name">{{ fileName }}</span>
-                                <i (click)="onImageClear(fileUpload)" class="pi pi-trash clear-btn"></i>
+                                <i (click)="onImageClear(fileUpload)" class="pi pi-trash clear-btn" [class.disabled]="compressingImage"></i>
                             </div>
                             
                         </div>
@@ -92,7 +94,7 @@
             
                     <div class="form-button">
                         <div class="card flex justify-content-center">
-                            <p-button label="Register" [disabled]="!areAllFieldsFilled()" (click)="showConfirmDialog()"></p-button>
+                            <p-button label="Register" [disabled]="!areAllFieldsFilled() || compressingImage" (click)="showConfirmDialog()"></p-button>
                         </div>
                     </div>
 

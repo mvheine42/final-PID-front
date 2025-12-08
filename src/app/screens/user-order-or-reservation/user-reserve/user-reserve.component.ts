@@ -18,7 +18,7 @@ export class UserReserveComponent {
 
   readonly MAX_NAME_LENGTH = 20;
 
-  private baseTimes = ['13:00', '21:00', '22:00'];
+  private baseTimes = ['13:00', '18:00', '19:00' ,'20:00'];
 
   timesForUI: Array<{ label: string; value: string; disabled?: boolean }> =
     this.baseTimes.map(t => ({ label: t, value: t }));

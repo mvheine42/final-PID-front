@@ -6,7 +6,6 @@ import { UserService } from '../../../services/user_service';
 import { MessageService } from 'primeng/api';
 import { DatePipe } from '@angular/common';
 
-
 @Component({
   selector: 'app-user-register',
   templateUrl: './user-register.component.html',
@@ -36,6 +35,10 @@ export class UserRegisterComponent implements OnInit {
   displayConfirmDialog: boolean = false;
   displayErrorDialog: boolean = false;
 
+  // --- LOADING STATES ---
+  compressingImage: boolean = false;
+  registering: boolean = false;
+
   ngOnInit(): void {
     localStorage.removeItem("token");
   }
@@ -46,11 +49,10 @@ export class UserRegisterComponent implements OnInit {
     private datePipe: DatePipe
   ) {}
 
-
   async onRegister() {
     try {
       this.closeConfirmDialog();
-      this.loading = true;
+      this.registering = true;
       this.formattedBirthDate = this.datePipe.transform(this.birthDate, 'dd/MM/yyyy') || '';
 
       console.log(this.formattedBirthDate);
@@ -66,21 +68,100 @@ export class UserRegisterComponent implements OnInit {
       console.error('Register failed', error);
       if(error.code === 'auth/email-already-in-use'){
         this.showErrorDialog(); 
-      } else{this.showErrorDialog();} 
+      } else {
+        this.showErrorDialog();
+      } 
     } finally {
-      this.loading = false;
+      this.registering = false;
     }
   }
 
-  onImageSelect(event: any) {
-    const file = event.files[0]; 
-    this.fileName = file.name;  
+  // 🔥 NUEVA FUNCIÓN: Comprimir imagen
+  async onImageSelect(event: any) {
+    const file = event.files[0];
+    this.fileName = file.name;
+    
+    this.compressingImage = true;
 
-    const reader = new FileReader();  
-    reader.onload = (e: any) => {
-      this.imageUrl = e.target.result; 
-    };
-    reader.readAsDataURL(file);  
+    try {
+      // Comprimir la imagen antes de convertirla a base64
+      const compressedBase64 = await this.compressImage(file, 800, 800, 0.7);
+      this.imageUrl = compressedBase64;
+      
+      console.log('Imagen comprimida. Tamaño:', Math.round(compressedBase64.length / 1024), 'KB');
+    } catch (error) {
+      console.error('Error comprimiendo imagen:', error);
+      // Fallback: usar imagen original (puede fallar en backend)
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.imageUrl = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    } finally {
+      this.compressingImage = false;
+    }
+  }
+
+  // 🔥 FUNCIÓN DE COMPRESIÓN
+  private compressImage(file: File, maxWidth: number, maxHeight: number, quality: number): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      
+      reader.onload = (e: any) => {
+        const img = new Image();
+        
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          // Calcular nuevas dimensiones manteniendo aspect ratio
+          if (width > height) {
+            if (width > maxWidth) {
+              height = (height * maxWidth) / width;
+              width = maxWidth;
+            }
+          } else {
+            if (height > maxHeight) {
+              width = (width * maxHeight) / height;
+              height = maxHeight;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('No se pudo obtener el contexto del canvas'));
+            return;
+          }
+
+          // Dibujar imagen redimensionada
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Convertir a base64 con compresión
+          const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+          
+          // Validar tamaño (máximo ~500KB en base64)
+          const sizeInKB = Math.round(compressedBase64.length / 1024);
+          if (sizeInKB > 800) {
+            console.warn(`Imagen todavía grande (${sizeInKB}KB). Recomprimiendo...`);
+            // Recomprimir con menor calidad
+            const recompressed = canvas.toDataURL('image/jpeg', 0.5);
+            resolve(recompressed);
+          } else {
+            resolve(compressedBase64);
+          }
+        };
+
+        img.onerror = () => reject(new Error('Error cargando la imagen'));
+        img.src = e.target.result;
+      };
+
+      reader.onerror = () => reject(new Error('Error leyendo el archivo'));
+      reader.readAsDataURL(file);
+    });
   }
 
   onImageClear(fileUpload: any) {
@@ -99,15 +180,13 @@ export class UserRegisterComponent implements OnInit {
   }
 
   isEmailValid(): boolean {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(this.email.trim());
-}
-
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(this.email.trim());
+  }
 
   validatePassword() {
     const password = this.password || '';
 
-    // Validaciones
     this.passwordValid.lowercase = /[a-z]/.test(password);
     this.passwordValid.uppercase = /[A-Z]/.test(password);
     this.passwordValid.numeric = /[0-9]/.test(password);
@@ -145,6 +224,7 @@ export class UserRegisterComponent implements OnInit {
     this.displayErrorDialog = false;
   }
 
-
-
+  get isLoading(): boolean {
+    return this.loading || this.compressingImage || this.registering;
+  }
 }

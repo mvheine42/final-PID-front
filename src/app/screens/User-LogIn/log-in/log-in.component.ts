@@ -52,6 +52,20 @@ export class LogInComponent implements OnInit {
     }
   }
 
+  onSignUpClick() {
+    this.animateForm = true;
+    this.router.navigate(['/user-register']);
+  }
+
+  // CLIENT NAVIGATION
+  navigateToReserve() {
+    this.router.navigate(['/user-reserve']);
+  }
+
+  navigateToMenu() {
+    this.router.navigate(['/menu-order']);
+  }
+
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
     this.isMobile = window.innerWidth <= 800;
@@ -63,11 +77,6 @@ export class LogInComponent implements OnInit {
 
   closeForgotPasswordDialog() {
     this.displayForgotPasswordDialog = false;
-  }
-
-  onSignUpClick() {
-    this.animateForm = true;
-    this.router.navigate(['/user-register']);
   }
 
   showErrorDialog() {

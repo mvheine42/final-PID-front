@@ -174,7 +174,7 @@
   
   <p-dialog [(visible)]="displayErrorDialog" [modal]="true" header="Error" [closable]="true">
     <app-notice
-      [subtitle]="'Something went wrong, please try again'"
+      [subtitle]="errorMessage || ''"
       (onClose)="closeErrorDialog()">
     </app-notice>
   </p-dialog>
