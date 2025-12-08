@@ -16,8 +16,8 @@ export class AuthInterceptor implements HttpInterceptor {
   constructor(private authService: AuthService) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    const isApiCall = req.url.startsWith('http://127.0.0.1:8000');
-    //const isApiCall = req.url.startsWith('https://final-pid-back.onrender.com');
+    //const isApiCall = req.url.startsWith('http://127.0.0.1:8000');
+    const isApiCall = req.url.startsWith('https://final-pid-back.onrender.com');
 
     
     if (!isApiCall) return next.handle(req);
