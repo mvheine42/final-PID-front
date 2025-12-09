@@ -193,3 +193,10 @@
     </ng-template>
     <app-alert-stock [outOfStockProducts]="lowStockProducts" (onClose)="closeAlertStockDialog()"></app-alert-stock>
 </p-dialog>
+
+<p-dialog [(visible)]="displayPriceErrorDialog" [modal]="true" [closable]="true" header="Price Error">
+    <app-notice
+        [subtitle]="priceErrorMessage"
+        (onClose)="displayPriceErrorDialog = false">
+    </app-notice>
+</p-dialog>

@@ -70,7 +70,14 @@
       
       <div class="amountPeople">
         <label for="amountOfPeople">People:</label>
-        <input id="amountOfPeople" type="number" [title]="'Table capacity: ' + table.capacity" [max]="table.capacity" [(ngModel)]="selectedAmountOfPeople" min="1" />
+        <input 
+          id="amountOfPeople" 
+          type="number" 
+          [(ngModel)]="selectedAmountOfPeople" 
+          [disabled]="!!reservation"
+          [title]="reservation ? 'Cannot change reservation people count (' + reservation.amountOfPeople + ' people)' : 'Table capacity: ' + table.capacity"
+          [max]="table.capacity" 
+          min="1" />
       </div>
     </div>
 

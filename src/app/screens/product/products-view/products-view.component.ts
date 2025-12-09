@@ -27,6 +27,8 @@ export class ProductsViewComponent implements OnInit {
   lowStockProducts: any[] = [];
   lowStockCount: number = 0; 
   alertStockDialog: boolean = false;
+  displayPriceErrorDialog: boolean = false;
+  priceErrorMessage: string = '';
   public tableScrollHeight: string='';
   loading: boolean = true;
   deleting: boolean = false;
@@ -54,10 +56,8 @@ export class ProductsViewComponent implements OnInit {
                     type: item.type
                 }));
             }
-            console.log('categories', this.categories);
         },
         error: (err) => {
-            console.error('Error fetching categories:', err);
         }
     });
 }
@@ -107,13 +107,10 @@ filterByCategory(selectedCategoryIds: string[]): void {
           this.products = data.products;
           this.filteredProducts = [...this.products];
           this.filterLowStockProducts();
-        } else {
-          console.error('Unexpected data format:', data);
         }
         this.loading = false; 
       },
       error: (err) => {
-        console.error('Error fetching products:', err);
         this.loading = false; 
       }
       
@@ -144,7 +141,6 @@ filterByCategory(selectedCategoryIds: string[]): void {
   onRowEditInit(product: Product) {
 
     if (product.id === undefined) {
-      console.error('Product ID is undefined');
       return;
     }
     this.originalProductState[product.id] = { ...product };
@@ -172,9 +168,22 @@ filterByCategory(selectedCategoryIds: string[]): void {
     }
 
     if (parseFloat(product.price.toString()) < 0) {
-      console.error('Price cannot be negative');
       this.savingRowId = null; 
       return;
+    }
+
+    // ✅ VALIDATE: Price cannot be less than cost
+    if (product.price !== originalProduct.price) {
+      const newPrice = parseFloat(product.price.toString());
+      const productCost = parseFloat(product.cost.toString());
+      
+      if (newPrice < productCost) {
+        this.priceErrorMessage = `Price ($${newPrice}) cannot be lower than product cost ($${productCost})`;
+        this.displayPriceErrorDialog = true;
+        product.price = originalProduct.price; // Restore original price
+        this.savingRowId = null;
+        return;
+      }
     }
 
     const promises: Promise<any>[] = [];
@@ -195,7 +204,6 @@ filterByCategory(selectedCategoryIds: string[]): void {
       await Promise.all(promises);
       delete this.originalProductState[product.id];
     } catch (error) {
-      console.error('Failed to update product', error);
     } finally {
         this.savingRowId = null; 
     }
@@ -205,8 +213,6 @@ filterByCategory(selectedCategoryIds: string[]): void {
     if (product.id !== undefined) {
       delete this.editingProductCategories[product.id];
       delete this.originalProductState[product.id];
-    } else {
-      console.error('Product ID is undefined, cannot cancel edit');
     }
     location.reload();
   }
@@ -273,7 +279,6 @@ filterByCategory(selectedCategoryIds: string[]): void {
   }
 
   showUpdateStockDialog() {
-    console.log(this.selectedProduct);
     this.displayUpdateStockDialog = true;
   }
 

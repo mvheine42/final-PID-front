@@ -112,20 +112,20 @@
           maxFileSize="1000000"
           (onSelect)="onImageSelect($event)" 
           (onClear)="onImageClear(fileUpload)" 
-          [disabled]="fileName !== ''" 
+          [disabled]="fileName !== '' || compressingImage" 
           [auto]="true"
           class="custom-file-upload">
         </p-fileUpload>
       
         <div *ngIf="fileName" class="file-details">
           <span class="file-name">{{ fileName }}</span>
-          <i (click)="onImageClear(fileUpload)" class="pi pi-trash clear-btn"></i>
+          <i (click)="onImageClear(fileUpload)" class="pi pi-trash clear-btn" [class.disabled]="compressingImage"></i>
         </div>
       </div>
       
       
       <div class="card flex justify-content-center">
-        <button (click)="showConfirmDialog()" [disabled]="!isFormValid() || loading"   class="btn-save">
+        <button (click)="showConfirmDialog()" [disabled]="!isFormValid() || loading || compressingImage"   class="btn-save">
           <ng-container *ngIf="loading">
             <p-progressSpinner strokeWidth="5" [style]="{width: '20px', height: '20px'}"></p-progressSpinner>
             Saving...
@@ -173,7 +173,11 @@
 
 
   <div *ngIf="loading" class="loading-overlay">
-    <p-progressSpinner></p-progressSpinner>
+    <p-progressSpinner 
+        strokeWidth="4" 
+        animationDuration=".5s">
+    </p-progressSpinner>
+    <p class="loading-text">Registering product...</p>
   </div>
 </div>
 
