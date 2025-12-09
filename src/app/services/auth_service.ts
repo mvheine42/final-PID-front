@@ -21,10 +21,8 @@ export class AuthService {
       this.currentUser = user;
       
       if (user) {
-        console.log('User logged in, starting inactivity detection');
         this.startInactivityDetection();
       } else {
-        console.log('User logged out, stopping inactivity detection');
         this.stopInactivityDetection();
       }
     });
@@ -48,8 +46,6 @@ export class AuthService {
     });
     
     this.resetInactivityTimer();
-    
-    console.log('Inactivity detection started - timeout in', this.INACTIVITY_TIME / 60000, 'minutes');
   }
 
 
@@ -63,7 +59,6 @@ export class AuthService {
     }
     
     this.inactivityTimeout = setTimeout(() => {
-      console.log('User inactive for', this.INACTIVITY_TIME / 60000, 'minutes');
       this.handleInactivityLogout();
     }, this.INACTIVITY_TIME);
   }
@@ -87,8 +82,6 @@ export class AuthService {
     events.forEach(event => {
       document.removeEventListener(event, this.boundResetTimer, true);
     });
-    
-    console.log('Inactivity detection stopped');
   }
 
   isAuthenticated(): Promise<boolean> {
@@ -124,7 +117,7 @@ export class AuthService {
       await auth.signOut();
     } finally {
       this.currentUser = null;
-      this.router.navigate(['/login'], { replaceUrl: true });
+      this.router.navigate([''], { replaceUrl: true });
     }
   }
   

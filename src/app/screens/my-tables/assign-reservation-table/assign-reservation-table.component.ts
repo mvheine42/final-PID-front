@@ -272,6 +272,7 @@ export class AssignReservationTableComponent implements OnInit {
   closeSuccessModal(): void {
     this.displaySuccessModal = false;
     this.resetState();
+    this.assigned.emit(); // ← CRITICAL: Trigger Tables refresh
     this.close.emit(); 
   }
 
