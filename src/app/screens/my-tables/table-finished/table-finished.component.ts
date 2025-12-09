@@ -11,6 +11,8 @@ import { TableService } from 'src/app/services/table_service';
 export class TableFinishedComponent  implements OnInit {
   @Input() table: Table = new Table('',1);
   @Output() close = new EventEmitter<void>();
+  @Output() tableUpdated = new EventEmitter<void>();
+  
   displayConfirmDialog = false;
   loading: boolean = false;
 
@@ -21,17 +23,14 @@ export class TableFinishedComponent  implements OnInit {
     this.loading = true;
     this.tableService.cleanTable(this.table).subscribe({
       next: () => {
-        console.log('Table cleaned successfully');
         this.loading = false;
+        this.tableUpdated.emit();
         this.closeDialog();
-        location.reload();
       },
       error: (err) => {
-        console.error('Error cleaning table:', err);
         this.loading = false;
       }        
     });
-
   }
 
   closeDialog() {

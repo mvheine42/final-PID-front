@@ -86,7 +86,7 @@ export class TableBusyComponent implements OnInit, OnDestroy{
     if (!createdAt) return 0;
     const start = new Date(createdAt).getTime();
     const current = this.now.getTime();
-    return Math.floor((current - start) / 60000);
+    return Math.max(0, Math.floor((current - start) / 60000));
   }
 
   getServedDuration(createdAt: string, servedAt: string): number {
@@ -239,6 +239,10 @@ export class TableBusyComponent implements OnInit, OnDestroy{
 
         if (success) {
           await this.updateProductsStock();
+          
+          // ✅ CRITICAL: Reload order from backend to get fresh item_id and created_at
+          await this.getOrderInformation();
+          
           this.newOrderItems = [];
         }
       } catch (error) {
@@ -274,6 +278,10 @@ export class TableBusyComponent implements OnInit, OnDestroy{
         }
 
         await this.updateProductsStock();
+        
+        // ✅ Reload order to get fresh data
+        await this.getOrderInformation();
+        
         this.newOrderItems = [];
       }
 

@@ -19,6 +19,8 @@ import { Reservation } from 'src/app/models/reservation';
 export class TableFreeComponent implements OnInit {
   @Input() table: Table = new Table('', 1);
   @Output() close = new EventEmitter<void>();
+  @Output() tableUpdated = new EventEmitter<void>();
+  
   searchTerm: string = ''; 
   filteredProducts: Product[] = []; 
   categories: Category[] = [];
@@ -70,9 +72,6 @@ export class TableFreeComponent implements OnInit {
       if (userData) {
         this.user = userData;
         this.uid = user.uid;
-        console.log(this.user);
-      } else {
-        console.error('Error fetching user points data.');
       }
     }
     
@@ -93,7 +92,6 @@ export class TableFreeComponent implements OnInit {
         this.loadingProducts = false;
       },
       error: (err) => {
-        console.error('Error fetching products:', err);
         this.loadingProducts = false;
       }
     });
@@ -158,11 +156,8 @@ export class TableFreeComponent implements OnInit {
         await this.tableService.updateTableAndOrder(response.order, response.order_id);
         this.updateTable();
         this.closeDialog();
-      } else {
-        console.log('Order registration failed');
       }
     } catch (error: any) {
-      console.error('Error durante el registro:', error);
     } finally {
       this.creatingOrder = false;
     }
@@ -187,7 +182,7 @@ export class TableFreeComponent implements OnInit {
   closeDialog() {
     this.orderItems = [];
     this.order = undefined;
-    location.reload();
+    this.tableUpdated.emit();
     this.close.emit();
   }
 
@@ -205,7 +200,6 @@ export class TableFreeComponent implements OnInit {
         this.loadingCategories = false;
       },
       error: (err) => {
-        console.error('Error fetching categories:', err);
         this.loadingCategories = false;
       }
     });
@@ -232,13 +226,11 @@ export class TableFreeComponent implements OnInit {
             disabled: product.stock === '0'
           }));
         } else {
-          console.error('Unexpected data format:', data);
           this.filteredProducts = [];
         }
         this.loadingProducts = false;
       })
       .catch((err) => {
-        console.error('Error fetching products by category:', err);
         this.filteredProducts = [];
         this.loadingProducts = false;
       });
@@ -260,10 +252,8 @@ export class TableFreeComponent implements OnInit {
           orderItem.amount.toString()
         )
       );
-      const responses = await Promise.all(updatePromises);
-      console.log('All updates successful', responses);
+      await Promise.all(updatePromises);
     } catch (error) {
-      console.error('One or more updates failed', error);
     }
   }
 

@@ -138,6 +138,7 @@
 <p-dialog [(visible)]="displayConfirmDialog" 
           [modal]="true" 
           [closable]="false"
+          [appendTo]="'body'"
           [header]="confirmationMode === 'ASSIGN' ? 'Confirm Assignment' : 'Confirm Cancellation'">
   <app-confirmation-pop-up
     [subtitle]="confirmationSubtitle"
@@ -151,6 +152,7 @@
 <p-dialog [(visible)]="displayErrorModal" 
           [modal]="true" 
           [closable]="false"
+          [appendTo]="'body'"
           header="Error">
   <app-notice
     [subtitle]="errorMessage"
@@ -161,6 +163,7 @@
 <p-dialog [(visible)]="displaySuccessModal"
           [modal]="true"
           [closable]="false"
+          [appendTo]="'body'"
           header="Success">
   <app-notice
     [subtitle]="successMessage"

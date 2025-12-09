@@ -102,7 +102,12 @@
 <p-dialog class="custom-modal" [(visible)]="displayModal" modal="true" [closable]="false" [responsive]="true">
   
   <ng-container *ngIf="selectedComponent === 'FREE'">
-    <app-table-free [table]="selectedTable" (close)="displayModal = false" [reservation]="reservationForCheckIn"></app-table-free>
+    <app-table-free 
+      [table]="selectedTable" 
+      (close)="displayModal = false" 
+      (tableUpdated)="refreshData()"
+      [reservation]="reservationForCheckIn">
+    </app-table-free>
   </ng-container>
 
   <ng-container *ngIf="selectedComponent === 'BUSY'">
@@ -114,7 +119,11 @@
   </ng-container>
 
   <ng-container *ngIf="selectedComponent === 'FINISHED'">
-    <app-table-finished [table]="selectedTable" (close)="displayModal = false"></app-table-finished>
+    <app-table-finished 
+      [table]="selectedTable" 
+      (close)="displayModal = false"
+      (tableUpdated)="refreshData()">
+    </app-table-finished>
   </ng-container>
 
 <ng-container *ngIf="selectedComponent === 'RESERVED'">
