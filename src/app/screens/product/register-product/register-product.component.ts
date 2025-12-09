@@ -38,6 +38,7 @@ export class RegisterProductComponent implements OnInit {
   totalCaloriesValue?: number; 
   imageUrl: string = '';
   fileName: string = '';
+  compressingImage: boolean = false;
 
 
   constructor( private productService: ProductService, private router: Router, private categoryService: CategoryService) {}
@@ -47,16 +48,82 @@ export class RegisterProductComponent implements OnInit {
     this.checkIfMobile();   
   }
 
-  onImageSelect(event: any) {
+ async onImageSelect(event: any) {
     const file = event.files[0]; 
-    this.fileName = file.name;  
+    this.fileName = file.name; 
 
-    const reader = new FileReader();  
-    reader.onload = (e: any) => {
-      this.imageUrl = e.target.result; 
-    };
-    reader.readAsDataURL(file);  
+    this.compressingImage = true;
+
+    try {
+        const compressedBase64 = await this.compressImage(file, 800, 800, 0.7);
+        this.imageUrl = compressedBase64;
+      } catch (error) {
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+          this.imageUrl = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      } finally {
+        this.compressingImage = false;
+      }
+    
   }
+
+    private compressImage(file: File, maxWidth: number, maxHeight: number, quality: number): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      
+      reader.onload = (e: any) => {
+        const img = new Image();
+        
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > maxWidth) {
+              height = (height * maxWidth) / width;
+              width = maxWidth;
+            }
+          } else {
+            if (height > maxHeight) {
+              width = (width * maxHeight) / height;
+              height = maxHeight;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('No se pudo obtener el contexto del canvas'));
+            return;
+          }
+
+          ctx.drawImage(img, 0, 0, width, height);
+
+          const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+          
+          const sizeInKB = Math.round(compressedBase64.length / 1024);
+          if (sizeInKB > 800) {
+            const recompressed = canvas.toDataURL('image/jpeg', 0.5);
+            resolve(recompressed);
+          } else {
+            resolve(compressedBase64);
+          }
+        };
+
+        img.onerror = () => reject(new Error('Error cargando la imagen'));
+        img.src = e.target.result;
+      };
+
+      reader.onerror = () => reject(new Error('Error leyendo el archivo'));
+      reader.readAsDataURL(file);
+    });
+  }
+
 
   onImageClear(fileUpload: any) {
     this.fileName = ''; 
@@ -81,7 +148,6 @@ export class RegisterProductComponent implements OnInit {
       const response = await this.productService.onRegister(this.product);
 
       if (response) {
-        console.log('Register successful', response);
         this.router.navigate(['/products-view']);
       } else {
         this.errorSubtitle = 'An unexpected error occurred. Please try again.';
@@ -105,12 +171,6 @@ export class RegisterProductComponent implements OnInit {
       ? this.selectedCategories.map(cat => cat.name).join(', ')
       : 'Select categories'; 
   }
-
-  logSelectedCategories() {
-    console.log('Selected Categories: ', this.selectedCategories);
-  }
-  
-
   
   showConfirmDialog() {
     this.displayConfirmDialog = true;
@@ -203,7 +263,8 @@ export class RegisterProductComponent implements OnInit {
            this.price !== '' && 
            parseFloat(this.price) > 0 &&
            this.selectedCategories.length > 0 &&
-           this.totalCaloriesValue !== undefined;
+           this.totalCaloriesValue !== undefined &&
+           this.imageUrl !== '';
   }
   
 
@@ -223,7 +284,6 @@ export class RegisterProductComponent implements OnInit {
 
   handleTotalCalories(calories: number) {
     this.totalCaloriesValue = calories;
-    console.log('Total Calories:', this.totalCaloriesValue);
   }
 
   loadCategories() {

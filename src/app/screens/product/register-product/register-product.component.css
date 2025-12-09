@@ -116,11 +116,19 @@ input {
     width: 100vw;
     height: 100vh;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(255, 255, 255, 0.95);
     z-index: 9999;
-  }
+}
+
+.loading-text {
+    margin-top: 20px;
+    font-size: 18px;
+    color: #7f522e;
+    font-weight: 500;
+}
   
 .loading-overlay p-progressSpinner {
     width: 80px;
