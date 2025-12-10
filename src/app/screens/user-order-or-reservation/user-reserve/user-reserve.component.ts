@@ -18,7 +18,7 @@ export class UserReserveComponent {
 
   readonly MAX_NAME_LENGTH = 20;
 
-  private baseTimes = ['13:00', '12:00', '21:00' ,'22:00'];
+  private baseTimes = ["12:00", "18:00", "20:00", "22:00"];
 
   timesForUI: Array<{ label: string; value: string; disabled?: boolean }> =
     this.baseTimes.map(t => ({ label: t, value: t }));
@@ -45,7 +45,10 @@ export class UserReserveComponent {
   }
 
   private toISODateOnly(d: Date): string {
-    return new Date(d).toISOString().split('T')[0];
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   validateEmail() {
@@ -81,7 +84,6 @@ export class UserReserveComponent {
         disabled: !availability.get(t),
       }));
     } catch (error) {
-      console.error('Error cargando disponibilidad:', error);
       this.timesForUI = this.baseTimes.map(t => ({ label: t, value: t }));
     } finally {
       this.loadingAvailability = false;
@@ -109,11 +111,13 @@ export class UserReserveComponent {
       return;
     }
 
+    const reservationDateBA = this.toISODateOnly(this.reservationDate!);
+
     const newReservation = new Reservation(
       this.customerName.trim(),
       this.userEmail.trim(),
       this.amountOfPeople,
-      this.reservationDate!,
+      reservationDateBA as any,
       this.reservationTime
     );
 
@@ -125,7 +129,6 @@ export class UserReserveComponent {
         throw new Error('No confirmation from server');
       }
 
-      console.log('Reservation created:', response);
 
       this.createdReservationInfo = {
         name: this.customerName.trim(),
@@ -136,7 +139,7 @@ export class UserReserveComponent {
       this.creatingReservation = false;
 
       try {
-        await this.sendReservationEmail(this.userEmail.trim(), response.id);
+        await this.sendReservationEmail(this.userEmail.trim(), response.id, this.customerName.trim(), this.reservationDate!, this.reservationTime, this.amountOfPeople);
         this.noticeMessage = this.buildSuccessMessage();
         this.isSuccessReservation = true;
       } catch (emailError: any) {
@@ -150,8 +153,6 @@ export class UserReserveComponent {
       }
       
     } catch (err: any) {
-      console.error('Error creating reservation:', err);
-      
       const detail = err?.error?.detail || err?.message || '';
       
       if (typeof detail === 'string' && detail.toLowerCase().includes('complete')) {
@@ -172,12 +173,16 @@ export class UserReserveComponent {
     }
   }
 
-  async sendReservationEmail(userEmail: string, reservationId: number) {
+  async sendReservationEmail(userEmail: string, reservationId: number, customerName: string, reservationDate: Date, reservationTime: string, amountOfPeople: number) {
     this.sendingEmail = true;
     
     const templateParams = {
       reservation_id: reservationId,
-      user_email: userEmail
+      user_email: userEmail,
+      customer_name: customerName,
+      reservation_date: this.formatDateForDisplay(reservationDate),
+      reservation_time: reservationTime,
+      amount_of_people: amountOfPeople
     };
     
     try {
@@ -201,7 +206,6 @@ export class UserReserveComponent {
     return `${day}/${month}/${year}`;
   }
 
-  // Construir mensaje de éxito detallado
   private buildSuccessMessage(): string {
     if (!this.createdReservationInfo) return 'Reservation successful.';
 
